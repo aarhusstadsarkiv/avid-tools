@@ -1,10 +1,10 @@
 # avid-tools
-Simple cli tool to update and fix an avid. In time, this should be made available to all other Danish archives that receive archival versions, as an executable Windows file. It should however also be installable with pipx so as to be able to run on the NAS.
+cli tool to update, fix and test certain elements of an archival version (AVID). In time, this should be made available to other Danish archives that receive archival versions, as an executable Windows file. It should however also be installable with pipx so as to be able to run on the NAS.
 
 Merges functionality from these repos: `avid-utils`, `convert-qa`, `query-table-xml`, `statutory-qa`, `contextupdater` and `avid` and introduces af few more.
 
 ## Global options
-- `--root` (path to avid-root. Defaults to '.' so only use, when pwd is not avid-root)
+- `--root` (path to avid-root, e.g. 'AVID.AARS.61.1'. Defaults to '.' so only use, when pwd is not avid-root)
 - `--logfile` (persist log in file instead of writing to stdout)
 - `--version` (print version and exit)
 - `--help` (print help and exit. Global option, that can be used with subcommands as well)
