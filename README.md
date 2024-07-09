@@ -3,14 +3,16 @@ cli tool to update, fix and test certain elements of an archival version (AVID).
 
 Merges functionality from these repos: `avid-utils`, `convert-qa`, `query-table-xml`, `statutory-qa`, `contextupdater` and `avid` and introduces af few more.
 
+## Global argument
+- `root` (path to avid-root, e.g. 'C:\AVID.AARS.61.1' or '.'
+
 ## Global options
-- `--root` (path to avid-root, e.g. 'AVID.AARS.61.1'. Defaults to '.' so only use, when pwd is not avid-root)
 - `--logfile` (persist log in file instead of writing to stdout)
 - `--dry-run` (do a test run, instead of actually adding, moving, replacing, deleting, updating any files)
 - `--version` (print version and exit)
 - `--help` (print help and exit. Global option, that can be used with subcommands as well)
 
-## context commands
+## context subcommand
 Commands related to contextDocumentation
 
 ### `context add [--position INT] FILEPATH`
@@ -29,23 +31,23 @@ Move a contextDocument to a new position, and re-assign new ids for all affected
 $ avid-tools . context move 12 8
 ```
 
-### `context replace DOC-ID FILEPATH`
-Replace a contextDocument with a new tif-file. Update fileIndex.xml with new checksum, and potentially a new extension.
+### `context update DOC-ID FILEPATH`
+Update a contextDocument with a new tif-file. Update fileIndex.xml with new checksum, and potentially a new extension.
 
 ```shell
-# Replace context-doc number 12 (ContextDocumentation/docCollection1/12/1.tif) with a new tif file
-$ avid-tools . context replace 12 C:/Users/azkb075/Downloads/new_ctx_doc.tif
+# Update context-doc number 12 (ContextDocumentation/docCollection1/12/1.tif) with a new tif file
+$ avid-tools . context update 12 C:/Users/azkb075/Downloads/new_ctx_doc.tif
 ```
 
-### `context remove DOC-ID`
-Remove a given contextDocument, and re-assign new ids for all affected documents. Finally update contextDocumentationIndex.xml and fileIndex.xml.
+### `context delete DOC-ID`
+Delete a given contextDocument, and re-assign new ids for all affected documents. Finally update contextDocumentationIndex.xml and fileIndex.xml.
 
 ```shell
-# Remove context-doc with id 12 (ContextDocumentation/docCollection1/12)
-$ avid-tools . context remove 12
+# Delete context-doc with id 12 (ContextDocumentation/docCollection1/12)
+$ avid-tools . context delete 12
 ```
 
-## table commands
+## table subcommand
 Commands related to the *table{id}.xml* files of the avid.
 
 ### `table trim-values [--table ID]`
@@ -64,7 +66,7 @@ Calculate and insert correct row-count number for each table in tableIndex.xml. 
 $ avid-tools . table update-row-count --table 4
 ```
 
-## doc commands
+## doc subcommand
 Commands related to the docs in the docCollections
 
 ### `doc replace DOC-COLLECTION DOC-ID FILEPATH`
@@ -95,32 +97,45 @@ $ avid-tools doc checksums --head 10 --csv-file C:/Users/azkb075/Downloads/top-1
 Copies a number of samples of each original file extension (<oFn>) to an given directory. Use `--extension` to sample only specific file extension(s). Use `--max` and `--min` to control the sample size. Defaults to 5. 
 
 ```shell
-# Copy 10 most frequent checksums to a csv-file
-$ avid-tools doc sample --extension lwp --max 20 C:/Users/azkb075/Downloads/samples/
+# Copy up to 20 samples of .lpw-files and .123-files to a sample folder
+$ avid-tools doc sample --extension lwp --extension 123 --max 20 C:/Users/azkb075/Downloads/samples/
 ...
 $ ls C:/Users/azkb075/Downloads/samples/
 lwp
 ├── {docId}__regneark1.lwp
 ├── {docId}__Budget2021-Kopi.lwp
+123
+├── {docId}__lønudgifter.123
+├── {docId}__HannePedersen.123
 ...
 ```
 
-### info
-Fetch "metadata" from the current avid.
-- `info {type}` (enum: archive, context, tables, table, view)
+## index subcommand
+Commands to work with the xml files in the `Indices` directory.
 
-### search
-Fulltext search in table{id}.xml files
-- `search {query-string}` (using LIKE syntax)
-- `--table {id}` (only search this table. Repeatable)
-- `--column {id}` (only search this column ('c{id}'). Repeatable)
+### `index [--type ENUM]`
+Display metadata from one or more of the index.xml-files. Use `--type` ('archive', 'context', 'tables', 'table', 'view') to display metadata from specific index-files.
 
-More commands will follow, maybe...
-
-## Examples
 ```shell
-# Add new context-doc as id 12 (ContextDocumentation/docCollection1/12/1.tif)
-avid-tools context add C:/Users/azkb075/Downloads/new_ctx_doc.tif --position 12
+# Display the information in archiveIndex.xml
+$ avid-tools . index --type archive
 ```
-## Questions
-- how to add or replace an index-file, or perhaps an schema-file?
+
+### `index update FILEPATH`
+Update an index file (archiveIndex, contextDocumentationIndex, tableIndex, docIndex) with the xml file at the FILEPATH. Finally update fileIndex.xml.
+
+```shell
+# Update archiveIndex.xml
+$ avid-tools . index update C:/Users/azkb075/Downloads/archiveIndex.xml
+```
+
+## search subcommand
+Fulltext search in table{id}.xml files.
+
+### `search [--table INT] [--column STRING] QUERY`
+Search for a given substring in the table{id}.xml files. `QUERY` uses LIKE syntax.
+
+```shell
+# Search for strings containing 'Gellerupplanen' in tables 4 and 5
+$ avid-tools . search --table 4 --table 5 '%Gellerupplanen%'
+```
