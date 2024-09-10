@@ -74,7 +74,7 @@ def grp_context(): ...
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
     callback=lambda _c, _p, v: Path(v),
 )
-@option("--position", metavar="INTEGER", type=IntRange(1), default=None)
+@option("--position", metavar="INTEGER", type=IntRange(1), default=None, help="Position of the new context document.")
 @pass_context
 def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, position: int):
     """
@@ -84,6 +84,9 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
 
     The METADATA file must be an XML document following the same schema as Indices/contextDocumentationIndex.xml, but
     with a single <document> tag. Any other tag is ignored.
+
+    By default, the new context document is appended to the existing ones. If the --position option is used, the
+    document will be added to that positon and the eixsting ones will be moved up.
 
     \b
     METADATA Example
