@@ -18,9 +18,7 @@ def insert_file(conn: Connection, avid_dir: Path, file_path: Path, md5: str | No
         doc_collection = int(doc_collection_str.removeprefix("docCollection"))
         doc_id = int(doc_id_str)
     conn.execute(
-        "insert or ignore into files"
-        " (path, extension, type, md5, docCollection, docId, originalExtension)"
-        " values (?, ?, ?, ?, ?, ?, ?)",
+        "insert or ignore into files" " (path, format, type, md5, docCollection, docId)" " values (?, ?, ?, ?, ?, ?)",
         [
             str(file_path),
             file_ext,
@@ -28,7 +26,6 @@ def insert_file(conn: Connection, avid_dir: Path, file_path: Path, md5: str | No
             (md5 or file_md5(avid_dir / file_path)).upper(),
             doc_collection,
             doc_id,
-            None,
         ],
     )
 
@@ -39,16 +36,19 @@ def create_database(path: Path) -> Connection:
     conn.execute(
         """create table if not exists files (
                 path text not null,
-                extension text not null,
-                md5  text,
+                format text not null,
                 type text not null,
+                md5  text default null,
                 docCollection int,
                 docId int,
-                originalExtension text,
+                parentId text default null,
+                mId int default null,
+                originalName text default null,
+                originalExtension text default null,
                 primary key (path))
             """
     )
-    conn.execute("create index if not exists files_extension on files (extension)")
+    conn.execute("create index if not exists files_extension on files (format)")
     conn.execute("create index if not exists files_md5 on files (md5)")
     conn.execute("create index if not exists files_type on files (type)")
 
