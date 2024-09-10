@@ -5,38 +5,8 @@ from typing import Any
 from xmltodict import parse as parse_xml
 from xmltodict import unparse as unparse_xml
 
-from .utils import file_md5
+from .database import insert_file
 from .utils import path_suffixes
-
-
-def insert_file(conn: Connection, avid_dir: Path, file_path: Path, md5: str | None = None):
-    file_type = file_path.parts[0]
-    file_ext = file_path.suffix.removeprefix(".")
-    doc_collection, doc_id = None, None
-    if file_type == "Documents":
-        path_str: str = str(file_path).removeprefix("Documents/docCollection")
-        doc_collection_str, doc_id_str, *_ = path_str.split("/")
-        doc_collection = int(doc_collection_str)
-        doc_id = int(doc_id_str)
-    elif file_type == "ContextDocumentation":
-        path_str: str = str(file_path).removeprefix("ContextDocumentation/docCollection")
-        doc_collection_str, doc_id_str, *_ = path_str.split("/")
-        doc_collection = int(doc_collection_str)
-        doc_id = int(doc_id_str)
-    conn.execute(
-        "insert or ignore into files"
-        " (path, extension, type, md5, docCollection, docId, originalExtension)"
-        " values (?, ?, ?, ?, ?, ?, ?)",
-        [
-            str(file_path),
-            file_ext,
-            file_type,
-            md5 or file_md5(avid_dir / file_path),
-            doc_collection,
-            doc_id,
-            None,
-        ],
-    )
 
 
 def save_file_index(avid_dir: Path, conn: Connection):

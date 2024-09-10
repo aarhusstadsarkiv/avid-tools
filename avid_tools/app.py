@@ -14,7 +14,7 @@ from xmltodict import parse as parse_xml
 
 from .__version__ import __version__
 from .database import create_database
-from .indices import insert_file
+from .database import insert_file
 from .indices import read_context_documentation
 from .indices import save_doc_index
 from .indices import save_file_index
