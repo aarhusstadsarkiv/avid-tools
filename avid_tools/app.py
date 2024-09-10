@@ -125,7 +125,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
             "select path, docCollection from files where type = 'ContextDocumentation' and docId = ?",
             [doc_id],
         ).fetchone()
-        path: Path = Path(path_str)
+        path: Path = avid_dir.joinpath(path_str)
         new_doc_id: int = doc_id + 1
         new_path: Path = avid_dir.joinpath(
             "ContextDocumentation",
