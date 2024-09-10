@@ -27,7 +27,7 @@ def insert_file(conn: Connection, avid_dir: Path, file_path: Path, md5: str | No
             str(file_path),
             file_ext,
             file_type,
-            md5 or file_md5(avid_dir / file_path),
+            (md5 or file_md5(avid_dir / file_path)).upper(),
             doc_collection,
             doc_id,
             None,
