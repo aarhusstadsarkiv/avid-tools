@@ -114,6 +114,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
         str(new_context_doc_id),
         f"1{file.suffix}",
     )
+    new_context_doc_path.parent.mkdir(parents=True, exist_ok=True)
     copy2(file, new_context_doc_path)
     insert_file(conn, avid_dir, new_context_doc_path)
 
