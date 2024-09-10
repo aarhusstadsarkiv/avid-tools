@@ -8,7 +8,7 @@ from xmltodict import parse as parse_xml
 from xmltodict import unparse as unparse_xml
 
 from .database import insert_file
-from .utils import path_suffixes
+from .utils import path_suffix
 
 
 def save_file_index(avid_dir: Path, conn: Connection):
@@ -52,7 +52,7 @@ def save_doc_index(avid_dir: Path, conn: Connection):
                 tag.get("mID"),
                 tag.get("gmlXsd"),
                 tag["oFn"],
-                path_suffixes(Path(tag["oFn"])).removeprefix("."),
+                path_suffix(Path(tag["oFn"])).removeprefix("."),
                 int(tag["dID"]),
             ],
         )

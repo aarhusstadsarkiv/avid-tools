@@ -40,14 +40,10 @@ def ctx_params(ctx: Context) -> dict[str, Parameter]:
     return {p.name: p for p in ctx.command.params}
 
 
-def path_suffixes(path: Path):
-    suffixes: list[str] = []
-    for suffix in path.suffixes[::-1]:
-        if is_valid_suffix(suffix):
-            suffixes.insert(0, suffix)
-        else:
-            break
-    return "".join(suffixes)
+def path_suffix(path: Path):
+    if is_valid_suffix(suffix := path.suffix):
+        return suffix
+    return None
 
 
 def file_md5(path: Path) -> str:
