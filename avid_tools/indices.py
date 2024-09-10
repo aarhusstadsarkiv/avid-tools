@@ -18,7 +18,7 @@ def save_file_index(avid_dir: Path, conn: Connection):
         insert_file(conn, avid_dir, file_path, tag["md5"])
         return True
 
-    with avid_dir.joinpath("Indices", "fileIndex.xml").open("rb") as fh:
+    with avid_dir.joinpath("Indices", "fileIndex.xml").open("rb", encoding="utf-8") as fh:
         parse_xml(fh, item_depth=2, item_callback=callback)
 
     conn.commit()
@@ -58,7 +58,7 @@ def save_doc_index(avid_dir: Path, conn: Connection):
         )
         return True
 
-    with avid_dir.joinpath("Indices", "docIndex.xml").open("rb") as fh:
+    with avid_dir.joinpath("Indices", "docIndex.xml").open("rb", encoding="utf-8") as fh:
         parse_xml(fh, item_depth=2, item_callback=callback)
 
     conn.commit()
@@ -98,7 +98,7 @@ def read_context_documentation(avid_dir: Path) -> dict[int, dict[str, Any]]:
         context_docs[int(tag["documentID"])] = {k: v for k, v in tag.items() if k != "documentID"}
         return True
 
-    with avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").open("rb") as fh:
+    with avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").open("rb", encoding="utf-8") as fh:
         parse_xml(fh, item_depth=2, item_callback=callback)
 
     return context_docs
@@ -117,4 +117,4 @@ def write_context_documentation(avid_dir: Path, context_docs: dict[int, dict[str
             ],
         }
     }
-    avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").write_text(unparse_xml(xml))
+    avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").write_text(unparse_xml(xml, encoding="utf-8"))
