@@ -82,9 +82,14 @@ def read_context_documentation(avid_dir: Path) -> dict[int, dict[str, Any]]:
 # noinspection HttpUrlsUsage
 def write_context_documentation(avid_dir: Path, context_docs: dict[int, dict[str, Any]]):
     xml: dict[str, Any] = {
-        "@xsi:schemaLocation": "http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/contextDocumentationIndex.xsd",
-        "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-        "@xmlns": "http://www.sa.dk/xmlns/diark/1.0",
-        "document": [doc | {"documentID": doc_id} for doc_id, doc in context_docs.items()],
+        "contextDocumentationIndex": {
+            "@xsi:schemaLocation": "http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/contextDocumentationIndex.xsd",
+            "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            "@xmlns": "http://www.sa.dk/xmlns/diark/1.0",
+            "document": [
+                {"documentID": doc_id} | {k: v for k, v in doc.items() if k != "documentID"}
+                for doc_id, doc in context_docs.items()
+            ],
+        }
     }
     avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").write_text(unparse_xml(xml))
