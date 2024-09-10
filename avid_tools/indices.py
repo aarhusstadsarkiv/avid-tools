@@ -112,8 +112,8 @@ def write_context_documentation(avid_dir: Path, context_docs: dict[int, dict[str
             "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "@xmlns": "http://www.sa.dk/xmlns/diark/1.0",
             "document": [
-                {"documentID": doc_id} | {k: v for k, v in doc.items() if k != "documentID"}
-                for doc_id, doc in context_docs.items()
+                {"documentID": doc_id} | {k: v for k, v in context_docs[doc_id].items() if k != "documentID"}
+                for doc_id in sorted(context_docs.keys())
             ],
         }
     }
