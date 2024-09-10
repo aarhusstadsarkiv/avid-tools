@@ -15,6 +15,8 @@ from xmltodict import parse as parse_xml
 from .__version__ import __version__
 from .database import create_database
 from .database import insert_file
+from .indices import generate_doc_index
+from .indices import generate_file_index
 from .indices import read_context_documentation
 from .indices import save_doc_index
 from .indices import save_file_index
@@ -132,3 +134,12 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
         avid_dir.joinpath("Indices", "contextDocumentationIndex.xml"),
         avid_dir.joinpath("Schemas", "standard", "contextDocumentationIndex.xsd"),
     )
+
+
+@app.command("finalize", no_args_is_help=True)
+@argument_avid_dir(True)
+def cmd_finalize(avid_dir: Path):
+    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+    conn = create_database(db_path)
+    generate_doc_index(conn, avid_dir)
+    generate_file_index(conn, avid_dir)
