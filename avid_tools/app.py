@@ -15,6 +15,7 @@ from xmltodict import parse as parse_xml
 from .__version__ import __version__
 from .database import create_database
 from .database import insert_file
+from .database import update_md5
 from .indices import generate_doc_index
 from .indices import generate_file_index
 from .indices import read_context_documentation
@@ -155,6 +156,8 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     context_docs[new_context_doc_id] = new_context_doc
 
     write_context_documentation(avid_dir, context_docs)
+
+    update_md5(conn, avid_dir.joinpath("Indices", "contextDocumentationIndex.xml"))
 
     conn.commit()
 
