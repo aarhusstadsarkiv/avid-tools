@@ -61,7 +61,8 @@ def cmd_init(ctx: Context, avid_dir: Path):
 def grp_context(): ...
 
 
-@grp_context.command("add", no_args_is_help=True)
+# noinspection HttpUrlsUsage
+@grp_context.command("add", no_args_is_help=True, short_help="Add a context document.")
 @argument_avid_dir(True)
 @argument(
     "file",
@@ -76,6 +77,25 @@ def grp_context(): ...
 @option("--position", metavar="INTEGER", type=IntRange(1), default=None)
 @pass_context
 def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, position: int):
+    """
+    Add a context document to the archive in AVID_DIR.
+
+    The context document FILE can be any file type as long as it is allowed (tiff, jp2, etc.).
+
+    The METADATA file must be an XML document following the same schema as Indices/contextDocumentationIndex.xml, but
+    with a single <document> tag. Any other tag is ignored.
+
+    \b
+    METADATA Example
+    ----------------
+
+    \b
+    <?xml version="1.0" encoding="utf-8"?>
+    <contextDocumentationIndex xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/contextDocumentationIndex.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0">
+        <document>...</document>
+    </contextDocumentationIndex>
+    """
     if validation_error := validate_xml(
         metadata,
         avid_dir.joinpath("Schemas", "standard", "contextDocumentationIndex.xsd"),
