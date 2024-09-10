@@ -78,6 +78,9 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
 
     try:
         new_context_doc = parse_xml(metadata.read_text())
+        new_context_doc = new_context_doc["contextDocumentationIndex"]["document"]
+        if isinstance(new_context_doc, list):
+            new_context_doc = new_context_doc[0]
     except:
         raise BadParameter("Cannot parse metadata as XML", ctx, ctx_params(ctx)["metadata"])
 
@@ -116,7 +119,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     )
     new_context_doc_path.parent.mkdir(parents=True, exist_ok=True)
     copy2(file, new_context_doc_path)
-    insert_file(conn, avid_dir, new_context_doc_path)
+    insert_file(conn, avid_dir, new_context_doc_path.relative_to(avid_dir))
 
     context_docs = {(p + 1) if p >= new_context_doc_id else p: d for p, d in context_docs.items()}
     context_docs[new_context_doc_id] = new_context_doc
