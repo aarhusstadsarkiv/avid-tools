@@ -69,7 +69,7 @@ def grp_context(): ...
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
     callback=lambda _c, _p, v: Path(v),
 )
-@option("--position", type=IntRange(1), default=None)
+@option("--position", metavar="INTEGER", type=IntRange(1), default=None)
 @pass_context
 def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, position: int):
     if validation_error := validate_xml(
