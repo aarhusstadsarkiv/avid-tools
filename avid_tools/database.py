@@ -45,12 +45,14 @@ def create_database(path: Path) -> Connection:
                 mId int default null,
                 originalName text default null,
                 originalExtension text default null,
+                gmlXsd text default null,
                 primary key (path))
             """
     )
-    conn.execute("create index if not exists files_extension on files (format)")
-    conn.execute("create index if not exists files_md5 on files (md5)")
-    conn.execute("create index if not exists files_type on files (type)")
+    conn.execute("create index if not exists idx_files_format on files (format)")
+    conn.execute("create index if not exists idx_files_original_extension on files (originalExtension)")
+    conn.execute("create index if not exists idx_files_md5 on files (md5)")
+    conn.execute("create index if not exists idx_files_type on files (type)")
 
     return conn
 

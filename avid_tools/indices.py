@@ -25,12 +25,13 @@ def save_file_index(avid_dir: Path, conn: Connection):
 def save_doc_index(avid_dir: Path, conn: Connection):
     def callback(_, tag: dict[str, str]):
         conn.execute(
-            "update files set format = ?, parentId = ?, mId = ?, originalName = ?, originalExtension = ? where type = 'Documents' and docId = ?",
+            "update files set format = ?, parentId = ?, mId = ?, gmlXsd = ?, originalName = ?, originalExtension = ? where type = 'Documents' and docId = ?",
             [
                 tag["aFt"],
                 tag.get("pID"),
                 tag.get("mID"),
                 tag["oFn"],
+                tag.get("gmlXsd"),
                 path_suffixes(Path(tag["oFn"])).removeprefix("."),
                 int(tag["dID"]),
             ],
