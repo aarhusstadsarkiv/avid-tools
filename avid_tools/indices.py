@@ -8,25 +8,26 @@ from xmltodict import parse as parse_xml
 from xmltodict import unparse as unparse_xml
 
 from .database import insert_file
+from .utils import AVID
 from .utils import path_suffix
 
 
-def save_file_index(avid_dir: Path, conn: Connection):
+def save_file_index(conn: Connection, avid: AVID):
     def callback(_, tag: dict[str, str]):
         file_path = Path(tag["foN"].replace("\\", "/"), tag["fiN"])
-        file_path = file_path.relative_to(avid_dir.name)
-        insert_file(conn, avid_dir, file_path, tag["md5"])
+        file_path = file_path.relative_to(avid.dir.name)
+        insert_file(conn, avid.dir, file_path, tag["md5"])
         return True
 
-    with avid_dir.joinpath("Indices", "fileIndex.xml").open("rb") as fh:
+    with avid.indices.fileIndex.open("rb") as fh:
         parse_xml(fh, item_depth=2, item_callback=callback, encoding="utf-8")
 
     conn.commit()
 
 
 # noinspection HttpUrlsUsage
-def generate_file_index(conn: Connection, avid_dir: Path):
-    with avid_dir.joinpath("Indices", "fileIndex.xml").open("w", encoding="utf-8") as fh:
+def generate_file_index(conn: Connection, avid: AVID):
+    with avid.indices.fileIndex.open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
             '<fileIndex xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/fileIndex.xsd" xmlns="http://www.sa.dk/xmlns/diark/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
@@ -42,7 +43,7 @@ def generate_file_index(conn: Connection, avid_dir: Path):
         fh.write("</fileIndex>")
 
 
-def save_doc_index(avid_dir: Path, conn: Connection):
+def save_doc_index(conn: Connection, avid: AVID):
     def callback(_, tag: dict[str, str]):
         conn.execute(
             "update files set format = ?, parentId = ?, mId = ?, gmlXsd = ?, originalName = ?, originalExtension = ? where type = 'Documents' and docId = ?",
@@ -58,15 +59,15 @@ def save_doc_index(avid_dir: Path, conn: Connection):
         )
         return True
 
-    with avid_dir.joinpath("Indices", "docIndex.xml").open("rb") as fh:
+    with avid.indices.docIndex.open("rb") as fh:
         parse_xml(fh, item_depth=2, item_callback=callback, encoding="utf-8")
 
     conn.commit()
 
 
 # noinspection HttpUrlsUsage
-def generate_doc_index(conn: Connection, avid_dir: Path):
-    with avid_dir.joinpath("Indices", "docIndex.xml").open("w", encoding="utf-8") as fh:
+def generate_doc_index(conn: Connection, avid: AVID):
+    with avid.indices.docIndex.open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
             '<docIndex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0" xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 file:///C:/Documents%20and%20Settings/rateb/Skrivebord/GML%20aflevering/AVID.SA.18001.1/Schemas/standard/docIndex.xsd">'
@@ -91,21 +92,21 @@ def generate_doc_index(conn: Connection, avid_dir: Path):
         fh.write("</docIndex>")
 
 
-def read_context_documentation(avid_dir: Path) -> dict[int, dict[str, Any]]:
+def read_context_documentation(avid: AVID) -> dict[int, dict[str, Any]]:
     context_docs: dict[int, dict[str, Any]] = {}
 
     def callback(_, tag: dict[str, Any]):
         context_docs[int(tag["documentID"])] = {k: v for k, v in tag.items() if k != "documentID"}
         return True
 
-    with avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").open("rb") as fh:
+    with avid.indices.contextDocumentationIndex.open("rb") as fh:
         parse_xml(fh, item_depth=2, item_callback=callback, encoding="utf-8")
 
     return context_docs
 
 
 # noinspection HttpUrlsUsage
-def write_context_documentation(avid_dir: Path, context_docs: dict[int, dict[str, Any]]):
+def write_context_documentation(avid: AVID, context_docs: dict[int, dict[str, Any]]):
     xml: dict[str, Any] = {
         "contextDocumentationIndex": {
             "@xsi:schemaLocation": "http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/contextDocumentationIndex.xsd",
@@ -117,6 +118,4 @@ def write_context_documentation(avid_dir: Path, context_docs: dict[int, dict[str
             ],
         }
     }
-    avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").write_text(
-        unparse_xml(xml, encoding="utf-8"), encoding="utf-8"
-    )
+    avid.indices.contextDocumentationIndex.write_text(unparse_xml(xml, encoding="utf-8"), encoding="utf-8")

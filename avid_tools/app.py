@@ -23,6 +23,7 @@ from .indices import save_doc_index
 from .indices import save_file_index
 from .indices import write_context_documentation
 from .utils import argument_avid_dir
+from .utils import AVID
 from .utils import ctx_params
 from .utils import validate_xml
 
@@ -54,15 +55,16 @@ def cmd_init(ctx: Context, avid_dir: Path):
             raise BadParameter(f"Missing Indices/{index_file}", ctx, ctx_params(ctx)["avid_dir"])
 
     conn = create_database(db_path)
-    save_file_index(avid_dir, conn)
-    save_doc_index(avid_dir, conn)
+    avid = AVID(avid_dir)
+    save_file_index(conn, avid)
+    save_doc_index(conn, avid)
 
 
 @app.group("context", no_args_is_help=True)
 def grp_context(): ...
 
 
-# noinspection HttpUrlsUsage
+# noinspection HttpUrlsUsage,DuplicatedCode
 @grp_context.command("add", no_args_is_help=True, short_help="Add a context document.")
 @argument_avid_dir(True)
 @argument(
@@ -100,10 +102,11 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
         <document>...</document>
     </contextDocumentationIndex>
     """
-    if validation_error := validate_xml(
-        metadata,
-        avid_dir.joinpath("Schemas", "standard", "contextDocumentationIndex.xsd"),
-    ):
+    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+    conn = create_database(db_path)
+    avid = AVID(avid_dir)
+
+    if validation_error := validate_xml(metadata, avid.schemas.contextDocumentationIndex):
         raise BadParameter(validation_error.message, ctx, ctx_params(ctx)["metadata"])
 
     try:
@@ -114,10 +117,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     except:
         raise BadParameter("Cannot parse metadata as XML", ctx, ctx_params(ctx)["metadata"])
 
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
-    conn = create_database(db_path)
-
-    context_docs: dict[int, dict] = read_context_documentation(avid_dir)
+    context_docs: dict[int, dict] = read_context_documentation(avid)
     new_context_doc_id: int = (len(context_docs) + 1) if not position else position
     new_context_doc_id = (len(context_docs) + 1) if new_context_doc_id > len(context_docs) else new_context_doc_id
 
@@ -155,9 +155,9 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     context_docs = {(p + 1) if p >= new_context_doc_id else p: d for p, d in context_docs.items()}
     context_docs[new_context_doc_id] = new_context_doc
 
-    write_context_documentation(avid_dir, context_docs)
+    write_context_documentation(avid, context_docs)
 
-    update_md5(conn, avid_dir.joinpath("Indices", "contextDocumentationIndex.xml"))
+    update_md5(conn, avid.indices.contextDocumentationIndex)
 
     conn.commit()
 
@@ -172,5 +172,6 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
 def cmd_finalize(avid_dir: Path):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    generate_doc_index(conn, avid_dir)
-    generate_file_index(conn, avid_dir)
+    avid = AVID(avid_dir)
+    generate_doc_index(conn, avid)
+    generate_file_index(conn, avid)

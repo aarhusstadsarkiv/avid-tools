@@ -11,6 +11,93 @@ from xmlschema import XMLSchema
 from xmlschema import XMLSchemaValidationError
 
 
+# noinspection PyPep8Naming
+class Indices:
+    def __init__(self, avid_dir: Path):
+        self.avid_dir = avid_dir
+
+    @property
+    def archiveIndex(self) -> Path:
+        """Indices/archiveIndex.xml"""
+        return self.avid_dir / "Indices" / "archiveIndex.xml"
+
+    @property
+    def contextDocumentationIndex(self) -> Path:
+        """Indices/contextDocumentationIndex.xml"""
+        return self.avid_dir / "Indices" / "contextDocumentationIndex.xml"
+
+    @property
+    def docIndex(self) -> Path:
+        """Indices/docIndex.xml"""
+        return self.avid_dir / "Indices" / "docIndex.xml"
+
+    @property
+    def fileIndex(self) -> Path:
+        """Indices/fileIndex.xml"""
+        return self.avid_dir / "Indices" / "fileIndex.xml"
+
+    @property
+    def tableIndex(self) -> Path:
+        """Indices/tableIndex.xml"""
+        return self.avid_dir / "Indices" / "tableIndex.xml"
+
+
+# noinspection PyPep8Naming
+class Schemas:
+    def __init__(self, avid_dir: Path):
+        self.avid_dir: Path = avid_dir
+
+    @property
+    def archiveIndex(self) -> Path:
+        """Schemas/standard/archiveIndex.xsd"""
+        return self.avid_dir / "Schemas" / "standard" / "archiveIndex.xsd"
+
+    @property
+    def contextDocumentationIndex(self) -> Path:
+        """Schemas/standard/contextDocumentationIndex.xsd"""
+        return self.avid_dir / "Schemas" / "standard" / "contextDocumentationIndex.xsd"
+
+    @property
+    def docIndex(self) -> Path:
+        """Schemas/standard/docIndex.xsd"""
+        return self.avid_dir / "Schemas" / "standard" / "docIndex.xsd"
+
+    @property
+    def fileIndex(self) -> Path:
+        """Schemas/standard/fileIndex.xsd"""
+        return self.avid_dir / "Schemas" / "standard" / "fileIndex.xsd"
+
+    @property
+    def researchIndex(self) -> Path:
+        """Schemas/standard/researchIndex.xsd"""
+        return self.avid_dir / "Schemas" / "standard" / "researchIndex.xsd"
+
+    @property
+    def tableIndex(self) -> Path:
+        """Schemas/standard/tableIndex.xsd"""
+        return self.avid_dir / "Schemas" / "standard" / "tableIndex.xsd"
+
+    @property
+    def XMLSchema(self) -> Path:
+        """Schemas/standard/XMLSchema.xsd"""
+        return self.avid_dir / "Schemas" / "standard" / "XMLSchema.xsd"
+
+
+class AVID:
+    def __init__(self, avid_dir: Path):
+        self.dir: Path = avid_dir
+
+    @property
+    def indices(self) -> Indices:
+        """Indices"""
+        return Indices(self.dir)
+
+    @property
+    def schemas(self) -> Schemas:
+        """Schemas"""
+        return Schemas(self.dir)
+
+
 def argument_avid_dir(database_exists: bool):
     if database_exists:
 
