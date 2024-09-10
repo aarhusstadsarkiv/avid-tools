@@ -127,3 +127,8 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     write_context_documentation(avid_dir, context_docs)
 
     conn.commit()
+
+    validate_xml(
+        avid_dir.joinpath("Indices", "contextDocumentationIndex.xml"),
+        avid_dir.joinpath("Schemas", "standard", "contextDocumentationIndex.xsd"),
+    )
