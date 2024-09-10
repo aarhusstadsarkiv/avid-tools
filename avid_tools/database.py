@@ -58,4 +58,4 @@ def create_database(path: Path) -> Connection:
 
 
 def update_md5(conn: Connection, path: Path):
-    conn.execute("update files set md5 = ? where path = ?", [file_md5(path), str(path)])
+    conn.execute("update files set md5 = ? where path = ?", [file_md5(path).upper(), str(path)])
