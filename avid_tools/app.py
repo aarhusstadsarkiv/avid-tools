@@ -161,10 +161,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
 
     conn.commit()
 
-    validate_xml(
-        avid_dir.joinpath("Indices", "contextDocumentationIndex.xml"),
-        avid_dir.joinpath("Schemas", "standard", "contextDocumentationIndex.xsd"),
-    )
+    validate_xml(avid.indices.contextDocumentationIndex, avid.schemas.contextDocumentationIndex)
 
 
 # noinspection HttpUrlsUsage,DuplicatedCode
