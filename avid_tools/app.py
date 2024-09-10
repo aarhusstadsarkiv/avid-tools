@@ -118,6 +118,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
 
     context_docs: dict[int, dict] = read_context_documentation(avid_dir)
     new_context_doc_id: int = (len(context_docs) + 1) if not position else position
+    new_context_doc_id = (len(context_docs) + 1) if new_context_doc_id > len(context_docs) else new_context_doc_id
 
     for doc_id in sorted([k for k in context_docs.keys() if k >= new_context_doc_id], reverse=True):
         path_str, doc_collection = conn.execute(
