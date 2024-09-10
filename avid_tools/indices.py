@@ -36,7 +36,7 @@ def generate_file_index(conn: Connection, avid: AVID):
         for path_str, md5 in cur:
             path = Path(path_str)
             fh.write("<f>")
-            fh.write("<foN>{}\\{}</foN>".format(avid_dir.name, escape("\\".join(map(str, path.parent.parts)))))
+            fh.write("<foN>{}\\{}</foN>".format(avid.dir.name, escape("\\".join(map(str, path.parent.parts)))))
             fh.write(f"<fiN>{escape(path.name)}</fiN>")
             fh.write(f"<md5>{md5.upper()}</md5>")
             fh.write("</f>")
