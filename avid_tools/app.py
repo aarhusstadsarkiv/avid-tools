@@ -36,6 +36,10 @@ def app(): ...
 @pass_context
 def cmd_init(ctx: Context, avid_dir: Path):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+
+    if db_path.is_file():
+        raise BadParameter(f"_metadata/avid.db already exists for {avid_dir.name}.", ctx, ctx_params(ctx)["avid_dir"])
+
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
     for index_file in (
