@@ -18,15 +18,15 @@ def save_file_index(avid_dir: Path, conn: Connection):
         insert_file(conn, avid_dir, file_path, tag["md5"])
         return True
 
-    with avid_dir.joinpath("Indices", "fileIndex.xml").open("rb", encoding="utf-8") as fh:
-        parse_xml(fh, item_depth=2, item_callback=callback)
+    with avid_dir.joinpath("Indices", "fileIndex.xml").open("rb") as fh:
+        parse_xml(fh, item_depth=2, item_callback=callback, encoding="utf-8")
 
     conn.commit()
 
 
 # noinspection HttpUrlsUsage
 def generate_file_index(conn: Connection, avid_dir: Path):
-    with avid_dir.joinpath("Indices", "fileIndex.xml").open("w") as fh:
+    with avid_dir.joinpath("Indices", "fileIndex.xml").open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
             '<fileIndex xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/fileIndex.xsd" xmlns="http://www.sa.dk/xmlns/diark/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
@@ -58,15 +58,15 @@ def save_doc_index(avid_dir: Path, conn: Connection):
         )
         return True
 
-    with avid_dir.joinpath("Indices", "docIndex.xml").open("rb", encoding="utf-8") as fh:
-        parse_xml(fh, item_depth=2, item_callback=callback)
+    with avid_dir.joinpath("Indices", "docIndex.xml").open("rb") as fh:
+        parse_xml(fh, item_depth=2, item_callback=callback, encoding="utf-8")
 
     conn.commit()
 
 
 # noinspection HttpUrlsUsage
 def generate_doc_index(conn: Connection, avid_dir: Path):
-    with avid_dir.joinpath("Indices", "docIndex.xml").open("w") as fh:
+    with avid_dir.joinpath("Indices", "docIndex.xml").open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
             '<docIndex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0" xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 file:///C:/Documents%20and%20Settings/rateb/Skrivebord/GML%20aflevering/AVID.SA.18001.1/Schemas/standard/docIndex.xsd">'
@@ -98,8 +98,8 @@ def read_context_documentation(avid_dir: Path) -> dict[int, dict[str, Any]]:
         context_docs[int(tag["documentID"])] = {k: v for k, v in tag.items() if k != "documentID"}
         return True
 
-    with avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").open("rb", encoding="utf-8") as fh:
-        parse_xml(fh, item_depth=2, item_callback=callback)
+    with avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").open("rb") as fh:
+        parse_xml(fh, item_depth=2, item_callback=callback, encoding="utf-8")
 
     return context_docs
 
@@ -117,4 +117,6 @@ def write_context_documentation(avid_dir: Path, context_docs: dict[int, dict[str
             ],
         }
     }
-    avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").write_text(unparse_xml(xml, encoding="utf-8"))
+    avid_dir.joinpath("Indices", "contextDocumentationIndex.xml").write_text(
+        unparse_xml(xml, encoding="utf-8"), encoding="utf-8"
+    )
