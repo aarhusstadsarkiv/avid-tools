@@ -133,6 +133,21 @@ def path_suffix(path: Path):
     return None
 
 
+def remove_empty_dir(root: Path, path: Path) -> None:
+    if path == root:
+        return None
+    elif not path.is_relative_to(root):
+        return None
+    elif not path.is_dir():
+        return None
+    elif next(path.iterdir(), None):
+        return None
+
+    path.rmdir()
+
+    return remove_empty_dir(root, path.parent)
+
+
 def file_md5(path: Path) -> str:
     file_hash = md5()
     with path.open("rb") as f:
