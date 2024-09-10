@@ -167,6 +167,57 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     )
 
 
+# noinspection HttpUrlsUsage,DuplicatedCode
+@grp_context.command("update")
+@argument_avid_dir(True)
+@argument("DOC_ID", type=IntRange(1))
+@option(
+    "--file",
+    type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
+    default=None,
+    callback=lambda _c, _p, v: Path(v),
+)
+@option(
+    "--metadata",
+    type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
+    default=None,
+    callback=lambda _c, _p, v: Path(v),
+)
+@pass_context
+def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | None, metadata: Path | None):
+    if not file and not metadata:
+        return
+
+    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+    conn = create_database(db_path)
+    avid = AVID(avid_dir)
+
+    if metadata:
+        if validation_error := validate_xml(metadata, avid.schemas.contextDocumentationIndex):
+            raise BadParameter(validation_error.message, ctx, ctx_params(ctx)["metadata"])
+
+        try:
+            new_context_doc = parse_xml(metadata.read_text())
+            new_context_doc = new_context_doc["contextDocumentationIndex"]["document"]
+            if isinstance(new_context_doc, list):
+                new_context_doc = new_context_doc[0]
+        except:
+            raise BadParameter("Cannot parse metadata as XML", ctx, ctx_params(ctx)["metadata"])
+
+        context_docs: dict[int, dict] = read_context_documentation(avid)
+        context_docs[doc_id] = new_context_doc
+        write_context_documentation(avid, context_docs)
+        update_md5(conn, avid.indices.contextDocumentationIndex)
+
+    if file:
+        path_str: str = conn.execute(
+            "select path from files where type = 'ContextDocumentation' and docId = ?",
+            [doc_id],
+        ).fetchone()[0]
+        copy2(file, path := avid_dir.joinpath(path_str))
+        update_md5(conn, path)
+
+
 @app.command("finalize", no_args_is_help=True)
 @argument_avid_dir(True)
 def cmd_finalize(avid_dir: Path):
