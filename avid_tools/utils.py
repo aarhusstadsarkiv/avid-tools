@@ -21,7 +21,7 @@ def argument_avid_dir(database_exists: bool):
 
         return argument(
             "AVID_DIR",
-            type=ClickPath(exists=True, file_okay=False, writable=True, readable=True),
+            type=ClickPath(exists=True, file_okay=False, writable=True, readable=True, resolve_path=True),
             callback=_callback,
         )
     else:
@@ -31,7 +31,7 @@ def argument_avid_dir(database_exists: bool):
 
         return argument(
             "AVID_DIR",
-            type=ClickPath(exists=True, file_okay=False, writable=True, readable=True),
+            type=ClickPath(exists=True, file_okay=False, writable=True, readable=True, resolve_path=True),
             callback=_callback,
         )
 
