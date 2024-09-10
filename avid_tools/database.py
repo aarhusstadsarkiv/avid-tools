@@ -10,14 +10,12 @@ def insert_file(conn: Connection, avid_dir: Path, file_path: Path, md5: str | No
     file_ext = file_path.suffix.removeprefix(".")
     doc_collection, doc_id = None, None
     if file_type == "Documents":
-        path_str: str = str(file_path).removeprefix("Documents/docCollection")
-        doc_collection_str, doc_id_str, *_ = path_str.split("/")
-        doc_collection = int(doc_collection_str)
+        _, doc_collection_str, doc_id_str, *_ = file_path.parts
+        doc_collection = int(doc_collection_str.removeprefix("docCollection"))
         doc_id = int(doc_id_str)
     elif file_type == "ContextDocumentation":
-        path_str: str = str(file_path).removeprefix("ContextDocumentation/docCollection")
-        doc_collection_str, doc_id_str, *_ = path_str.split("/")
-        doc_collection = int(doc_collection_str)
+        _, doc_collection_str, doc_id_str, *_ = file_path.parts
+        doc_collection = int(doc_collection_str.removeprefix("docCollection"))
         doc_id = int(doc_id_str)
     conn.execute(
         "insert or ignore into files"
