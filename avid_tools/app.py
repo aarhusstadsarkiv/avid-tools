@@ -25,6 +25,7 @@ from .indices import write_context_documentation
 from .utils import argument_avid_dir
 from .utils import AVID
 from .utils import ctx_params
+from .utils import remove_empty_dir
 from .utils import validate_xml
 
 
@@ -213,6 +214,55 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
         ).fetchone()[0]
         copy2(file, path := avid_dir.joinpath(path_str))
         update_md5(conn, path)
+
+
+@grp_context.command("delete")
+@argument_avid_dir(True)
+@argument("DOC_ID", type=IntRange(1))
+@pass_context
+def cmd_context_delete(ctx: Context, avid_dir: Path, doc_id: int):
+    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+    conn = create_database(db_path)
+    avid = AVID(avid_dir)
+
+    context_docs: dict[int, dict] = read_context_documentation(avid)
+
+    path_str: str = conn.execute(
+        "select path from files where type = 'ContextDocumentation' and docId = ?",
+        [doc_id],
+    ).fetchone()[0]
+    avid_dir.joinpath(path_str).unlink(missing_ok=True)
+    conn.execute("delete from files where path = ?", [path_str])
+    remove_empty_dir(avid_dir.joinpath("ContextDocumentation"), avid_dir.joinpath(path_str).parent)
+
+    for old_doc_id in sorted([k for k in context_docs.keys() if k > doc_id]):
+        new_doc_id = old_doc_id - 1
+        path_str, doc_collection = conn.execute(
+            "select path, docCollection from files where type = 'ContextDocumentation' and docId = ?",
+            [old_doc_id],
+        ).fetchone()
+        path: Path = avid_dir.joinpath(path_str)
+        new_path: Path = avid_dir.joinpath(
+            "ContextDocumentation",
+            f"docCollection{doc_collection}",
+            str(new_doc_id),
+            path.name,
+        )
+        new_path.parent.mkdir(parents=True, exist_ok=True)
+        path.rename(new_path)
+        conn.execute(
+            "update files set path = ?, docId = ? where path = ?",
+            [str(new_path.relative_to(avid_dir)), new_doc_id, path_str],
+        )
+        remove_empty_dir(avid_dir.joinpath("ContextDocumentation"), path.parent)
+        conn.commit()
+
+    context_docs = {(i - 1) if i > doc_id else i: d for i, d in context_docs.items() if i != doc_id}
+    write_context_documentation(avid, context_docs)
+    update_md5(conn, avid.indices.contextDocumentationIndex)
+    conn.commit()
+
+    validate_xml(avid.indices.contextDocumentationIndex, avid.schemas.contextDocumentationIndex)
 
 
 @app.command("finalize", no_args_is_help=True)
