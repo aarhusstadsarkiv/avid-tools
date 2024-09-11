@@ -86,6 +86,15 @@ class Schemas:
         """Schemas/standard/XMLSchema.xsd"""
         return self.avid_dir / "Schemas" / "standard" / "XMLSchema.xsd"
 
+    @property
+    def tables(self) -> dict[int, Path]:
+        """Tables/tableN/tableN.xsd"""
+        return {
+            int(f.name.removeprefix("table")): f.joinpath(f.name).with_suffix(".xsd")
+            for f in self.avid_dir.joinpath("Tables").iterdir()
+            if f.is_dir() and match(r"table\d+", f.name)
+        }
+
 
 class AVID:
     def __init__(self, avid_dir: Path):
