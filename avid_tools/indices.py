@@ -73,7 +73,9 @@ def generate_doc_index(conn: Connection, avid: AVID):
             '<docIndex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0" xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 file:///C:/Documents%20and%20Settings/rateb/Skrivebord/GML%20aflevering/AVID.SA.18001.1/Schemas/standard/docIndex.xsd">'
         )
         cur = conn.execute(
-            "select docId, mId, parentId, docCollection, gmlXsd, originalName, format from files where type = 'Documents' order by docId"
+            "select docId, min(mId) as mId, min(parentId) as parentId, min(docCollection) as docCollection,"
+            " min(gmlXsd) as gmlXsd, min(originalName) as originalName, min(format) as format from files"
+            " where type = 'Documents' group by docId order by docId"
         )
         cur.row_factory = Row
         document: Row
