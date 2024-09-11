@@ -1,6 +1,9 @@
 from hashlib import md5
 from pathlib import Path
 from re import match
+from typing import BinaryIO
+from typing import Callable
+from typing import TextIO
 
 from acacore.utils.functions import is_valid_suffix
 from click import argument
@@ -176,3 +179,18 @@ def validate_xml(xml: str | Path, schema: XMLSchema | Path) -> XMLSchemaValidati
         schema.validate(xml)
     except XMLSchemaValidationError as e:
         return e
+
+
+def print_line(
+    *values: object,
+    sep: str | None = " ",
+    end: str | None = "\n",
+    file: TextIO | BinaryIO | None = None,
+    flush: bool = False,
+) -> tuple[str, Callable[[], None]]:
+    msg: str = sep.join(map(str, values))
+    print(msg, end=end, file=file, flush=flush)
+    return (
+        msg,
+        (lambda: None) if file else (lambda: print("\r" + (" " * len(msg)) + "\r", end="", flush=True)),
+    )
