@@ -182,6 +182,8 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
         copy2(file, path := avid_dir.joinpath(path_str))
         update_md5(conn, path)
 
+    conn.commit()
+
 
 @grp_context.command("move", no_args_is_help=True)
 @argument_avid_dir(True)
