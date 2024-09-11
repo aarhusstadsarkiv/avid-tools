@@ -136,13 +136,13 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     "--file",
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
     default=None,
-    callback=lambda _c, _p, v: Path(v),
+    callback=lambda _c, _p, v: Path(v) if v else None,
 )
 @option(
     "--metadata",
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
     default=None,
-    callback=lambda _c, _p, v: Path(v),
+    callback=lambda _c, _p, v: Path(v) if v else None,
 )
 @pass_context
 def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | None, metadata: Path | None):
