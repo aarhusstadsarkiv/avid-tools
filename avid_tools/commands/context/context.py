@@ -179,7 +179,11 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
             "select path from files where type = 'ContextDocumentation' and docId = ?",
             [doc_id],
         ).fetchone()[0]
-        copy2(file, path := avid_dir.joinpath(path_str))
+        copy2(file, path := avid_dir.joinpath(path_str).with_suffix(file.suffix))
+        conn.execute(
+            "update files set path = ? where type = 'ContextDocumentation' and docId = ?",
+            [str(path.relative_to(avid_dir)), doc_id],
+        )
         update_md5(conn, path)
 
     conn.commit()
