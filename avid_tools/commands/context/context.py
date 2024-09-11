@@ -1,6 +1,7 @@
 from copy import deepcopy
 from pathlib import Path
 from shutil import copy2
+from sqlite3 import Connection
 
 from click import argument
 from click import BadParameter
@@ -22,6 +23,46 @@ from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
 from avid_tools.utils import remove_empty_dir
 from avid_tools.utils import validate_xml
+
+
+def move_context_docs(
+    conn: Connection,
+    avid: AVID,
+    context_docs: dict[int, dict],
+    interval: tuple[int, int],
+    diff: int,
+) -> dict[int, dict]:
+    if diff == 0 or interval[1] - interval[0] < 0:
+        return context_docs
+
+    doc_ids: list[int] = sorted(
+        (i for i in context_docs if interval[0] <= i <= interval[1]),
+        reverse=diff > 0,
+    )
+
+    for doc_id in doc_ids:
+        new_doc_id: int = doc_id + diff
+        path_str, doc_collection = conn.execute(
+            "select path, docCollection from files where type = 'ContextDocumentation' and docId = ?",
+            [doc_id],
+        ).fetchone()
+        path: Path = avid.dir.joinpath(path_str)
+        new_path: Path = avid.dir.joinpath(
+            "ContextDocumentation",
+            f"docCollection{doc_collection}",
+            str(new_doc_id),
+            path.name,
+        )
+        new_path.parent.mkdir(parents=True, exist_ok=True)
+        path.rename(new_path)
+        remove_empty_dir(avid.dir / "ContextDocumentation", path.parent)
+        conn.execute(
+            "update files set path = ?, docId = ? where type = 'ContextDocumentation' and docId = ?",
+            [str(new_path.relative_to(avid.dir)), new_doc_id, doc_id],
+        )
+        conn.commit()
+
+    return {(i + diff) if i in doc_ids else i: d for i, d in context_docs.items()}
 
 
 @group("context", no_args_is_help=True)
@@ -85,26 +126,9 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     new_context_doc_id: int = (len(context_docs) + 1) if not position else position
     new_context_doc_id = (len(context_docs) + 1) if new_context_doc_id > len(context_docs) else new_context_doc_id
 
-    for doc_id in sorted([k for k in context_docs.keys() if k >= new_context_doc_id], reverse=True):
-        path_str, doc_collection = conn.execute(
-            "select path, docCollection from files where type = 'ContextDocumentation' and docId = ?",
-            [doc_id],
-        ).fetchone()
-        path: Path = avid_dir.joinpath(path_str)
-        new_doc_id: int = doc_id + 1
-        new_path: Path = avid_dir.joinpath(
-            "ContextDocumentation",
-            f"docCollection{doc_collection}",
-            str(new_doc_id),
-            path.name,
-        )
-        new_path.parent.mkdir(parents=True, exist_ok=True)
-        path.rename(new_path)
-        conn.execute(
-            "update files set path = ?, docId = ? where path = ?",
-            [str(new_path.relative_to(avid_dir)), new_doc_id, path_str],
-        )
-        conn.commit()
+    context_docs = move_context_docs(conn, avid, context_docs, (new_context_doc_id, len(context_docs)), +1)
+
+    context_docs[new_context_doc_id] = new_context_doc
 
     new_context_doc_path = avid_dir.joinpath(
         "ContextDocumentation",
@@ -115,9 +139,6 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     new_context_doc_path.parent.mkdir(parents=True, exist_ok=True)
     copy2(file, new_context_doc_path)
     insert_file(conn, avid_dir, new_context_doc_path.relative_to(avid_dir))
-
-    context_docs = {(p + 1) if p >= new_context_doc_id else p: d for p, d in context_docs.items()}
-    context_docs[new_context_doc_id] = new_context_doc
 
     write_context_documentation(avid, context_docs)
 
@@ -266,29 +287,10 @@ def cmd_context_delete(ctx: Context, avid_dir: Path, doc_id: int):
     conn.execute("delete from files where path = ?", [path_str])
     remove_empty_dir(avid_dir.joinpath("ContextDocumentation"), avid_dir.joinpath(path_str).parent)
 
-    for old_doc_id in sorted([k for k in context_docs.keys() if k > doc_id]):
-        new_doc_id = old_doc_id - 1
-        path_str, doc_collection = conn.execute(
-            "select path, docCollection from files where type = 'ContextDocumentation' and docId = ?",
-            [old_doc_id],
-        ).fetchone()
-        path: Path = avid_dir.joinpath(path_str)
-        new_path: Path = avid_dir.joinpath(
-            "ContextDocumentation",
-            f"docCollection{doc_collection}",
-            str(new_doc_id),
-            path.name,
-        )
-        new_path.parent.mkdir(parents=True, exist_ok=True)
-        path.rename(new_path)
-        conn.execute(
-            "update files set path = ?, docId = ? where path = ?",
-            [str(new_path.relative_to(avid_dir)), new_doc_id, path_str],
-        )
-        remove_empty_dir(avid_dir.joinpath("ContextDocumentation"), path.parent)
-        conn.commit()
+    del context_docs[doc_id]
 
-    context_docs = {(i - 1) if i > doc_id else i: d for i, d in context_docs.items() if i != doc_id}
+    context_docs = move_context_docs(conn, avid, context_docs, (doc_id, len(context_docs)), -1)
+
     write_context_documentation(avid, context_docs)
     update_md5(conn, avid.indices.contextDocumentationIndex)
     conn.commit()
