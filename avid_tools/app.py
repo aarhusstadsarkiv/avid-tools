@@ -7,13 +7,13 @@ from click import pass_context
 from click import version_option
 
 from .__version__ import __version__
-from .context.context import grp_context
+from .commands.context.context import grp_context
+from .commands.tables.tables import grp_tables
 from .database import create_database
 from .indices import generate_doc_index
 from .indices import generate_file_index
 from .indices import save_doc_index
 from .indices import save_file_index
-from .tables.tables import grp_tables
 from .utils import argument_avid_dir
 from .utils import AVID
 from .utils import ctx_params

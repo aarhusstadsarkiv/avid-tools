@@ -1,6 +1,6 @@
 from click import group
 
-from avid_tools.tables.trim import cmd_trim
+from avid_tools.commands.tables.trim import cmd_trim
 
 
 @group("tables", no_args_is_help=True)
