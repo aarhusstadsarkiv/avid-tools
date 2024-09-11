@@ -1,0 +1,115 @@
+from pathlib import Path
+from shutil import copy2
+
+from click import argument
+from click import BadParameter
+from click import Choice
+from click import Context
+from click import group
+from click import option
+from click import pass_context
+from click import Path as ClickPath
+from xmltodict import parse as parse_xml
+
+from avid_tools.database import create_database
+from avid_tools.database import update_md5
+from avid_tools.utils import argument_avid_dir
+from avid_tools.utils import AVID
+from avid_tools.utils import ctx_params
+from avid_tools.utils import validate_xml
+
+
+@group("index")
+def grp_index(): ...
+
+
+@grp_index.command("view")
+@argument_avid_dir(True)
+@argument(
+    "index",
+    type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"]),
+    nargs=-1,
+    required=True,
+)
+@pass_context
+def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
+    def printer(obj: dict | list, indent: int = 0):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if isinstance(v, (dict, list)):
+                    print("    " * indent, f"{k}:", sep="")
+                    printer(v, indent + 1)
+                else:
+                    print("    " * indent, f"{k}: {v}", sep="")
+        elif isinstance(obj, list):
+            for n, v in enumerate(obj, 1):
+                if isinstance(v, (dict, list)):
+                    print("    " * indent, f"{n}:", sep="")
+                    printer(v, indent + 1)
+                else:
+                    print("    " * indent, f"{n}: {v}", sep="")
+
+    avid = AVID(avid_dir)
+
+    for index_type in index:
+        if index_type == "archiveIndex":
+            xml = parse_xml(avid.indices.archiveIndex.read_text())
+            xml = xml["archiveIndex"]
+        elif index_type == "contextDocumentationIndex":
+            xml = parse_xml(avid.indices.contextDocumentationIndex.read_text())
+            xml = xml["contextDocumentationIndex"]
+        elif index_type == "tableIndex":
+            xml = parse_xml(avid.indices.tableIndex.read_text())
+            xml = xml["siardDiark"]
+        else:
+            continue
+        printer(xml)
+
+
+@grp_index.command("update")
+@argument_avid_dir(True)
+@argument(
+    "index",
+    type=ClickPath(exists=True, dir_okay=False, readable=True),
+    nargs=1,
+    required=True,
+    callback=lambda _c, _p, v: Path(v),
+)
+@option(
+    "--type",
+    "index_type",
+    type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"]),
+    default=None,
+    required=False,
+)
+@pass_context
+def cmd_index_update(ctx: Context, avid_dir: Path, index: Path, index_type: str | None):
+    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+    conn = create_database(db_path)
+    avid = AVID(avid_dir)
+
+    if index.name in ["archiveIndex.xml", "contextDocumentationIndex.xml", "tableIndex.xml"] and not index_type:
+        index_type = index.with_suffix("").name
+    elif not index_type:
+        raise BadParameter(
+            f"cannot recognize index type from file {index_type}",
+            ctx,
+            ctx_params(ctx)["index"],
+            "Must be one of archiveIndex.xml, contextDocumentationIndex.xml, tableIndex.xml",
+        )
+
+    if index_type == "archiveIndex":
+        schema, target = avid.schemas.archiveIndex, avid.indices.archiveIndex
+    elif index_type == "contextDocumentationIndex":
+        schema, target = avid.schemas.contextDocumentationIndex, avid.indices.contextDocumentationIndex
+    elif index_type == "tableIndex":
+        schema, target = avid.schemas.archiveIndex, avid.indices.archiveIndex
+    else:
+        raise BadParameter(f"unknown index type {index_type}", ctx, ctx_params(ctx)["index_type"])
+
+    if validation_error := validate_xml(index, schema):
+        raise BadParameter(validation_error.msg, ctx, ctx_params(ctx)["index"])
+
+    copy2(index, target)
+    update_md5(conn, target)
+    conn.commit()
