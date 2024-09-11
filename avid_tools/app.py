@@ -13,6 +13,7 @@ from .indices import generate_doc_index
 from .indices import generate_file_index
 from .indices import save_doc_index
 from .indices import save_file_index
+from .tables.tables import grp_tables
 from .utils import argument_avid_dir
 from .utils import AVID
 from .utils import ctx_params
@@ -61,4 +62,4 @@ def cmd_finalize(avid_dir: Path):
 
 
 app.add_command(grp_context, grp_context.name)
-app.add_command(grp_context, grp_context.name)
+app.add_command(grp_tables, grp_tables.name)
