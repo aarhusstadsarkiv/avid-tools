@@ -166,7 +166,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
 
 
 # noinspection HttpUrlsUsage,DuplicatedCode
-@grp_context.command("update")
+@grp_context.command("update", no_args_is_help=True)
 @argument_avid_dir(True)
 @argument("DOC_ID", type=IntRange(1))
 @option(
@@ -216,7 +216,7 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
         update_md5(conn, path)
 
 
-@grp_context.command("delete")
+@grp_context.command("delete", no_args_is_help=True)
 @argument_avid_dir(True)
 @argument("DOC_ID", type=IntRange(1))
 @pass_context
