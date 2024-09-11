@@ -54,13 +54,10 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
     for index_type in index:
         if index_type == "archiveIndex":
             xml = parse_xml(avid.indices.archiveIndex.read_text())
-            xml = xml["archiveIndex"]
         elif index_type == "contextDocumentationIndex":
             xml = parse_xml(avid.indices.contextDocumentationIndex.read_text())
-            xml = xml["contextDocumentationIndex"]
         elif index_type == "tableIndex":
             xml = parse_xml(avid.indices.tableIndex.read_text())
-            xml = xml["siardDiark"]
         else:
             continue
         printer(xml)
