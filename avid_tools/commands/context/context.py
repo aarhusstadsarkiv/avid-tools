@@ -210,10 +210,11 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
     conn.commit()
 
 
-@grp_context.command("move", no_args_is_help=True)
+# noinspection DuplicatedCode
+@grp_context.command("move", no_args_is_help=True, context_settings={"ignore_unknown_options": True})
 @argument_avid_dir(True)
 @argument("FROM_DOC_ID", type=IntRange(1))
-@argument("TO_DOC_ID", type=IntRange(1))
+@argument("TO_DOC_ID", type=IntRange(-1))
 @pass_context
 def cmd_context_move(ctx: Context, avid_dir: Path, from_doc_id: int, to_doc_id: int):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
@@ -224,42 +225,80 @@ def cmd_context_move(ctx: Context, avid_dir: Path, from_doc_id: int, to_doc_id: 
 
     if from_doc_id not in context_docs:
         raise BadParameter(f"no context document with ID {from_doc_id}", ctx, ctx_params(ctx)["from_doc_id"])
-    if to_doc_id not in context_docs:
+    if to_doc_id > 0 and to_doc_id not in context_docs:
         raise BadParameter(f"no context document with ID {to_doc_id}", ctx, ctx_params(ctx)["to_doc_id"])
     if from_doc_id == to_doc_id:
         return
 
     from_doc = deepcopy(context_docs[from_doc_id])
-    to_doc = deepcopy(context_docs[to_doc_id])
-    context_docs[from_doc_id] = to_doc
-    context_docs[to_doc_id] = from_doc
 
-    from_path_str, from_md5 = conn.execute(
-        "select path, md5 from files where type = 'ContextDocumentation' and docId = ?", [from_doc_id]
-    ).fetchone()
-    to_path_str, to_md5 = conn.execute(
-        "select path, md5 from files where type = 'ContextDocumentation' and docId = ?", [to_doc_id]
-    ).fetchone()
+    if to_doc_id <= 0:
+        del context_docs[from_doc_id]
+        from_path_str, *from_doc_data = conn.execute(
+            "select path, format, type, md5, docCollection, parentId, mId, originalName, originalExtension, gmlXsd"
+            " from files where type = 'ContextDocumentation' and docId = ?",
+            [from_doc_id],
+        ).fetchone()
+        conn.execute("delete from files where type = 'ContextDocumentation' and docId = ?", [from_doc_id])
+        conn.commit()
+        from_path: Path = avid_dir.joinpath(from_path_str)
+        from_path_tmp: Path = from_path.replace(avid_dir.joinpath(from_path.name).with_name("." + from_path.name))
+        remove_empty_dir(avid.dir / "ContextDocumentation", from_path.parent)
 
-    from_path = avid_dir.joinpath(from_path_str)
-    to_path = avid_dir.joinpath(to_path_str)
+        if to_doc_id == 0:
+            to_doc_id = 1
+            context_docs = move_context_docs(conn, avid, context_docs, (to_doc_id, from_doc_id), +1)
+        else:
+            to_doc_id = len(context_docs) + 1
+            context_docs = move_context_docs(conn, avid, context_docs, (from_doc_id, to_doc_id), -1)
 
-    from_path_tmp = from_path.rename(to_path.with_name(f"tmp-{to_path.name}"))
-    to_path.rename(from_path)
-    from_path_tmp.rename(to_path)
+        context_docs[to_doc_id] = from_doc
 
-    conn.execute(
-        "update files set path = ?, md5 = ? where type = 'ContextDocumentation' and docId = ?",
-        ["." + to_path_str, to_md5, from_doc_id],
-    )
-    conn.execute(
-        "update files set path = ?, md5 = ? where type = 'ContextDocumentation' and docId = ?",
-        [from_path_str, from_md5, to_doc_id],
-    )
-    conn.execute(
-        "update files set path = ? where type = 'ContextDocumentation' and docId = ?",
-        [to_path_str, from_doc_id],
-    )
+        new_path: Path = avid.dir.joinpath(
+            "ContextDocumentation",
+            f"docCollection{from_doc_data[3]}",
+            str(to_doc_id),
+            from_path.name,
+        )
+        new_path.parent.mkdir(parents=True, exist_ok=True)
+        from_path_tmp.rename(new_path)
+        conn.execute(
+            "insert into files"
+            " (path, docId, format, type, md5, docCollection, parentId, mId, originalName, originalExtension, gmlXsd)"
+            " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [str(new_path.relative_to(avid.dir)), to_doc_id, *from_doc_data],
+        )
+    else:
+        to_doc = deepcopy(context_docs[to_doc_id])
+        context_docs[from_doc_id] = to_doc
+        context_docs[to_doc_id] = from_doc
+
+        from_path_str, from_md5 = conn.execute(
+            "select path, md5 from files where type = 'ContextDocumentation' and docId = ?", [from_doc_id]
+        ).fetchone()
+        to_path_str, to_md5 = conn.execute(
+            "select path, md5 from files where type = 'ContextDocumentation' and docId = ?", [to_doc_id]
+        ).fetchone()
+
+        from_path = avid_dir.joinpath(from_path_str)
+        to_path = avid_dir.joinpath(to_path_str)
+
+        from_path_tmp = from_path.rename(to_path.with_name(f"tmp-{to_path.name}"))
+        to_path.rename(from_path)
+        from_path_tmp.rename(to_path)
+
+        conn.execute(
+            "update files set path = ?, md5 = ? where type = 'ContextDocumentation' and docId = ?",
+            ["." + to_path_str, to_md5, from_doc_id],
+        )
+        conn.execute(
+            "update files set path = ?, md5 = ? where type = 'ContextDocumentation' and docId = ?",
+            [from_path_str, from_md5, to_doc_id],
+        )
+        conn.execute(
+            "update files set path = ? where type = 'ContextDocumentation' and docId = ?",
+            [to_path_str, from_doc_id],
+        )
 
     write_context_documentation(avid, context_docs)
     update_md5(conn, avid.indices.contextDocumentationIndex)
@@ -268,6 +307,7 @@ def cmd_context_move(ctx: Context, avid_dir: Path, from_doc_id: int, to_doc_id: 
     validate_xml(avid.indices.contextDocumentationIndex, avid.schemas.contextDocumentationIndex)
 
 
+# noinspection DuplicatedCode
 @grp_context.command("delete", no_args_is_help=True)
 @argument_avid_dir(True)
 @argument("DOC_ID", type=IntRange(1))
@@ -278,6 +318,9 @@ def cmd_context_delete(ctx: Context, avid_dir: Path, doc_id: int):
     avid = AVID(avid_dir)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)
+
+    if doc_id not in context_docs:
+        raise BadParameter(f"no context document with ID {doc_id}", ctx, ctx_params(ctx)["doc_id"])
 
     path_str: str = conn.execute(
         "select path from files where type = 'ContextDocumentation' and docId = ?",
