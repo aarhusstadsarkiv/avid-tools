@@ -1,5 +1,6 @@
 from hashlib import md5
 from pathlib import Path
+from re import match
 
 from acacore.utils.functions import is_valid_suffix
 from click import argument
@@ -96,6 +97,15 @@ class AVID:
     def schemas(self) -> Schemas:
         """Schemas"""
         return Schemas(self.dir)
+
+    @property
+    def tables(self) -> dict[int, Path]:
+        """Tables"""
+        return {
+            int(f.name.removeprefix("table")): f.joinpath(f.name).with_suffix(".xml")
+            for f in self.dir.joinpath("Tables").iterdir()
+            if f.is_dir() and match(r"table\d+", f.name)
+        }
 
 
 def argument_avid_dir(database_exists: bool):
