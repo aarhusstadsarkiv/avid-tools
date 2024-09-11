@@ -153,6 +153,11 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
     conn = create_database(db_path)
     avid = AVID(avid_dir)
 
+    context_docs: dict[int, dict] = read_context_documentation(avid)
+
+    if doc_id not in context_docs:
+        raise BadParameter(f"no context document with ID {doc_id}", ctx, ctx_params(ctx)["doc_id"])
+
     if metadata:
         if validation_error := validate_xml(metadata, avid.schemas.contextDocumentationIndex):
             raise BadParameter(validation_error.message, ctx, ctx_params(ctx)["metadata"])
@@ -165,7 +170,6 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
         except:
             raise BadParameter("Cannot parse metadata as XML", ctx, ctx_params(ctx)["metadata"])
 
-        context_docs: dict[int, dict] = read_context_documentation(avid)
         context_docs[doc_id] = new_context_doc
         write_context_documentation(avid, context_docs)
         update_md5(conn, avid.indices.contextDocumentationIndex)
