@@ -64,7 +64,7 @@ class ContentHandlerTableSearch(ContentHandler):
 @argument("patterns", metavar="PATTERN...", nargs=-1, required=True)
 @option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True)
 @option("--limit", type=IntRange(1), default=None)
-@option("--columns/--no-columns", "show_columns", is_flag=True, default=True)
+@option("--show-columns/--show-rows", "show_columns", is_flag=True, default=True)
 @pass_context
 def cmd_search(
     ctx: Context,
