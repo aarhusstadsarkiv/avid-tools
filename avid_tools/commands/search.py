@@ -1,4 +1,3 @@
-from json import dumps
 from pathlib import Path
 from re import compile as re_compile
 from re import IGNORECASE
