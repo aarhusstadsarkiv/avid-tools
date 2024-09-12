@@ -121,3 +121,35 @@ def write_context_documentation(avid: AVID, context_docs: dict[int, dict[str, An
         }
     }
     avid.indices.contextDocumentationIndex.write_text(unparse_xml(xml, encoding="utf-8"), encoding="utf-8")
+
+
+def read_table_index(avid: AVID) -> dict[str, Any]:
+    with avid.indices.tableIndex.open("rb") as fh:
+        index: dict[str, Any] = parse_xml(fh, encoding="utf-8")["siardDiark"]
+
+    index = {k: v for k, v in index.items() if not k.startswith("@")}
+
+    if isinstance(index["tables"]["table"], dict):
+        index["tables"]["table"] = [index["tables"]["table"]]
+
+    for n, t in enumerate(index["tables"]["table"]):
+        if isinstance(t["columns"]["column"], dict):
+            index["tables"]["table"][n]["columns"]["column"] = [t["columns"]["column"]]
+
+    if isinstance(index["views"]["view"], dict):
+        index["views"]["view"] = [index["views"]["view"]]
+
+    return index
+
+
+# noinspection HttpUrlsUsage
+def write_table_index(avid: AVID, index: dict[str, Any]):
+    xml: dict[str, Any] = {
+        "siardDiark": {
+            "@xmlns": "http://www.sa.dk/xmlns/diark/1.0",
+            "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            "@xsi:schemaLocation": "http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/tableIndex.xsd",
+            **index,
+        }
+    }
+    avid.indices.tableIndex.write_text(unparse_xml(xml, encoding="utf-8"), encoding="utf-8")
