@@ -89,12 +89,14 @@ def cmd_search(
 
         def on_match_print(table: int, row_number: int, columns: list[str]):
             print(
-                *(f"table{table_id}/{row_number}/c{n}: {col}" for n, col in enumerate(columns, 1)), sep="\n", end="\n\n"
+                *(f"table{table_id}/row{row_number}/c{n}: {col}" for n, col in enumerate(columns, 1)),
+                sep="\n",
+                end="\n\n",
             )
     else:
 
         def on_match_print(table: int, row_number: int, columns: list[str]):
-            print(f"table{table_id}/{row_number}")
+            print(f"table{table_id}/row{row_number}")
 
     for table_id in table_ids:
         file: Path = tables[table_id]
