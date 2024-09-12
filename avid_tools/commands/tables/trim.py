@@ -21,6 +21,8 @@ from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
 from avid_tools.utils import print_line
 
+from ...database import create_database
+from ...database import update_md5
 from .utils import Column
 from .utils import read_table_schema
 
@@ -76,6 +78,8 @@ class ContentHandlerTrim(ContentHandler):
 @option("--table", "-t", "table_ids", metavar="ID", type=IntRange(1), multiple=True)
 @pass_context
 def cmd_trim(ctx: Context, avid_dir: Path, table_ids: tuple[int, ...]):
+    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+    conn = create_database(db_path)
     avid = AVID(avid_dir)
     tables = avid.tables
     schemas = avid.schemas.tables
@@ -96,15 +100,15 @@ def cmd_trim(ctx: Context, avid_dir: Path, table_ids: tuple[int, ...]):
                 with out_file.open("w", encoding="utf-8") as fo:
                     sax_parse(fi, ContentHandlerTrim(fo, {c.name: c for c in columns}))
 
-            new_size, old_size = out_file.stat().st_size, file.stat().st_size
-
             clear_line()
 
-            if new_size != old_size:
-                out_file.replace(file)
-                print(f"{file.name}/saved {new_size}B")
-                print(f"{file.name}/removed {old_size - new_size}B")
-            else:
-                print(f"{file.name}/no changes")
+            _, clear_line = print_line(f"{file.name}/updating hash... ", end="", flush=True)
+
+            out_file.replace(file)
+
+            update_md5(conn, file)
+            conn.commit()
+
+            clear_line()
         finally:
             out_file.unlink(missing_ok=True)
