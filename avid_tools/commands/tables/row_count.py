@@ -17,6 +17,7 @@ from avid_tools.indices import write_table_index
 from avid_tools.utils import argument_avid_dir
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
+from avid_tools.utils import validate_xml
 
 
 class ContentHandlerRowCount(ContentHandler):
@@ -60,5 +61,6 @@ def cmd_update_row_count(ctx: Context, avid_dir: Path, table_ids: tuple[int, ...
     table_index["tables"]["table"] = [table_index_tables[i] for i in sorted(table_index_tables.keys())]
 
     write_table_index(avid, table_index)
+    validate_xml(avid.indices.tableIndex, avid.schemas.tableIndex)
     update_md5(conn, avid.indices.tableIndex)
     conn.commit()
