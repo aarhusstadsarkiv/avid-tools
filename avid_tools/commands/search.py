@@ -73,6 +73,7 @@ class ContentHandlerTableSearch(ContentHandler):
 @option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True)
 @option(
     "--column",
+    "-c",
     "columns",
     metavar="TABLE_ID COLUMN_ID",
     type=(IntRange(1), IntRange(1)),
