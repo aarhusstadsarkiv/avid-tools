@@ -95,7 +95,7 @@ def cmd_search(
             )
     else:
 
-        def on_match_print(table: int, row_number: int, columns: list[str]):
+        def on_match_print(_table: int, row_number: int, _columns: list[str]):
             print(f"table{table_id}/row{row_number}")
 
     for table_id in table_ids:
