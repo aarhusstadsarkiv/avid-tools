@@ -32,7 +32,10 @@ def generate_file_index(conn: Connection, avid: AVID):
         fh.write(
             '<fileIndex xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/fileIndex.xsd" xmlns="http://www.sa.dk/xmlns/diark/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
         )
-        cur = conn.execute("select path, md5 from files order by path")
+        cur = conn.execute(
+            "select path, md5 from files where path != ? order by path",
+            [str(avid.indices.fileIndex.relative_to(avid.dir))],
+        )
         for path_str, md5 in cur:
             path = Path(path_str)
             fh.write("<f>")
