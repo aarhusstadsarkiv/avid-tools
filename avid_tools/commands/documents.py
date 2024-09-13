@@ -18,7 +18,7 @@ from avid_tools.utils import argument_avid_dir
 def grp_documents(): ...
 
 
-@grp_documents.command("extensions")
+@grp_documents.command("extensions", no_args_is_help=True)
 @argument_avid_dir(True)
 @option("--limit", type=IntRange(1), default=None)
 @option("--reverse", is_flag=True, default=False)
@@ -40,7 +40,7 @@ def cmd_documents_extensions(_ctx: Context, avid_dir: Path, limit: int | None, r
     file.close()
 
 
-@grp_documents.command("checksums")
+@grp_documents.command("checksums", no_args_is_help=True)
 @argument_avid_dir(True)
 @option("--limit", type=IntRange(1), default=None)
 @option("--reverse", is_flag=True, default=False)
