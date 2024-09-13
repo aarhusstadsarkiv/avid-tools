@@ -66,7 +66,7 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
 @grp_index.command("update", no_args_is_help=True)
 @argument_avid_dir(True)
 @argument(
-    "index",
+    "index_file",
     type=ClickPath(exists=True, dir_okay=False, readable=True),
     nargs=1,
     required=True,
@@ -80,13 +80,13 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
     required=False,
 )
 @pass_context
-def cmd_index_update(ctx: Context, avid_dir: Path, index: Path, index_type: str | None):
+def cmd_index_update(ctx: Context, avid_dir: Path, index_file: Path, index_type: str | None):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
     avid = AVID(avid_dir)
 
-    if index.name in ["archiveIndex.xml", "contextDocumentationIndex.xml", "tableIndex.xml"] and not index_type:
-        index_type = index.with_suffix("").name
+    if index_file.name in ["archiveIndex.xml", "contextDocumentationIndex.xml", "tableIndex.xml"] and not index_type:
+        index_type = index_file.with_suffix("").name
     elif not index_type:
         raise BadParameter(
             f"cannot recognize index type from file {index_type}",
@@ -104,11 +104,11 @@ def cmd_index_update(ctx: Context, avid_dir: Path, index: Path, index_type: str 
     else:
         raise BadParameter(f"unknown index type {index_type}", ctx, ctx_params(ctx)["index_type"])
 
-    if validation_error := validate_xml(index, schema):
+    if validation_error := validate_xml(index_file, schema):
         raise BadParameter(validation_error.msg, ctx, ctx_params(ctx)["index"])
 
-    if index != target:
-        copy2(index, target)
+    if index_file != target:
+        copy2(index_file, target)
 
     update_md5(conn, target)
     conn.commit()
