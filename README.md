@@ -7,15 +7,15 @@ Merges functionality from these repos: `avid-utils`, `convert-unmanaged`, `conve
 - `root` (path to avid-root, e.g. 'C:\AVID.AARS.61.1' or '.'
 
 ## Global options
-- `--logfile` (persist log in file instead of writing to stdout)
-- `--dry-run` (do a test run, instead of actually adding, moving, replacing, deleting, updating any files)
+[//]: # (- `--logfile` &#40;persist log in file instead of writing to stdout&#41;)
+[//]: # (- `--dry-run` &#40;do a test run, instead of actually adding, moving, replacing, deleting, updating any files&#41;)
 - `--version` (print version and exit)
 - `--help` (print help and exit. Global option, that can be used with subcommands as well)
 
 ## context subcommand
 Commands related to contextDocumentation
 
-### `context add [--position INT] FILEPATH`
+### `context add [--position INT] FILEPATH METADATA`
 The {filepath} must point to a valid tif-file. The position determines where the contextDocument is to be placed. It defaults to last id-folder + 1.
 
 ```shell
@@ -31,7 +31,7 @@ Move a contextDocument to a new position, and re-assign new ids for all affected
 $ avid-tools . context move 12 8
 ```
 
-### `context update DOC-ID FILEPATH`
+### `context update DOC-ID [--file FILEPATH] [--metadata METADATA]`
 Update a contextDocument with a new tif-file. Update fileIndex.xml with new checksum, and potentially a new extension.
 
 ```shell
@@ -69,7 +69,7 @@ $ avid-tools . table update-row-count --table 4
 ## doc subcommand
 Commands related to the docs in the docCollections
 
-### `doc replace DOC-COLLECTION DOC-ID FILEPATH`
+### `doc replace DOC-COLLECTION DOC-ID FILEPATH` (postponed))
 Replace a document (one or more files) with a new document (one or more files). FILEPATH points to a folder with the new file(s). If the name of one or more of the files in FILEPATH is not named according to the demands of incremental integers, use its filename as original filename (<oFn>) in docIndex.xml. Update fileIndex.xml with new checksum(s), and possibly new extension(s) and entries. 
 
 ```shell
@@ -121,8 +121,8 @@ Display metadata from one or more of the index.xml-files. Use `--type` ('archive
 $ avid-tools . index --type archive
 ```
 
-### `index update FILEPATH`
-Update an index file (archiveIndex, contextDocumentationIndex, tableIndex, docIndex) with the xml file at the FILEPATH. Finally update fileIndex.xml.
+### `index update AVID_DIR [--type INDEX_TYPE] INDEX_FILE`
+Update an index file (archiveIndex, contextDocumentationIndex, tableIndex) with the xml file at the FILEPATH. Finally update fileIndex.xml.
 
 ```shell
 # Update archiveIndex.xml
