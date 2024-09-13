@@ -107,6 +107,8 @@ def cmd_index_update(ctx: Context, avid_dir: Path, index: Path, index_type: str 
     if validation_error := validate_xml(index, schema):
         raise BadParameter(validation_error.msg, ctx, ctx_params(ctx)["index"])
 
-    copy2(index, target)
+    if index != target:
+        copy2(index, target)
+
     update_md5(conn, target)
     conn.commit()
