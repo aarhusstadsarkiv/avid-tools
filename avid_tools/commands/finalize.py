@@ -26,6 +26,7 @@ from avid_tools.utils import validate_xml
         "index",
         "context",
     ),
+    multiple=True,
     show_default=True,
 )
 @pass_context
@@ -53,7 +54,7 @@ def cmd_finalize(ctx: Context, avid_dir: Path, update_hashes: tuple[str, ...]):
         update_md5(conn, avid.indices.tableIndex)
 
     if "context" in update_hashes:
-        for context_doc_path in conn.execute("select path from files where type = 'ContextDocumentation'"):
+        for [context_doc_path] in conn.execute("select path from files where type = 'ContextDocumentation'"):
             update_md5(conn, avid.dir.joinpath(context_doc_path))
 
     if "tables" in update_hashes:
@@ -61,7 +62,7 @@ def cmd_finalize(ctx: Context, avid_dir: Path, update_hashes: tuple[str, ...]):
             update_md5(conn, table_path)
 
     if "documents" in update_hashes:
-        for document_path in conn.execute("select path from files where type = 'Documents'"):
+        for [document_path] in conn.execute("select path from files where type = 'Documents'"):
             update_md5(conn, avid.dir.joinpath(document_path))
 
     generate_doc_index(conn, avid)
