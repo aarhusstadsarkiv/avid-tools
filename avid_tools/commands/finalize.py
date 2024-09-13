@@ -1,8 +1,10 @@
 from pathlib import Path
 
 from click import BadParameter
+from click import Choice
 from click import command
 from click import Context
+from click import option
 from click import pass_context
 
 from avid_tools.database import create_database
@@ -17,11 +19,21 @@ from avid_tools.utils import validate_xml
 
 @command("finalize", no_args_is_help=True)
 @argument_avid_dir(True)
+@option(
+    "--update-hashes",
+    type=Choice(["all", "index", "context", "tables", "documents"]),
+    default=(
+        "index",
+        "context",
+    ),
+    show_default=True,
+)
 @pass_context
-def cmd_finalize(ctx: Context, avid_dir: Path):
+def cmd_finalize(ctx: Context, avid_dir: Path, update_hashes: tuple[str, ...]):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
     avid = AVID(avid_dir)
+    update_hashes = ("index", "context", "tables", "documents") if "all" in update_hashes else update_hashes
 
     for index_file, schema in (
         (avid.indices.archiveIndex, avid.schemas.archiveIndex),
@@ -34,13 +46,23 @@ def cmd_finalize(ctx: Context, avid_dir: Path):
                 ctx,
                 ctx_params(ctx)["avid_dir"],
             )
-        update_md5(conn, index_file)
 
-    for context_doc_path in conn.execute("select path from files where type = 'ContextDocumentation'"):
-        update_md5(conn, avid.dir.joinpath(context_doc_path))
+    if "index" in update_hashes:
+        update_md5(conn, avid.indices.archiveIndex)
+        update_md5(conn, avid.indices.contextDocumentationIndex)
+        update_md5(conn, avid.indices.tableIndex)
 
-    for table_path in avid.tables.values():
-        update_md5(conn, table_path)
+    if "context" in update_hashes:
+        for context_doc_path in conn.execute("select path from files where type = 'ContextDocumentation'"):
+            update_md5(conn, avid.dir.joinpath(context_doc_path))
+
+    if "tables" in update_hashes:
+        for table_path in avid.tables.values():
+            update_md5(conn, table_path)
+
+    if "documents" in update_hashes:
+        for document_path in conn.execute("select path from files where type = 'Documents'"):
+            update_md5(conn, avid.dir.joinpath(document_path))
 
     generate_doc_index(conn, avid)
     update_md5(conn, avid.indices.docIndex)
