@@ -16,6 +16,11 @@ def cmd_finalize(avid_dir: Path):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
     avid = AVID(avid_dir)
+
+    update_md5(conn, avid.indices.archiveIndex)
+    update_md5(conn, avid.indices.contextDocumentationIndex)
+    update_md5(conn, avid.indices.tableIndex)
+
     generate_doc_index(conn, avid)
     update_md5(conn, avid.indices.docIndex)
     generate_file_index(conn, avid)
