@@ -194,6 +194,7 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
         context_docs[doc_id] = new_context_doc
         write_context_documentation(avid, context_docs)
         update_md5(conn, avid.indices.contextDocumentationIndex)
+        validate_xml(avid.indices.contextDocumentationIndex, avid.schemas.contextDocumentationIndex)
 
     if file:
         path_str: str = conn.execute(
