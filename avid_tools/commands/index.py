@@ -53,11 +53,11 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
 
     for index_type in index:
         if index_type == "archiveIndex":
-            xml = parse_xml(avid.indices.archiveIndex.read_text(), encoding="utf-8")
+            xml = parse_xml(avid.indices.archiveIndex.read_text(encoding="utf-8"), encoding="utf-8")
         elif index_type == "contextDocumentationIndex":
-            xml = parse_xml(avid.indices.contextDocumentationIndex.read_text(), encoding="utf-8")
+            xml = parse_xml(avid.indices.contextDocumentationIndex.read_text(encoding="utf-8"), encoding="utf-8")
         elif index_type == "tableIndex":
-            xml = parse_xml(avid.indices.tableIndex.read_text(), encoding="utf-8")
+            xml = parse_xml(avid.indices.tableIndex.read_text(encoding="utf-8"), encoding="utf-8")
         else:
             continue
         printer(xml)
