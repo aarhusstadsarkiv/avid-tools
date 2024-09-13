@@ -27,7 +27,7 @@ def grp_documents(): ...
 def cmd_documents_extensions(ctx: Context, avid_dir: Path, limit: int | None, reverse: bool, csv_file: Path | None):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    file: TextIO = csv_file.open("w") if csv_file else stdout
+    file: TextIO = csv_file.open("w", encoding="utf-8") if csv_file else stdout
     writer = csv_writer(file, delimiter="," if csv_file else "\t")
 
     writer.writerow(["ext", "count", "firstDocId"])
@@ -49,7 +49,7 @@ def cmd_documents_extensions(ctx: Context, avid_dir: Path, limit: int | None, re
 def cmd_documents_extensions(ctx: Context, avid_dir: Path, limit: int | None, reverse: bool, csv_file: Path | None):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    file: TextIO = csv_file.open("w") if csv_file else stdout
+    file: TextIO = csv_file.open("w", encoding="utf-8") if csv_file else stdout
     writer = csv_writer(file, delimiter="," if csv_file else "\t")
 
     writer.writerow(["md5", "count", "firstDocId"])
