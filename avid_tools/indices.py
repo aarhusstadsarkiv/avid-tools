@@ -30,7 +30,10 @@ def generate_file_index(conn: Connection, avid: AVID):
     with avid.indices.fileIndex.open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
-            '<fileIndex xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/fileIndex.xsd" xmlns="http://www.sa.dk/xmlns/diark/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+            "<fileIndex"
+            ' xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/fileIndex.xsd"'
+            ' xmlns="http://www.sa.dk/xmlns/diark/1.0"'
+            ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'
         )
         cur = conn.execute(
             "select path, md5 from files where path != ? order by path",
@@ -38,11 +41,13 @@ def generate_file_index(conn: Connection, avid: AVID):
         )
         for path_str, md5 in cur:
             path = Path(path_str)
-            fh.write("<f>")
-            fh.write("<foN>{}\\{}</foN>".format(avid.dir.name, escape("\\".join(map(str, path.parent.parts)))))
-            fh.write(f"<fiN>{escape(path.name)}</fiN>")
-            fh.write(f"<md5>{md5.upper()}</md5>")
-            fh.write("</f>")
+            fh.write("    <f>\n")
+            fh.write(
+                "        <foN>{}\\{}</foN>\n".format(avid.dir.name, escape("\\".join(map(str, path.parent.parts))))
+            )
+            fh.write(f"        <fiN>{escape(path.name)}</fiN>\n")
+            fh.write(f"        <md5>{md5.upper()}</md5>\n")
+            fh.write("    </f>\n")
         fh.write("</fileIndex>")
 
 
@@ -73,7 +78,10 @@ def generate_doc_index(conn: Connection, avid: AVID):
     with avid.indices.docIndex.open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
-            '<docIndex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0" xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/docIndex.xsd">'
+            "<docIndex"
+            ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+            ' xmlns="http://www.sa.dk/xmlns/diark/1.0"'
+            ' xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/docIndex.xsd">\n'
         )
         cur = conn.execute(
             "select docId, min(mId) as mId, min(parentId) as parentId, min(docCollection) as docCollection,"
@@ -83,17 +91,17 @@ def generate_doc_index(conn: Connection, avid: AVID):
         cur.row_factory = Row
         document: Row
         for document in cur:
-            fh.write("<doc>")
-            fh.write(f"<dID>{document['docId']}</dID>")
+            fh.write("    <doc>\n")
+            fh.write(f"        <dID>{document['docId']}</dID>\n")
             if document["parentId"] is not None:
-                fh.write(f"<pID>{document['parentId']}</pID>")
-            fh.write(f"<mID>{document['mId']}</mID>")
-            fh.write(f"<dCf>docCollection{document['docCollection']}</dCf>")
-            fh.write(f"<oFn>{escape(document['originalName'])}</oFn>")
-            fh.write(f"<aFt>{escape(document['format'])}</aFt>")
+                fh.write(f"        <pID>{document['parentId']}</pID>\n")
+            fh.write(f"        <mID>{document['mId']}</mID>\n")
+            fh.write(f"        <dCf>docCollection{document['docCollection']}</dCf>\n")
+            fh.write(f"        <oFn>{escape(document['originalName'])}</oFn>\n")
+            fh.write(f"        <aFt>{escape(document['format'])}</aFt>\n")
             if document["gmlXsd"] is not None:
-                fh.write(f"<gmlXsd>{escape(document['gmlXsd'])}</gmlXsd>")
-            fh.write("</doc>")
+                fh.write(f"        <gmlXsd>{escape(document['gmlXsd'])}</gmlXsd>\n")
+            fh.write("    </doc>\n")
         fh.write("</docIndex>")
 
 
