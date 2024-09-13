@@ -73,7 +73,7 @@ def generate_doc_index(conn: Connection, avid: AVID):
     with avid.indices.docIndex.open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
-            '<docIndex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0" xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 file:///C:/Documents%20and%20Settings/rateb/Skrivebord/GML%20aflevering/AVID.SA.18001.1/Schemas/standard/docIndex.xsd">'
+            '<docIndex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0" xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/docIndex.xsd">'
         )
         cur = conn.execute(
             "select docId, min(mId) as mId, min(parentId) as parentId, min(docCollection) as docCollection,"
