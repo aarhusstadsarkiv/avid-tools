@@ -24,7 +24,7 @@ def grp_documents(): ...
 @option("--reverse", is_flag=True, default=False)
 @option("--csv-file", type=ClickPath(dir_okay=False, writable=True), callback=lambda _c, _p, v: Path(v) if v else None)
 @pass_context
-def cmd_documents_extensions(ctx: Context, avid_dir: Path, limit: int | None, reverse: bool, csv_file: Path | None):
+def cmd_documents_extensions(_ctx: Context, avid_dir: Path, limit: int | None, reverse: bool, csv_file: Path | None):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
     file: TextIO = csv_file.open("w", encoding="utf-8") if csv_file else stdout
@@ -46,7 +46,7 @@ def cmd_documents_extensions(ctx: Context, avid_dir: Path, limit: int | None, re
 @option("--reverse", is_flag=True, default=False)
 @option("--csv-file", type=ClickPath(dir_okay=False, writable=True), callback=lambda _c, _p, v: Path(v) if v else None)
 @pass_context
-def cmd_documents_extensions(ctx: Context, avid_dir: Path, limit: int | None, reverse: bool, csv_file: Path | None):
+def cmd_documents_extensions(_ctx: Context, avid_dir: Path, limit: int | None, reverse: bool, csv_file: Path | None):
     db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
     file: TextIO = csv_file.open("w", encoding="utf-8") if csv_file else stdout
