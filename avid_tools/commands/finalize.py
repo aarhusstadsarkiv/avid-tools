@@ -36,8 +36,11 @@ def cmd_finalize(ctx: Context, avid_dir: Path):
             )
         update_md5(conn, index_file)
 
-    for path_str in conn.execute("select path from files where type = 'ContextDocumentation'"):
-        update_md5(conn, avid.dir.joinpath(path_str))
+    for context_doc_path in conn.execute("select path from files where type = 'ContextDocumentation'"):
+        update_md5(conn, avid.dir.joinpath(context_doc_path))
+
+    for table_path in avid.tables.values():
+        update_md5(conn, table_path)
 
     generate_doc_index(conn, avid)
     update_md5(conn, avid.indices.docIndex)
