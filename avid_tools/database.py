@@ -54,6 +54,26 @@ def create_database(path: Path) -> Connection:
     conn.execute("create index if not exists idx_files_md5 on files (md5)")
     conn.execute("create index if not exists idx_files_type on files (type)")
 
+    conn.execute(
+        """create view if not exists originalExtensionCount as
+            select originalExtension, count(*) as count, min(docId) as firstDocId
+            from files
+            where type = 'Documents'
+            group by originalExtension
+            order by count desc
+          """
+    )
+
+    conn.execute(
+        """create view if not exists md5Count as
+            select md5, count(*) as count, min(docId) as firstDocId
+            from files
+            where type = 'Documents'
+            group by md5
+            order by count desc
+          """
+    )
+
     return conn
 
 
