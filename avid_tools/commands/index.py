@@ -19,15 +19,15 @@ from avid_tools.utils import ctx_params
 from avid_tools.utils import validate_xml
 
 
-@group("index")
+@group("index", no_args_is_help=True)
 def grp_index(): ...
 
 
-@grp_index.command("view")
+@grp_index.command("view", no_args_is_help=True)
 @argument_avid_dir(True)
 @argument(
     "index",
-    type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"]),
+    type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"], case_sensitive=False),
     nargs=-1,
     required=True,
 )
@@ -63,7 +63,7 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
         printer(xml)
 
 
-@grp_index.command("update")
+@grp_index.command("update", no_args_is_help=True)
 @argument_avid_dir(True)
 @argument(
     "index",
@@ -75,7 +75,7 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
 @option(
     "--type",
     "index_type",
-    type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"]),
+    type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"], case_sensitive=False),
     default=None,
     required=False,
 )
