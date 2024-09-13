@@ -3,6 +3,7 @@ from click import version_option
 
 from .__version__ import __version__
 from .commands.context.context import grp_context
+from .commands.documents import grp_documents
 from .commands.finalize import cmd_finalize
 from .commands.index import grp_index
 from .commands.init import cmd_init
@@ -19,6 +20,7 @@ app.add_command(cmd_init, cmd_init.name)
 app.add_command(grp_context, grp_context.name)
 app.add_command(grp_tables, grp_tables.name)
 app.add_command(grp_index, grp_index.name)
+app.add_command(grp_documents, grp_documents.name)
 app.add_command(cmd_search, cmd_search.name)
 app.add_command(cmd_finalize, cmd_finalize.name)
 
