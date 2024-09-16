@@ -14,6 +14,7 @@ xmlschema = "^3.4.1"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.4"
 types-click = "^7.1.8"
+pyinstaller = "^6.10.0"
 
 [tool.poetry.scripts]
 avid-tools = "avid_tools.app:app"
