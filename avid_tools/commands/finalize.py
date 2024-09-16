@@ -11,14 +11,13 @@ from avid_tools.database import create_database
 from avid_tools.database import update_md5
 from avid_tools.indices import generate_doc_index
 from avid_tools.indices import generate_file_index
-from avid_tools.utils import argument_avid_dir
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
+from avid_tools.utils import find_avid_dir
 from avid_tools.utils import validate_xml
 
 
 @command("finalize", no_args_is_help=True)
-@argument_avid_dir(True)
 @option(
     "--update-hashes",
     type=Choice(["all", "index", "context", "tables", "documents"]),
@@ -30,10 +29,10 @@ from avid_tools.utils import validate_xml
     show_default=True,
 )
 @pass_context
-def cmd_finalize(ctx: Context, avid_dir: Path, update_hashes: tuple[str, ...]):
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...]):
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    avid = AVID(avid_dir)
     update_hashes = ("index", "context", "tables", "documents") if "all" in update_hashes else update_hashes
 
     for index_file, schema in (

@@ -18,9 +18,9 @@ from avid_tools.database import insert_file
 from avid_tools.database import update_md5
 from avid_tools.indices import read_context_documentation
 from avid_tools.indices import write_context_documentation
-from avid_tools.utils import argument_avid_dir
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
+from avid_tools.utils import find_avid_dir
 from avid_tools.utils import remove_empty_dir
 from avid_tools.utils import validate_xml
 
@@ -71,7 +71,6 @@ def grp_context(): ...
 
 # noinspection HttpUrlsUsage,DuplicatedCode
 @grp_context.command("add", no_args_is_help=True, short_help="Add a context document.")
-@argument_avid_dir(True)
 @argument(
     "file",
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
@@ -84,7 +83,7 @@ def grp_context(): ...
 )
 @option("--position", metavar="INTEGER", type=IntRange(1), default=None, help="Position of the new context document.")
 @pass_context
-def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, position: int):
+def cmd_context_add(ctx: Context, file: Path, metadata: Path, position: int):
     """
     Add a context document to the archive in AVID_DIR.
 
@@ -107,9 +106,9 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
         <document>...</document>
     </contextDocumentationIndex>
     """
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    avid = AVID(avid_dir)
 
     if validation_error := validate_xml(metadata, avid.schemas.contextDocumentationIndex):
         raise BadParameter(validation_error.message, ctx, ctx_params(ctx)["metadata"])
@@ -130,7 +129,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
 
     context_docs[new_context_doc_id] = new_context_doc
 
-    new_context_doc_path = avid_dir.joinpath(
+    new_context_doc_path = avid.dir.joinpath(
         "ContextDocumentation",
         f"docCollection1",
         str(new_context_doc_id),
@@ -138,7 +137,7 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     )
     new_context_doc_path.parent.mkdir(parents=True, exist_ok=True)
     copy2(file, new_context_doc_path)
-    insert_file(conn, avid_dir, new_context_doc_path.relative_to(avid_dir))
+    insert_file(conn, avid.dir, new_context_doc_path.relative_to(avid.dir))
 
     write_context_documentation(avid, context_docs)
 
@@ -151,7 +150,6 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
 
 # noinspection HttpUrlsUsage,DuplicatedCode
 @grp_context.command("update", no_args_is_help=True)
-@argument_avid_dir(True)
 @argument("DOC_ID", type=IntRange(1))
 @option(
     "--file",
@@ -166,13 +164,13 @@ def cmd_context_add(ctx: Context, avid_dir: Path, file: Path, metadata: Path, po
     callback=lambda _c, _p, v: Path(v) if v else None,
 )
 @pass_context
-def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | None, metadata: Path | None):
+def cmd_context_update(ctx: Context, doc_id: int, file: Path | None, metadata: Path | None):
     if not file and not metadata:
         return
 
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    avid = AVID(avid_dir)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)
 
@@ -201,10 +199,10 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
             "select path from files where type = 'ContextDocumentation' and docId = ?",
             [doc_id],
         ).fetchone()[0]
-        copy2(file, path := avid_dir.joinpath(path_str).with_suffix(file.suffix))
+        copy2(file, path := avid.dir.joinpath(path_str).with_suffix(file.suffix))
         conn.execute(
             "update files set path = ? where type = 'ContextDocumentation' and docId = ?",
-            [str(path.relative_to(avid_dir)), doc_id],
+            [str(path.relative_to(avid.dir)), doc_id],
         )
         update_md5(conn, path)
 
@@ -213,14 +211,13 @@ def cmd_context_update(ctx: Context, avid_dir: Path, doc_id: int, file: Path | N
 
 # noinspection DuplicatedCode
 @grp_context.command("move", no_args_is_help=True, context_settings={"ignore_unknown_options": True})
-@argument_avid_dir(True)
 @argument("FROM_DOC_ID", type=IntRange(1))
 @argument("TO_DOC_ID", type=IntRange(-1))
 @pass_context
-def cmd_context_move(ctx: Context, avid_dir: Path, from_doc_id: int, to_doc_id: int):
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+def cmd_context_move(ctx: Context, from_doc_id: int, to_doc_id: int):
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    avid = AVID(avid_dir)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)
 
@@ -242,8 +239,8 @@ def cmd_context_move(ctx: Context, avid_dir: Path, from_doc_id: int, to_doc_id: 
         ).fetchone()
         conn.execute("delete from files where type = 'ContextDocumentation' and docId = ?", [from_doc_id])
         conn.commit()
-        from_path: Path = avid_dir.joinpath(from_path_str)
-        from_path_tmp: Path = from_path.replace(avid_dir.joinpath(from_path.name).with_name("." + from_path.name))
+        from_path: Path = avid.dir.joinpath(from_path_str)
+        from_path_tmp: Path = from_path.replace(avid.dir.joinpath(from_path.name).with_name("." + from_path.name))
         remove_empty_dir(avid.dir / "ContextDocumentation", from_path.parent)
 
         if to_doc_id == 0:
@@ -281,8 +278,8 @@ def cmd_context_move(ctx: Context, avid_dir: Path, from_doc_id: int, to_doc_id: 
             "select path, md5 from files where type = 'ContextDocumentation' and docId = ?", [to_doc_id]
         ).fetchone()
 
-        from_path = avid_dir.joinpath(from_path_str)
-        to_path = avid_dir.joinpath(to_path_str)
+        from_path = avid.dir.joinpath(from_path_str)
+        to_path = avid.dir.joinpath(to_path_str)
 
         from_path_tmp = from_path.rename(to_path.with_name(f"tmp-{to_path.name}"))
         to_path.rename(from_path)
@@ -310,13 +307,12 @@ def cmd_context_move(ctx: Context, avid_dir: Path, from_doc_id: int, to_doc_id: 
 
 # noinspection DuplicatedCode
 @grp_context.command("delete", no_args_is_help=True)
-@argument_avid_dir(True)
 @argument("DOC_ID", type=IntRange(1))
 @pass_context
-def cmd_context_delete(ctx: Context, avid_dir: Path, doc_id: int):
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+def cmd_context_delete(ctx: Context, doc_id: int):
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    avid = AVID(avid_dir)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)
 
@@ -327,9 +323,9 @@ def cmd_context_delete(ctx: Context, avid_dir: Path, doc_id: int):
         "select path from files where type = 'ContextDocumentation' and docId = ?",
         [doc_id],
     ).fetchone()[0]
-    avid_dir.joinpath(path_str).unlink(missing_ok=True)
+    avid.dir.joinpath(path_str).unlink(missing_ok=True)
     conn.execute("delete from files where path = ?", [path_str])
-    remove_empty_dir(avid_dir.joinpath("ContextDocumentation"), avid_dir.joinpath(path_str).parent)
+    remove_empty_dir(avid.dir.joinpath("ContextDocumentation"), avid.dir.joinpath(path_str).parent)
 
     del context_docs[doc_id]
 

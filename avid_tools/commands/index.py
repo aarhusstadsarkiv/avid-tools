@@ -13,9 +13,9 @@ from xmltodict import parse as parse_xml
 
 from avid_tools.database import create_database
 from avid_tools.database import update_md5
-from avid_tools.utils import argument_avid_dir
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
+from avid_tools.utils import find_avid_dir
 from avid_tools.utils import validate_xml
 
 
@@ -24,15 +24,13 @@ def grp_index(): ...
 
 
 @grp_index.command("view", no_args_is_help=True)
-@argument_avid_dir(True)
 @argument(
     "index",
     type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"], case_sensitive=False),
     nargs=-1,
     required=True,
 )
-@pass_context
-def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
+def cmd_index_view(index: tuple[str, ...]):
     def printer(obj: dict | list, indent: int = 0):
         if isinstance(obj, dict):
             for k, v in obj.items():
@@ -49,7 +47,7 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
                 else:
                     print("    " * indent, f"{n}: {v}", sep="")
 
-    avid = AVID(avid_dir)
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
 
     for index_type in index:
         if index_type == "archiveIndex":
@@ -64,7 +62,6 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
 
 
 @grp_index.command("update", no_args_is_help=True)
-@argument_avid_dir(True)
 @argument(
     "index_file",
     type=ClickPath(exists=True, dir_okay=False, readable=True),
@@ -80,10 +77,10 @@ def cmd_index_view(ctx: Context, avid_dir: Path, index: tuple[str, ...]):
     required=False,
 )
 @pass_context
-def cmd_index_update(ctx: Context, avid_dir: Path, index_file: Path, index_type: str | None):
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+def cmd_index_update(ctx: Context, index_file: Path, index_type: str | None):
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    avid = AVID(avid_dir)
 
     if index_file.name in ["archiveIndex.xml", "contextDocumentationIndex.xml", "tableIndex.xml"] and not index_type:
         index_type = index_file.with_suffix("").name

@@ -16,13 +16,13 @@ from click import IntRange
 from click import option
 from click import pass_context
 
-from avid_tools.utils import argument_avid_dir
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
 from avid_tools.utils import print_line
 
 from ...database import create_database
 from ...database import update_md5
+from ...utils import find_avid_dir
 from .utils import Column
 from .utils import read_table_schema
 
@@ -74,13 +74,12 @@ class ContentHandlerTrim(ContentHandler):
 
 
 @command("trim", no_args_is_help=True)
-@argument_avid_dir(True)
 @option("--table", "-t", "table_ids", metavar="ID", type=IntRange(1), multiple=True)
 @pass_context
-def cmd_trim(ctx: Context, avid_dir: Path, table_ids: tuple[int, ...]):
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
+def cmd_trim(ctx: Context, table_ids: tuple[int, ...]):
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
-    avid = AVID(avid_dir)
     tables = avid.tables
     schemas = avid.schemas.tables
     table_ids = table_ids or tuple(tables.keys())

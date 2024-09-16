@@ -15,9 +15,9 @@ from click import IntRange
 from click import option
 from click import pass_context
 
-from avid_tools.utils import argument_avid_dir
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
+from avid_tools.utils import find_avid_dir
 
 
 class ContentHandlerTableSearch(ContentHandler):
@@ -67,7 +67,6 @@ class ContentHandlerTableSearch(ContentHandler):
 
 
 @command("search", no_args_is_help=True)
-@argument_avid_dir(True)
 @argument("patterns", metavar="PATTERN...", nargs=-1, required=True)
 @option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True)
 @option(
@@ -83,14 +82,13 @@ class ContentHandlerTableSearch(ContentHandler):
 @pass_context
 def cmd_search(
     ctx: Context,
-    avid_dir: Path,
     patterns: tuple[str, ...],
     table_ids: tuple[int, ...],
     columns: tuple[tuple[int, int], ...],
     limit: int | None,
     show_columns: bool,
 ):
-    avid = AVID(avid_dir)
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
     tables = avid.tables
 
     if invalid_ids := [i for i in table_ids if i not in tables]:
