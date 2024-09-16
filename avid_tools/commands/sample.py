@@ -71,9 +71,9 @@ def sample(
 def grp_sample(): ...
 
 
-@grp_sample.command("size")
+@grp_sample.command("size", no_args_is_help=True)
 @argument("extensions", metavar="[EXTENSIONS...]", nargs=-1, required=False)
-@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), required=True)
+@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5)
 @option("--min-size", metavar="INTEGER", type=IntRange(min=1), default=None)
 @option("--max-size", metavar="INTEGER", type=IntRange(min=1), default=None)
 @option(
@@ -111,9 +111,9 @@ def cmd_sample_size(
     sample(avid, conn, "size", sample_size, extensions, where, output_dir)
 
 
-@grp_sample.command("docid")
+@grp_sample.command("docid", no_args_is_help=True)
 @argument("extensions", metavar="[EXTENSIONS...]", nargs=-1, required=False)
-@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), required=True)
+@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5)
 @option("--min-docid", metavar="INTEGER", type=IntRange(min=1), default=None)
 @option("--max-docid", metavar="INTEGER", type=IntRange(min=1), default=None)
 @option(
