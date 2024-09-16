@@ -7,6 +7,7 @@ from .commands.documents import grp_documents
 from .commands.finalize import cmd_finalize
 from .commands.index import grp_index
 from .commands.init import cmd_init
+from .commands.sample import grp_sample
 from .commands.search import cmd_search
 from .commands.tables.tables import grp_tables
 
@@ -21,6 +22,7 @@ app.add_command(grp_context, grp_context.name)
 app.add_command(grp_tables, grp_tables.name)
 app.add_command(grp_index, grp_index.name)
 app.add_command(grp_documents, grp_documents.name)
+app.add_command(grp_sample, grp_sample.name)
 app.add_command(cmd_search, cmd_search.name)
 app.add_command(cmd_finalize, cmd_finalize.name)
 

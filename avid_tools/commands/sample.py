@@ -1,0 +1,134 @@
+from math import ceil
+from pathlib import Path
+from shutil import copy2
+from sqlite3 import Connection
+
+from click import argument
+from click import group
+from click import IntRange
+from click import option
+from click import Path as ClickPath
+
+from avid_tools.database import create_database
+from avid_tools.utils import AVID
+from avid_tools.utils import find_avid_dir
+
+
+def sample(
+    avid: AVID,
+    conn: Connection,
+    bin_col: str,
+    sample_size: int,
+    extensions: tuple[str, ...],
+    where: list[str],
+    output_dir: Path,
+):
+    extensions = extensions or tuple(
+        sorted(
+            f[0]
+            for f in conn.execute(
+                "select distinct lower(originalExtension) from files"
+                " where type = 'Documents' and originalExtension is not null and docId is not null"
+            )
+        )
+    )
+    sample_lower_limit, sample_higher_limit = ceil(sample_size / 2), sample_size // 2
+    sorting_index: int = 1
+    if bin_col == "docId":
+        sorting_index = 3
+
+    for extension in extensions:
+        where_stmt: str = " and ".join([*where, "lower(originalExtension) = ?"])
+        files: list[tuple[str, int, str, int]] = [
+            *conn.execute(
+                "select min(path), min(size), min(originalName), min(docId) from files"
+                f" where {where_stmt} group by md5 order by min({bin_col}) limit {sample_lower_limit}",
+                [extension],
+            ),
+            *conn.execute(
+                "select min(path), min(size), min(originalName), min(docId) from files"
+                f" where {where_stmt} group by md5 order by min({bin_col}) desc limit {sample_higher_limit}",
+                [extension],
+            ),
+        ]
+        files = sorted(set(files), key=lambda f: f[sorting_index])
+
+        print(extension)
+        for n, [path_str, size, original_name, doc_id] in enumerate(files, 1):
+            prefix: str = ""
+            if bin_col == "size":
+                prefix = f"{size}-"
+            file_path: Path = avid.dir.joinpath(path_str)
+            copy_path: Path = output_dir.joinpath(extension, f"{prefix}{doc_id}-{original_name}{file_path.suffix}")
+            print(f"{'+' if n == len(files) else '|'}---", copy_path.name)
+            copy_path.parent.mkdir(parents=True, exist_ok=True)
+            copy2(file_path, copy_path)
+        print()
+
+
+@group("sample", no_args_is_help=True)
+def grp_sample(): ...
+
+
+@grp_sample.command("size")
+@argument("extensions", metavar="[EXTENSIONS...]", nargs=-1, required=False)
+@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), required=True)
+@option("--min-size", metavar="INTEGER", type=IntRange(min=1), default=None)
+@option("--max-size", metavar="INTEGER", type=IntRange(min=1), default=None)
+@option(
+    "--output-dir",
+    type=ClickPath(file_okay=False, writable=True, resolve_path=True),
+    default=None,
+    callback=lambda _c, _p, v: Path(v) if v else None,
+)
+def cmd_sample_size(
+    extensions: tuple[str, ...],
+    sample_size: int,
+    min_size: int | None,
+    max_size: int | None,
+    output_dir: Path | None,
+):
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    output_dir = output_dir or avid.dir.joinpath("_metadata", "sample_size")
+    conn = create_database(db_path)
+    where: list[str] = ["type = 'Documents'", "docId is not null"]
+
+    if min_size:
+        where.append(f"min(size) >= {min_size}")
+    if max_size:
+        where.append(f"min(size) <= {max_size}")
+
+    sample(avid, conn, "size", sample_size, extensions, where, output_dir)
+
+
+@grp_sample.command("docid")
+@argument("extensions", metavar="[EXTENSIONS...]", nargs=-1, required=False)
+@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), required=True)
+@option("--min-docid", metavar="INTEGER", type=IntRange(min=1), default=None)
+@option("--max-docid", metavar="INTEGER", type=IntRange(min=1), default=None)
+@option(
+    "--output-dir",
+    type=ClickPath(file_okay=False, writable=True, resolve_path=True),
+    default=None,
+    callback=lambda _c, _p, v: Path(v) if v else None,
+)
+def cmd_sample_size(
+    extensions: tuple[str, ...],
+    sample_size: int,
+    min_docid: int | None,
+    max_docid: int | None,
+    output_dir: Path | None,
+):
+    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    output_dir = output_dir or avid.dir.joinpath("_metadata", "sample_docid")
+    conn = create_database(db_path)
+    where: list[str] = ["type = 'Documents'", "docId is not null"]
+
+    if min_docid:
+        where.append(f"min(docId) >= {min_docid}")
+    if max_docid:
+        where.append(f"min(docId) <= {min_docid}")
+
+    sample(avid, conn, "docId", sample_size, extensions, where, output_dir)
