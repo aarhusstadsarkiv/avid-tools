@@ -56,7 +56,7 @@ def create_database(path: Path) -> Connection:
 
     conn.execute(
         """create view if not exists originalExtensionCount as
-            select originalExtension, count(*) as count, min(docId) as firstDocId
+            select originalExtension, count(*) as count, count(distinct md5) as distinctCount, min(docId) as firstDocId
             from files
             where type = 'Documents'
             group by originalExtension
