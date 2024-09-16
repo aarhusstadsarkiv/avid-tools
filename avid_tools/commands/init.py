@@ -24,11 +24,13 @@ from avid_tools.utils import validate_xml
 )
 @pass_context
 def cmd_init(ctx: Context, avid_dir: Path):
-    db_path: Path = avid_dir.joinpath("_metadata", "avid.db")
-    avid = AVID(avid_dir)
+    avid: AVID = AVID(avid_dir)
+    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
 
     if db_path.is_file():
         raise BadParameter(f"_metadata/avid.db already exists for {avid_dir.name}.", ctx, ctx_params(ctx)["avid_dir"])
+
+    missing_indices: list[Path] = []
 
     for index_file in (
         avid.indices.archiveIndex,
@@ -38,7 +40,14 @@ def cmd_init(ctx: Context, avid_dir: Path):
         avid.indices.tableIndex,
     ):
         if not index_file.is_file():
-            raise BadParameter(f"missing Indices/{index_file.name}", ctx, ctx_params(ctx)["avid_dir"])
+            missing_indices.append(index_file)
+
+    if missing_indices:
+        raise BadParameter(
+            f"missing {', '.join(str(i.relative_to(avid_dir)) for i in missing_indices)}.",
+            ctx,
+            ctx_params(ctx)["avid_dir"],
+        )
 
     for index_file, schema in (
         (avid.indices.archiveIndex, avid.schemas.archiveIndex),
