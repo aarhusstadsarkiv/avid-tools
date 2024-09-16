@@ -30,12 +30,12 @@ def cmd_documents_extensions(_ctx: Context, avid_dir: Path, limit: int | None, r
     file: TextIO = csv_file.open("w", encoding="utf-8") if csv_file else stdout
     writer = csv_writer(file, delimiter="," if csv_file else "\t")
 
-    writer.writerow(["ext", "count", "firstDocId"])
+    writer.writerow(["ext", "count", "unique", "firstDocId"])
 
-    for [ext, count, doc_id] in conn.execute(
-        f"select * from originalExtensionCount order by count {'asc' if reverse else 'desc'} limit {limit or -1}"
+    for row in conn.execute(
+        f"select originalExtension, count, distinctCount, firstDocId from originalExtensionCount order by count {'asc' if reverse else 'desc'} limit {limit or -1}"
     ):
-        writer.writerow([ext, count, doc_id])
+        writer.writerow(row)
 
     file.close()
 
