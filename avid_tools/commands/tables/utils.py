@@ -13,7 +13,6 @@ class Column:
 
 
 def read_table_schema(schema_xsd: Path) -> list[Column]:
-    columns: list[Column] = []
     schema = parse_xml(schema_xsd.read_text(), force_list=True)
 
     return [
