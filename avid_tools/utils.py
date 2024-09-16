@@ -5,7 +5,6 @@ from typing import BinaryIO
 from typing import Callable
 from typing import TextIO
 
-from acacore.utils.functions import is_valid_suffix
 from click import ClickException
 from click import Context
 from click import Parameter
@@ -137,6 +136,10 @@ def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
 
 def ctx_params(ctx: Context) -> dict[str, Parameter]:
     return {p.name: p for p in ctx.command.params}
+
+
+def is_valid_suffix(suffix: str) -> bool:
+    return match(r"^\.[a-zA-Z0-9]+$", suffix) is not None
 
 
 def path_suffix(path: Path):

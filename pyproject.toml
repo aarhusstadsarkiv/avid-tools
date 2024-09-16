@@ -7,7 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-acacore = {git = "https://github.com/aarhusstadsarkiv/acacore.git", tag = "v3.0.8"}
 xmltodict = "^0.13.0"
 click = "^8.1.7"
 xmlschema = "^3.3.2"
