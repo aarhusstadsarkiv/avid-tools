@@ -138,31 +138,6 @@ def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
     return avid_dir
 
 
-def argument_avid_dir(database_exists: bool):
-    if database_exists:
-
-        def _callback(ctx: Context, param: Parameter, value: str) -> Path:
-            if not (path := Path(value)).joinpath("_metadata", "avid.db").is_file():
-                raise BadParameter(f"No _metadata/avid.db found in {path}", ctx, param)
-            return path
-
-        return argument(
-            "AVID_DIR",
-            type=ClickPath(exists=True, file_okay=False, writable=True, readable=True, resolve_path=True),
-            callback=_callback,
-        )
-    else:
-
-        def _callback(_ctx: Context, _param: Parameter, value: str) -> Path:
-            return Path(value)
-
-        return argument(
-            "AVID_DIR",
-            type=ClickPath(exists=True, file_okay=False, writable=True, readable=True, resolve_path=True),
-            callback=_callback,
-        )
-
-
 def ctx_params(ctx: Context) -> dict[str, Parameter]:
     return {p.name: p for p in ctx.command.params}
 
