@@ -2,6 +2,7 @@ from math import ceil
 from pathlib import Path
 from shutil import copy2
 from sqlite3 import Connection
+from sys import stderr
 
 from click import argument
 from click import group
@@ -90,8 +91,16 @@ def cmd_sample_size(
 ):
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
-    output_dir = output_dir or avid.dir.joinpath("_metadata", "sample_size")
     conn = create_database(db_path)
+
+    if not output_dir:
+        print(
+            "No output directory specified, using",
+            (output_dir := avid.dir.joinpath("_metadata", "sample_size")).relative_to(avid.dir.parent),
+            file=stderr,
+            end="\n\n",
+        )
+
     where: list[str] = ["type = 'Documents'", "docId is not null"]
 
     if min_size:
@@ -122,8 +131,16 @@ def cmd_sample_size(
 ):
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
-    output_dir = output_dir or avid.dir.joinpath("_metadata", "sample_docid")
     conn = create_database(db_path)
+
+    if not output_dir:
+        print(
+            "No output directory specified, using",
+            (output_dir := avid.dir.joinpath("_metadata", "sample_docid")).relative_to(avid.dir.parent),
+            file=stderr,
+            end="\n\n",
+        )
+
     where: list[str] = ["type = 'Documents'", "docId is not null"]
 
     if min_docid:
