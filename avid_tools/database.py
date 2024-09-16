@@ -18,12 +18,15 @@ def insert_file(conn: Connection, avid_dir: Path, file_path: Path, md5: str | No
         doc_collection = int(doc_collection_str.removeprefix("docCollection"))
         doc_id = int(doc_id_str)
     conn.execute(
-        "insert or ignore into files" " (path, format, type, md5, docCollection, docId)" " values (?, ?, ?, ?, ?, ?)",
+        "insert or ignore into files"
+        " (path, format, type, md5, size, docCollection, docId)"
+        " values (?, ?, ?, ?, ?, ?, ?)",
         [
             str(file_path),
             file_ext,
             file_type,
             (md5 or file_md5(avid_dir / file_path)).upper(),
+            avid_dir.joinpath(file_path).stat().st_size,
             doc_collection,
             doc_id,
         ],
@@ -39,6 +42,7 @@ def create_database(path: Path) -> Connection:
                 format text not null,
                 type text not null,
                 md5  text default null,
+                size int,
                 docCollection int,
                 docId int,
                 parentId text default null,
