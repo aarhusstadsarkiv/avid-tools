@@ -6,12 +6,9 @@ from typing import Callable
 from typing import TextIO
 
 from acacore.utils.functions import is_valid_suffix
-from click import argument
-from click import BadParameter
 from click import ClickException
 from click import Context
 from click import Parameter
-from click import Path as ClickPath
 from xmlschema import XMLSchema
 from xmlschema import XMLSchemaValidationError
 
