@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.11"
 xmltodict = "^0.13.0"
 click = "^8.1.7"
-xmlschema = "^3.3.2"
+xmlschema = "^3.4.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.4"
