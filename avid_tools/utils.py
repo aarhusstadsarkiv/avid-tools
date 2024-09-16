@@ -8,6 +8,7 @@ from typing import TextIO
 from acacore.utils.functions import is_valid_suffix
 from click import argument
 from click import BadParameter
+from click import ClickException
 from click import Context
 from click import Parameter
 from click import Path as ClickPath
@@ -118,6 +119,23 @@ class AVID:
             for f in self.dir.joinpath("Tables").iterdir()
             if f.is_dir() and match(r"table\d+", f.name)
         }
+
+
+def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
+    def inner(p: Path) -> Path | None:
+        if p.joinpath("_metadata", "avid.db").is_file():
+            return p
+        elif p.parent != p:
+            return inner(p.parent)
+        else:
+            return None
+
+    avid_dir = inner(path)
+
+    if raise_on_error and not avid_dir:
+        raise ClickException(f"No _metadata/avid.db found from {path}")
+
+    return avid_dir
 
 
 def argument_avid_dir(database_exists: bool):
