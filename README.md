@@ -1,141 +1,442 @@
+# Commands
+
+* [avid-tools](#avid-tools)
+    * [init](#avid-tools-init)
+    * [context](#avid-tools-context)
+        * [add](#avid-tools-context-add)
+        * [update](#avid-tools-context-update)
+        * [move](#avid-tools-context-move)
+        * [delete](#avid-tools-context-delete)
+    * [tables](#avid-tools-tables)
+        * [trim](#avid-tools-tables-trim)
+        * [update-row-count](#avid-tools-tables-update-row-count)
+    * [index](#avid-tools-index)
+        * [view](#avid-tools-index-view)
+        * [update](#avid-tools-index-update)
+    * [documents](#avid-tools-documents)
+        * [extensions](#avid-tools-documents-extensions)
+        * [checksums](#avid-tools-documents-checksums)
+    * [sample](#avid-tools-sample)
+        * [size](#avid-tools-sample-size)
+        * [docid](#avid-tools-sample-docid)
+    * [search](#avid-tools-search)
+    * [finalize](#avid-tools-finalize)
+
 # avid-tools
-cli tool to update, fix and test certain elements of an archival version (AVID). In time, this should be made available to other Danish archives that receive archival versions, as an executable Windows file. It should however also be installable with pipx so as to be able to run on the NAS.
 
-Merges functionality from these repos: `avid-utils`, `convert-unmanaged`, `convert-qa`, `query-table-xml`, `statutory-qa`, `contextupdater` and `avid` and introduces af few more.
+```
+Usage: avid-tools [OPTIONS] COMMAND [ARGS]...
 
-## Global argument
-- `root` (path to avid-root, e.g. 'C:\AVID.AARS.61.1' or '.'
+  Arbejd med arkiveringsversioner.
 
-## Global options
-[//]: # (- `--logfile` &#40;persist log in file instead of writing to stdout&#41;)
-[//]: # (- `--dry-run` &#40;do a test run, instead of actually adding, moving, replacing, deleting, updating any files&#41;)
-- `--version` (print version and exit)
-- `--help` (print help and exit. Global option, that can be used with subcommands as well)
+Options:
+  --version  Vis versionen og afslut.
+  --help     Show this message and exit.
 
-## context subcommand
-Commands related to contextDocumentation
-
-### `context add [--position INT] FILEPATH METADATA`
-The {filepath} must point to a valid tif-file. The position determines where the contextDocument is to be placed. It defaults to last id-folder + 1.
-
-```shell
-# Add new context-doc as id 12 (ContextDocumentation/docCollection1/12/1.tif)
-$ avid-tools . context add --position 12 C:/Users/azkb075/Downloads/new_ctx_doc.tif
+Commands:
+  init       Initializer en ny AVID mappe med værktøjets database.
+  context    Opdater kontekstdokumentation.
+  tables     Arbejd med tabellerne.
+  index      Vis og opdater indeks filer i Indices.
+  documents  Vis oversigter af dokumenterne i arkiveringsverionen.
+  sample     Tag en prøve af dokumenter.
+  search     Søg i tabellerne.
+  finalize   Opdater md5 hashes og generer nye Indices/fileIndex.xml og...
 ```
 
-### `context move SRC-DOC-ID DEST-DOC-ID`
-Move a contextDocument to a new position, and re-assign new ids for all affected documents. Finally update fileIndex.xml.
+## avid-tools init
 
-```shell
-# Move contextDocument 12 to position 8. Update contextDocumentationIndex.xml and fileIndex.xml.
-$ avid-tools . context move 12 8
+```
+Usage: avid-tools init [OPTIONS] [AVID_DIR]
+
+  Initializer en ny AVID mappe med værktøjets database.
+
+  AVID_DIR argument skal være stien til hoved mappen af en arkiversingsversion
+  (hvor Indices, Tables, osv. ligger), men det kan ignoreres, hvis programmet
+  kører i hoved mappen.
+
+Options:
+  --help  Show this message and exit.
 ```
 
-### `context update DOC-ID [--file FILEPATH] [--metadata METADATA]`
-Update a contextDocument with a new tif-file. Update fileIndex.xml with new checksum, and potentially a new extension.
+## avid-tools context
 
-```shell
-# Update context-doc number 12 (ContextDocumentation/docCollection1/12/1.tif) with a new tif file
-$ avid-tools . context update 12 C:/Users/azkb075/Downloads/new_ctx_doc.tif
+```
+Usage: avid-tools context [OPTIONS] COMMAND [ARGS]...
+
+  Opdater kontekstdokumentation.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add     Tilføj et kontekstdokument.
+  delete  Fjern et kontekstdokument.
+  move    Flyt et kontekstdokument.
+  update  Opdater et kontekstdokument.
 ```
 
-### `context delete DOC-ID`
-Delete a given contextDocument, and re-assign new ids for all affected documents. Finally update contextDocumentationIndex.xml and fileIndex.xml.
+### avid-tools context add
 
-```shell
-# Delete context-doc with id 12 (ContextDocumentation/docCollection1/12)
-$ avid-tools . context delete 12
+```
+Usage: avid-tools context add [OPTIONS] FILE METADATA
+
+  Tilføj et kontekstdokument til arkiveringsversionen.
+
+  Kontekstdokumentet FILE kan tilføjes til contextDocumentation.
+
+  METADATA-filen skal være et XML-dokument med det samme skema som
+  Indices/contextDocumentationIndex.xml, men med et enkelt <document> tag.
+
+  Som standard tiføjes det nye kontekstdokument til slutningen af eksiterende
+  kontekstdokumenter. Hvis --position option bruges, dokumentet tilføjes til
+  den position, og eksiterende dokumenter bevæges.
+
+  METADATA eksempel
+  ----------------
+
+  <?xml version="1.0" encoding="utf-8"?>
+  <contextDocumentationIndex xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/contextDocumentationIndex.xsd"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0">
+      <document>...</document>
+  </contextDocumentationIndex>
+
+Options:
+  --position INTEGER  Placering af det nye kontekstdokument.  [x>=1]
+  --help              Show this message and exit.
 ```
 
-## table subcommand
-Commands related to the *table{id}.xml* files of the avid.
+### avid-tools context update
 
-### `table trim-values [--table ID]`
-Trim any whitespace at the beginning or end of any text-content in the *table{id}.xml* files. Use `--table` to restrict the trim to certain table(s). Update fileIndex.xml.
+```
+Usage: avid-tools context update [OPTIONS] DOC_ID
 
-```shell
-# Trim whitespace from tables 4 and 5
-$ avid-tools . table trim-values --table 4 --table 5
+  Opdater kontekstdokument med ID DOC_ID.
+
+  Enten filen eller metadata eller begge kan opdateres ved at bruge --file til
+  filen og --metadata til metadata.
+
+  Værdien til --metadata skal være et XML-dokument med det samme skema som
+  Indices/contextDocumentationIndex.xml, men med et enkelt <document> tag.
+
+  Metadata eksempel
+  ----------------
+
+  <?xml version="1.0" encoding="utf-8"?>
+  <contextDocumentationIndex xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/contextDocumentationIndex.xsd"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0">
+      <document>...</document>
+  </contextDocumentationIndex>
+
+Options:
+  --file FILE      Kontekstdokument fil.
+  --metadata FILE  Kontekstdokument metadata.
+  --help           Show this message and exit.
 ```
 
-### `table update-row-count [--table ID]`
-Calculate and insert correct row-count number for each table in tableIndex.xml. Use `--table` to restrict the re-calculation to certain table(s). Update fileIndex.xml
+### avid-tools context move
 
-```shell
-# Update row-count for table 4
-$ avid-tools . table update-row-count --table 4
+```
+Usage: avid-tools context move [OPTIONS] FROM_DOC_ID TO_DOC_ID
+
+  Flyt et kontekstdokument til en ny placering.
+
+  FROM_DOC_ID skal være ID'en af et eksisterende kontekstdokument.
+
+  TO_DOC_ID kan enten være ID'en af et andet eksisterende kontekstdokument,
+  eller 0 for at flytte dokumentet til starten af dokumentation, eller -1 for
+  at flytte dokumentet til slutningen af dokumentation.
+
+Options:
+  --help  Show this message and exit.
 ```
 
-## doc subcommand
-Commands related to the docs in the docCollections
+### avid-tools context delete
 
-### `doc replace DOC-COLLECTION DOC-ID FILEPATH` (postponed))
-Replace a document (one or more files) with a new document (one or more files). FILEPATH points to a folder with the new file(s). If the name of one or more of the files in FILEPATH is not named according to the demands of incremental integers, use its filename as original filename (<oFn>) in docIndex.xml. Update fileIndex.xml with new checksum(s), and possibly new extension(s) and entries. 
+```
+Usage: avid-tools context delete [OPTIONS] DOC_ID
 
-```shell
-# Replace documentId 31253 in docCollection 4 with a new file.
-$ avid-tools . doc replace --docCollection 4 --docId 31253 C:/Users/azkb075/Downloads/new_doc/
+  Fjern et kontekstdokument med ID DOC_ID fra arkiveringsversionen.
+
+Options:
+  --help  Show this message and exit.
 ```
 
-### `doc extensions [--head INT] [--reverse] [--csv-file FILEPATH]`
-Output a list of (extension, count, docId) for all file extensions in the <oFn>-tag in docIndex.xml, sorted by count DESC. Use `--head` to limit the number of rows to output. Use `--reverse` to sort by count ASC. Use `--csv-file` to save output a csv-file.
+## avid-tools tables
 
-```shell
-# Output top 20 original extensions to a csv-file
-$ avid-tools doc extension --head 20 --csv-file C:/Users/azkb075/Downloads/top-20-original-extensions.csv
+```
+Usage: avid-tools tables [OPTIONS] COMMAND [ARGS]...
+
+  Arbejd med tabellerne.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  trim              Trim tabelværdier.
+  update-row-count  Opdater antallet af rækker.
 ```
 
-### `doc checksums [--head INT] [--reverse] [--csv-file FILEPATH]`
-Output a list of (checksum, count, docId) for all duplicate checksums in the <md5>-tag in fileIndex.xml, sorted by count DESC. Use `--head` to limit the number of rows to output. Use `--reverse` to sort by count ASC. Use `--csv-file` to save output a csv-file.
+### avid-tools tables trim
 
-```shell
-# Output the 10 most frequent checksums to a csv-file
-$ avid-tools doc checksums --head 10 --csv-file C:/Users/azkb075/Downloads/top-10-checksums.csv
+```
+Usage: avid-tools tables trim [OPTIONS]
+
+  Trim tabelværdier og sæt NULL værdier.
+
+  Tomme kollonner med nillable=true i tabelskema sættes til NULL med
+  xsi:nil="true".
+
+  Som default trimmes alle tabeller. Det kan overrides med --table.
+
+Options:
+  -t, --table ID  Vælg tabeller.  [x>=1]
+  --help          Show this message and exit.
 ```
 
-### `doc sample [--extension STRING] [--max INT] [--min INT] OUTPUT-DIR`
-Copies a number of samples of each original file extension (<oFn>) to an given directory. Use `--extension` to sample only specific file extension(s). Use `--max` and `--min` to control the sample size. Defaults to 5. 
+### avid-tools tables update-row-count
 
-```shell
-# Copy up to 20 samples of .lpw-files and .123-files to a sample folder
-$ avid-tools doc sample --extension lwp --extension 123 --max 20 C:/Users/azkb075/Downloads/samples/
-...
-$ ls C:/Users/azkb075/Downloads/samples/
-lwp
-├── {docId}__regneark1.lwp
-├── {docId}__Budget2021-Kopi.lwp
-123
-├── {docId}__lønudgifter.123
-├── {docId}__HannePedersen.123
-...
+```
+Usage: avid-tools tables update-row-count [OPTIONS]
+
+  Opdater antallet af rækker i tableIndex.
+
+  Som default opdateres alle tabeller. Det kan overrides med --table.
+
+Options:
+  -t, --table ID  Vælg tabeller.  [x>=1]
+  --help          Show this message and exit.
 ```
 
-## index subcommand
-Commands to work with the xml files in the `Indices` directory.
+## avid-tools index
 
-### `index [--type ENUM]`
-Display metadata from one or more of the index.xml-files. Use `--type` ('archive', 'context', 'tables', 'table', 'view') to display metadata from specific index-files.
+```
+Usage: avid-tools index [OPTIONS] COMMAND [ARGS]...
 
-```shell
-# Display the information in archiveIndex.xml
-$ avid-tools . index --type archive
+  Vis og opdater indeks filer i Indices.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  update  Opdater en indeks file.
+  view    Vis en eller flere indeks filer.
 ```
 
-### `index update AVID_DIR [--type INDEX_TYPE] INDEX_FILE`
-Update an index file (archiveIndex, contextDocumentationIndex, tableIndex) with the xml file at the FILEPATH. Finally update fileIndex.xml.
+### avid-tools index view
 
-```shell
-# Update archiveIndex.xml
-$ avid-tools . index update C:/Users/azkb075/Downloads/archiveIndex.xml
+```
+Usage: avid-tools index view [OPTIONS] {archiveIndex|contextDocumentationIndex
+                             |tableIndex}...
+
+  Vis en eller flere indeks filer.
+
+Options:
+  --help  Show this message and exit.
 ```
 
-## search subcommand
-Fulltext search in table{id}.xml files.
+### avid-tools index update
 
-### `search [--table INT] [--column STRING] QUERY`
-Search for a given substring in the table{id}.xml files. `QUERY` uses LIKE syntax.
-
-```shell
-# Search for strings containing 'Gellerupplanen' in tables 4 and 5
-$ avid-tools . search --table 4 --table 5 '%Gellerupplanen%'
 ```
+Usage: avid-tools index update [OPTIONS] INDEX_FILE
+
+  Opdater en indeks file.
+
+  Indekstype genkendes automatisk fra navnet af INDEX_FILE, men det kan
+  overrides med --type option.
+
+Options:
+  --type [archiveIndex|contextDocumentationIndex|tableIndex]
+                                  Indeks type.
+  --help                          Show this message and exit.
+```
+
+## avid-tools documents
+
+```
+Usage: avid-tools documents [OPTIONS] COMMAND [ARGS]...
+
+  Vis oversigter af dokumenterne i arkiveringsverionen.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  checksums   Vis antallet af md5 hashes.
+  extensions  Vis antallet af filtypenavner.
+```
+
+### avid-tools documents extensions
+
+```
+Usage: avid-tools documents extensions [OPTIONS]
+
+  Vis antallet af filtypenavner.
+
+  Der vises fire kolloner:
+  * ext: filetypen
+  * count: antallet af filer med filetypen
+  * unique: antallet af unikke md5 hashes med filetypen
+  * firstDocId: først docId med filetypen
+
+  Brug --limit option for at begrænse hvor mange filtyper vises.
+  Filetypenavner vises i faldende rækkefølge som default, for at vise dem i
+  stigende rækkefølge brug --reverse option.
+
+  Resultaterne kan gemmes til en CSV fil ved at brug --csv-file option.
+  --limit og --reverse kan bruges med CSV fil også.
+
+Options:
+  --limit INTEGER RANGE  Begræns hvor mange resultater vises.  [x>=1]
+  --reverse              Vis i stigende rækkefølge.
+  --csv-file FILE        Gem output til en CSV fil.
+  --help                 Show this message and exit.
+```
+
+### avid-tools documents checksums
+
+```
+Usage: avid-tools documents checksums [OPTIONS]
+
+  Vis antallet af md5 hashes.
+
+  Der vises fire kolloner:
+  * md5: hash
+  * count: antallet af filer med hash
+  * firstDocId: først docId med hash
+
+  Brug --limit option for at begrænse hvor mange hasher vises. Hasher vises i
+  faldende rækkefølge som default, for at vise dem i stigende rækkefølge, brug
+  --reverse option.
+
+  Resultaterne kan gemmes til en CSV fil ved at brug --csv-file option.
+  --limit og --reverse kan bruges med CSV fil også.
+
+Options:
+  --limit INTEGER RANGE  Begræns hvor mange resultater vises.  [x>=1]
+  --reverse              Vis i stigende rækkefølge.
+  --csv-file FILE        Gem output til en CSV fil.
+  --help                 Show this message and exit.
+```
+
+## avid-tools sample
+
+```
+Usage: avid-tools sample [OPTIONS] COMMAND [ARGS]...
+
+  Tag en prøve af dokumenter.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  docid  Tag en prøve af dokumenterne baseret på det originale...
+  size   Tag en prøve af dokumenterne baseret på det originale...
+```
+
+### avid-tools sample size
+
+```
+Usage: avid-tools sample size [OPTIONS] EXTENSIONS...
+
+  Tag en prøve af dokumenterne baseret på det originale filtypenavn og
+  størrelsen.
+
+  Der tages en prøve af hver filtype, sorteret efter størrelsen. En halvdel af
+  prøven indeholder filer med de laveste størrelser, og den anden del
+  indeholder filer med de højeste.
+
+  Prøven begrænses til de originale filtyper i EXTENSION argumenter. For at
+  tage en prøve af alle filtyper brug "all" som argument.
+
+  Som default bruges mappen _metadata/sample_size for at gemme prøven. Det kan
+  overrides med --output-dir option.
+
+Options:
+  --sample-size INTEGER   Antallet af filer i prøven.  [x>=1]
+  --min-size INTEGER      Min filstørrelse i prøven.  [x>=1]
+  --max-size INTEGER      Max filstørrelse i prøven.  [x>=1]
+  --output-dir DIRECTORY  Mappen hvor prøven skal ligge.
+  --help                  Show this message and exit.
+```
+
+### avid-tools sample docid
+
+```
+Usage: avid-tools sample docid [OPTIONS] EXTENSIONS...
+
+  Tag en prøve af dokumenterne baseret på det originale filtypenavn og
+  docId'en.
+
+  Der tages en prøve af hver filtype, sorteret efter docID. En halvdel af
+  prøven indeholder filer med de laveste docId'er, og den anden del indeholder
+  filer med de højeste.
+
+  Prøven begrænses til de originale filtyper i EXTENSION argumenter. For at
+  tage en prøve af alle filtyper brug "all" som argument.
+
+  Som default bruges mappen _metadata/sample_docid for at gemme prøven. Det
+  kan overrides med --output-dir option.
+
+Options:
+  --sample-size INTEGER   Antallet af filer i prøven.  [x>=1]
+  --min-docid INTEGER     Min docId i prøven.  [x>=1]
+  --max-docid INTEGER     Max docId i prøven.  [x>=1]
+  --output-dir DIRECTORY
+  --help                  Show this message and exit.
+```
+
+## avid-tools search
+
+```
+Usage: avid-tools search [OPTIONS] PATTERN...
+
+  Søg PATTERN i tabel rækker i Tables.
+
+  PATTERN skal være i SQL LIKE format (% til nul eller flere bogstaver og _
+  til nul eller et bogstav). Flere PATTERN kan bruges og matches med "eller"
+  logik (dvs. PATTERN et, eller PATTERN to, eller PATTERN tre, osv.).
+
+  Som default søges PATTERN'er i alle tabeller og kolonner. --table kan bruges
+  for at begrænse søgning til bestemte tabeller. --column kan bruges for at
+  begrænse søgning til bestemte kolloner i bestemte tabeller. Begge --table og
+  --column kan bruges.
+
+Options:
+  -t, --table ID                  Vælg søgetabeller.  [x>=1]
+  -c, --column TABLE_ID COLUMN_ID
+                                  Vælg søgekolonner i tabeller.
+  --limit INTEGER                 Begræns hvor mange resultater vises.  [x>=1]
+  --show-columns / --show-rows    Vis alle kolonner i matchende rækker eller
+                                  kun rækkenumre.
+  --help                          Show this message and exit.
+```
+
+## avid-tools finalize
+
+```
+Usage: avid-tools finalize [OPTIONS]
+
+  Opdater md5 hashes og generer nye Indices/fileIndex.xml og
+  Indices/docIndex.xml filer.
+
+  archiveIndex.xml, contextDocumentationIndex.xml, tableIndex.xml bliver
+  valideret.
+
+  Som default, kun md5 hashes af index filer og kontekstdokumentation bliver
+  opdateret. Men det kan ændres med --update-hashes option:
+
+  * all: opdater hashes af alle filer
+  * index: opdater hashes af indices
+  * context: opdater hashes af kontekstdokumentation filerne
+  * tables: opdater hashes af tabellerne
+  * documents: opdater hashes af dokumenterne
+  * none: ingen hash bliver opdateret
+
+Options:
+  --update-hashes [all|index|context|tables|documents|none]
+                                  Vælg hvilke hashes skal opdateres.
+                                  [default: index, context]
+  --help                          Show this message and exit.
+```
+
