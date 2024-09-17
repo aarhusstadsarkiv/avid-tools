@@ -14,7 +14,10 @@ from .commands.tables.tables import grp_tables
 
 @group("avid-tools", no_args_is_help=True)
 @version_option(__version__)
-def app(): ...
+def app():
+    """
+    Arbejd med arkiveringsversioner.
+    """
 
 
 app.add_command(cmd_init, cmd_init.name)

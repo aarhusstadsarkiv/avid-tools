@@ -24,6 +24,12 @@ from avid_tools.utils import validate_xml
 )
 @pass_context
 def cmd_init(ctx: Context, avid_dir: Path):
+    """
+    Initializer en ny AVID mappe med værktøjets database.
+
+    AVID_DIR argument skal være stien til hoved mappen af en arkiversingsversion (hvor Indices, Tables, osv. ligger), men det
+    kan ignoreres, hvis programmet kører i hoved mappen.
+    """
     avid: AVID = AVID(avid_dir)
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
 

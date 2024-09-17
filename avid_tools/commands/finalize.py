@@ -27,9 +27,26 @@ from avid_tools.utils import validate_xml
     ),
     multiple=True,
     show_default=True,
+    help="Vælg hvilke hashes skal opdateres.",
 )
 @pass_context
 def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...]):
+    """
+    Opdater md5 hashes og generer nye Indices/fileIndex.xml og Indices/docIndex.xml filer.
+
+    archiveIndex.xml, contextDocumentationIndex.xml, tableIndex.xml bliver valideret.
+
+    Som default, kun md5 hashes af index filer og kontekstdokumentation bliver opdateret. Men det kan ændres med
+    --update-hashes option:
+
+    \b
+    * all: opdater hashes af alle filer
+    * index: opdater hashes af indices
+    * context: opdater hashes af kontekstdokumentation filerne
+    * tables: opdater hashes af tabellerne
+    * documents: opdater hashes af dokumenterne
+    * none: ingen hash bliver opdateret
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)

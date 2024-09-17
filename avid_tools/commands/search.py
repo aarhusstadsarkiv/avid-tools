@@ -66,9 +66,9 @@ class ContentHandlerTableSearch(ContentHandler):
             self.column_id = None
 
 
-@command("search", no_args_is_help=True)
+@command("search", no_args_is_help=True, short_help="Søg i tabellerne.")
 @argument("patterns", metavar="PATTERN...", nargs=-1, required=True)
-@option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True)
+@option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True, help="Vælg søgetabeller.")
 @option(
     "--column",
     "-c",
@@ -76,9 +76,16 @@ class ContentHandlerTableSearch(ContentHandler):
     metavar="TABLE_ID COLUMN_ID",
     type=(IntRange(1), IntRange(1)),
     multiple=True,
+    help="Vælg søgekolonner i tabeller.",
 )
-@option("--limit", metavar="INTEGER", type=IntRange(1), default=None)
-@option("--show-columns/--show-rows", "show_columns", is_flag=True, default=True)
+@option("--limit", metavar="INTEGER", type=IntRange(1), default=None, help="Begræns hvor mange resultater vises.")
+@option(
+    "--show-columns/--show-rows",
+    "show_columns",
+    is_flag=True,
+    default=True,
+    help="Vis alle kolonner i matchende rækker eller kun rækkenumre.",
+)
 @pass_context
 def cmd_search(
     ctx: Context,
@@ -88,6 +95,17 @@ def cmd_search(
     limit: int | None,
     show_columns: bool,
 ):
+    """
+    Søg PATTERN i tabel rækker i Tables.
+
+    PATTERN skal være i SQL LIKE format (% til nul eller flere bogstaver og _ til nul eller et bogstav). Flere
+    PATTERN kan bruges og matches med "eller" logik (dvs. PATTERN et, eller PATTERN to, eller PATTERN tre, osv.).
+
+    Som default søges PATTERN'er i alle tabeller og kolonner.
+    --table kan bruges for at begrænse søgning til bestemte tabeller.
+    --column kan bruges for at begrænse søgning til bestemte kolloner i bestemte tabeller.
+    Begge --table og --column kan bruges.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     tables = avid.tables
 

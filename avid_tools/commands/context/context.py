@@ -66,11 +66,12 @@ def move_context_docs(
 
 
 @group("context", no_args_is_help=True)
-def grp_context(): ...
+def grp_context():
+    """Opdater kontekstdokumentation."""
 
 
 # noinspection HttpUrlsUsage,DuplicatedCode
-@grp_context.command("add", no_args_is_help=True, short_help="Add a context document.")
+@grp_context.command("add", no_args_is_help=True, short_help="Tilføj et kontekstdokument.")
 @argument(
     "file",
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
@@ -81,22 +82,22 @@ def grp_context(): ...
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
     callback=lambda _c, _p, v: Path(v),
 )
-@option("--position", metavar="INTEGER", type=IntRange(1), default=None, help="Position of the new context document.")
+@option("--position", metavar="INTEGER", type=IntRange(1), default=None, help="Placering af det nye kontekstdokument.")
 @pass_context
 def cmd_context_add(ctx: Context, file: Path, metadata: Path, position: int):
     """
-    Add a context document to the archive in AVID_DIR.
+    Tilføj et kontekstdokument til arkiveringsversionen.
 
-    The context document FILE can be any file type as long as it is allowed (tiff, jp2, etc.).
+    Kontekstdokumentet FILE kan tilføjes til contextDocumentation.
 
-    The METADATA file must be an XML document following the same schema as Indices/contextDocumentationIndex.xml, but
-    with a single <document> tag. Any other tag is ignored.
+    METADATA-filen skal være et XML-dokument med det samme skema som Indices/contextDocumentationIndex.xml, men
+    med et enkelt <document> tag.
 
-    By default, the new context document is appended to the existing ones. If the --position option is used, the
-    document will be added to that positon and the eixsting ones will be moved up.
+    Som standard tiføjes det nye kontekstdokument til slutningen af eksiterende kontekstdokumenter. Hvis --position
+    option bruges, dokumentet tilføjes til den position, og eksiterende dokumenter bevæges.
 
     \b
-    METADATA Example
+    METADATA eksempel
     ----------------
 
     \b
@@ -149,22 +150,43 @@ def cmd_context_add(ctx: Context, file: Path, metadata: Path, position: int):
 
 
 # noinspection HttpUrlsUsage,DuplicatedCode
-@grp_context.command("update", no_args_is_help=True)
+@grp_context.command("update", no_args_is_help=True, short_help="Opdater et kontekstdokument.")
 @argument("DOC_ID", type=IntRange(1))
 @option(
     "--file",
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
     default=None,
     callback=lambda _c, _p, v: Path(v) if v else None,
+    help="Kontekstdokument fil.",
 )
 @option(
     "--metadata",
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
     default=None,
     callback=lambda _c, _p, v: Path(v) if v else None,
+    help="Kontekstdokument metadata.",
 )
 @pass_context
 def cmd_context_update(ctx: Context, doc_id: int, file: Path | None, metadata: Path | None):
+    """
+    Opdater kontekstdokument med ID DOC_ID.
+
+    Enten filen eller metadata eller begge kan opdateres ved at bruge --file til filen og --metadata til metadata.
+
+    Værdien til --metadata skal være et XML-dokument med det samme skema som Indices/contextDocumentationIndex.xml, men
+    med et enkelt <document> tag.
+
+    \b
+    Metadata eksempel
+    ----------------
+
+    \b
+    <?xml version="1.0" encoding="utf-8"?>
+    <contextDocumentationIndex xsi:schemaLocation="http://www.sa.dk/xmlns/diark/1.0 ../Schemas/standard/contextDocumentationIndex.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sa.dk/xmlns/diark/1.0">
+        <document>...</document>
+    </contextDocumentationIndex>
+    """
     if not file and not metadata:
         return
 
@@ -210,11 +232,24 @@ def cmd_context_update(ctx: Context, doc_id: int, file: Path | None, metadata: P
 
 
 # noinspection DuplicatedCode
-@grp_context.command("move", no_args_is_help=True, context_settings={"ignore_unknown_options": True})
+@grp_context.command(
+    "move",
+    no_args_is_help=True,
+    context_settings={"ignore_unknown_options": True},
+    short_help="Flyt et kontekstdokument.",
+)
 @argument("FROM_DOC_ID", type=IntRange(1))
 @argument("TO_DOC_ID", type=IntRange(-1))
 @pass_context
 def cmd_context_move(ctx: Context, from_doc_id: int, to_doc_id: int):
+    """
+    Flyt et kontekstdokument til en ny placering.
+
+    FROM_DOC_ID skal være ID'en af et eksisterende kontekstdokument.
+
+    TO_DOC_ID kan enten være ID'en af et andet eksisterende kontekstdokument, eller 0 for at flytte dokumentet til
+    starten af dokumentation, eller -1 for at flytte dokumentet til slutningen af dokumentation.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
@@ -306,10 +341,11 @@ def cmd_context_move(ctx: Context, from_doc_id: int, to_doc_id: int):
 
 
 # noinspection DuplicatedCode
-@grp_context.command("delete", no_args_is_help=True)
+@grp_context.command("delete", no_args_is_help=True, short_help="Fjern et kontekstdokument.")
 @argument("DOC_ID", type=IntRange(1))
 @pass_context
 def cmd_context_delete(ctx: Context, doc_id: int):
+    """Fjern et kontekstdokument med ID DOC_ID fra arkiveringsversionen."""
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)

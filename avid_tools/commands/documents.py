@@ -16,16 +16,38 @@ from avid_tools.utils import find_avid_dir
 
 
 @group("documents", no_args_is_help=True)
-def grp_documents(): ...
+def grp_documents():
+    """Vis oversigter af dokumenterne i arkiveringsverionen."""
 
 
 # noinspection DuplicatedCode
-@grp_documents.command("extensions", no_args_is_help=True)
-@option("--limit", type=IntRange(1), default=None)
-@option("--reverse", is_flag=True, default=False)
-@option("--csv-file", type=ClickPath(dir_okay=False, writable=True), callback=lambda _c, _p, v: Path(v) if v else None)
+@grp_documents.command("extensions", no_args_is_help=True, short_help="Vis antallet af filtypenavner.")
+@option("--limit", type=IntRange(1), default=None, help="Begræns hvor mange resultater vises.")
+@option("--reverse", is_flag=True, default=False, help="Vis i stigende rækkefølge.")
+@option(
+    "--csv-file",
+    type=ClickPath(dir_okay=False, writable=True),
+    callback=lambda _c, _p, v: Path(v) if v else None,
+    help="Gem output til en CSV fil.",
+)
 @pass_context
 def cmd_documents_extensions(_ctx: Context, limit: int | None, reverse: bool, csv_file: Path | None):
+    """
+    Vis antallet af filtypenavner.
+
+    \b
+    Der vises fire kolloner:
+    * ext: filetypen
+    * count: antallet af filer med filetypen
+    * unique: antallet af unikke md5 hashes med filetypen
+    * firstDocId: først docId med filetypen
+
+    Brug --limit option for at begrænse hvor mange filtyper vises. Filetypenavner vises i faldende rækkefølge som
+    default, for at vise dem i stigende rækkefølge brug --reverse option.
+
+    Resultaterne kan gemmes til en CSV fil ved at brug --csv-file option. --limit og --reverse kan bruges med CSV fil
+    også.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
@@ -43,12 +65,32 @@ def cmd_documents_extensions(_ctx: Context, limit: int | None, reverse: bool, cs
 
 
 # noinspection DuplicatedCode
-@grp_documents.command("checksums", no_args_is_help=True)
-@option("--limit", type=IntRange(1), default=None)
-@option("--reverse", is_flag=True, default=False)
-@option("--csv-file", type=ClickPath(dir_okay=False, writable=True), callback=lambda _c, _p, v: Path(v) if v else None)
+@grp_documents.command("checksums", no_args_is_help=True, short_help="Vis antallet af md5 hashes.")
+@option("--limit", type=IntRange(1), default=None, help="Begræns hvor mange resultater vises.")
+@option("--reverse", is_flag=True, default=False, help="Vis i stigende rækkefølge.")
+@option(
+    "--csv-file",
+    type=ClickPath(dir_okay=False, writable=True),
+    callback=lambda _c, _p, v: Path(v) if v else None,
+    help="Gem output til en CSV fil.",
+)
 @pass_context
 def cmd_documents_checksums(_ctx: Context, limit: int | None, reverse: bool, csv_file: Path | None):
+    """
+    Vis antallet af md5 hashes.
+
+    \b
+    Der vises fire kolloner:
+    * md5: hash
+    * count: antallet af filer med hash
+    * firstDocId: først docId med hash
+
+    Brug --limit option for at begrænse hvor mange hasher vises. Hasher vises i faldende rækkefølge som default, for at
+    vise dem i stigende rækkefølge, brug --reverse option.
+
+    Resultaterne kan gemmes til en CSV fil ved at brug --csv-file option. --limit og --reverse kan bruges med CSV fil
+    også.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)

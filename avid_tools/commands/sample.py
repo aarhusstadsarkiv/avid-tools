@@ -68,19 +68,21 @@ def sample(
 
 
 @group("sample", no_args_is_help=True)
-def grp_sample(): ...
+def grp_sample():
+    """Tag en prøve af dokumenter."""
 
 
 @grp_sample.command("size")
 @argument("extensions", metavar="[EXTENSIONS...]", nargs=-1, required=False)
-@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5)
-@option("--min-size", metavar="INTEGER", type=IntRange(min=1), default=None)
-@option("--max-size", metavar="INTEGER", type=IntRange(min=1), default=None)
+@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5, help="Antallet af filer i prøven.")
+@option("--min-size", metavar="INTEGER", type=IntRange(min=1), default=None, help="Min filstørrelse i prøven.")
+@option("--max-size", metavar="INTEGER", type=IntRange(min=1), default=None, help="Max filstørrelse i prøven.")
 @option(
     "--output-dir",
     type=ClickPath(file_okay=False, writable=True, resolve_path=True),
     default=None,
     callback=lambda _c, _p, v: Path(v) if v else None,
+    help="Mappen hvor prøven skal ligge.",
 )
 def cmd_sample_size(
     extensions: tuple[str, ...],
@@ -89,6 +91,16 @@ def cmd_sample_size(
     max_size: int | None,
     output_dir: Path | None,
 ):
+    """
+    Tag en prøve af dokumenterne baseret på det originale filtypenavn og størrelsen.
+
+    Der tages en prøve af hver filtype, sorteret efter størrelsen. En halvdel af prøven indeholder filer med de laveste
+    størrelser, og den anden del indeholder filer med de højeste.
+
+    Prøven kan begrænses til bestemte originale filtyper ved at bruge EXTENSION argumenter.
+
+    Som default bruges mappen _metadata/sample_size for at gemme prøven. Det kan overrides med --output-dir option.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
@@ -113,9 +125,9 @@ def cmd_sample_size(
 
 @grp_sample.command("docid")
 @argument("extensions", metavar="[EXTENSIONS...]", nargs=-1, required=False)
-@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5)
-@option("--min-docid", metavar="INTEGER", type=IntRange(min=1), default=None)
-@option("--max-docid", metavar="INTEGER", type=IntRange(min=1), default=None)
+@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5, help="Antallet af filer i prøven.")
+@option("--min-docid", metavar="INTEGER", type=IntRange(min=1), default=None, help="Min docId i prøven.")
+@option("--max-docid", metavar="INTEGER", type=IntRange(min=1), default=None, help="Max docId i prøven.")
 @option(
     "--output-dir",
     type=ClickPath(file_okay=False, writable=True, resolve_path=True),
@@ -129,6 +141,16 @@ def cmd_sample_size(
     max_docid: int | None,
     output_dir: Path | None,
 ):
+    """
+    Tag en prøve af dokumenterne baseret på det originale filtypenavn og docId'en.
+
+    Der tages en prøve af hver filtype, sorteret efter docID. En halvdel af prøven indeholder filer med de laveste
+    docId'er, og den anden del indeholder filer med de højeste.
+
+    Prøven kan begrænses til bestemte originale filtyper ved at bruge EXTENSION argumenter.
+
+    Som default bruges mappen _metadata/sample_docid for at gemme prøven. Det kan overrides med --output-dir option.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)

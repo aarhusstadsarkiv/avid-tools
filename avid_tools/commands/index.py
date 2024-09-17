@@ -20,7 +20,8 @@ from avid_tools.utils import validate_xml
 
 
 @group("index", no_args_is_help=True)
-def grp_index(): ...
+def grp_index():
+    """Vis og opdater indeks filer i Indices."""
 
 
 @grp_index.command("view", no_args_is_help=True)
@@ -31,6 +32,8 @@ def grp_index(): ...
     required=True,
 )
 def cmd_index_view(index: tuple[str, ...]):
+    """Vis en eller flere indeks filer."""
+
     def printer(obj: dict | list, indent: int = 0):
         if isinstance(obj, dict):
             for k, v in obj.items():
@@ -75,9 +78,15 @@ def cmd_index_view(index: tuple[str, ...]):
     type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"], case_sensitive=False),
     default=None,
     required=False,
+    help="Indeks type.",
 )
 @pass_context
 def cmd_index_update(ctx: Context, index_file: Path, index_type: str | None):
+    """
+    Opdater en indeks file.
+
+    Indekstype genkendes automatisk fra navnet af INDEX_FILE, men det kan overrides med --type option.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)

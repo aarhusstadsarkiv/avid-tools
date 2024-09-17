@@ -30,10 +30,15 @@ class ContentHandlerRowCount(ContentHandler):
             self.rows += 1
 
 
-@command("update-row-count", no_args_is_help=True)
-@option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True)
+@command("update-row-count", no_args_is_help=True, short_help="Opdater antallet af rækker.")
+@option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True, help="Vælg tabeller.")
 @pass_context
 def cmd_update_row_count(ctx: Context, table_ids: tuple[int, ...]):
+    """
+    Opdater antallet af rækker i tableIndex.
+
+    Som default opdateres alle tabeller. Det kan overrides med --table.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)

@@ -73,10 +73,17 @@ class ContentHandlerTrim(ContentHandler):
         self.current_content = ""
 
 
-@command("trim", no_args_is_help=True)
-@option("--table", "-t", "table_ids", metavar="ID", type=IntRange(1), multiple=True)
+@command("trim", no_args_is_help=True, short_help="Trim tabelværdier.")
+@option("--table", "-t", "table_ids", metavar="ID", type=IntRange(1), multiple=True, help="Vælg tabeller.")
 @pass_context
 def cmd_trim(ctx: Context, table_ids: tuple[int, ...]):
+    """
+    Trim tabelværdier og sæt NULL værdier.
+
+    Tomme kollonner med nillable=true i tabelskema sættes til NULL med xsi:nil="true".
+
+    Som default trimmes alle tabeller. Det kan overrides med --table.
+    """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
     conn = create_database(db_path)
