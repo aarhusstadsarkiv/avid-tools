@@ -13,7 +13,7 @@ from .commands.tables.tables import grp_tables
 
 
 @group("avid-tools", no_args_is_help=True)
-@version_option(__version__)
+@version_option(__version__, help="Vis versionen og afslut.")
 def app():
     """
     Arbejd med arkiveringsversioner.
