@@ -56,6 +56,10 @@ def sample(
         files = sorted(set(files), key=lambda f: f[sorting_index])
 
         print(extension)
+
+        if not files:
+            print("+--- ingen filer fundet")
+
         for n, [path_str, size, original_name, doc_id] in enumerate(files, 1):
             prefix: str = ""
             if bin_col == "size":
@@ -65,6 +69,7 @@ def sample(
             print(f"{'+' if n == len(files) else '|'}---", copy_path.name)
             copy_path.parent.mkdir(parents=True, exist_ok=True)
             copy2(file_path, copy_path)
+
         print()
 
 
