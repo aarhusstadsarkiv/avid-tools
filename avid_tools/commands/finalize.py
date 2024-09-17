@@ -20,7 +20,7 @@ from avid_tools.utils import validate_xml
 @command("finalize", no_args_is_help=True)
 @option(
     "--update-hashes",
-    type=Choice(["all", "index", "context", "tables", "documents"]),
+    type=Choice(["all", "index", "context", "tables", "documents", "none"]),
     default=(
         "index",
         "context",
