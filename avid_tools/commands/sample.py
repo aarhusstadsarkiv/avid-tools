@@ -24,15 +24,16 @@ def sample(
     where: list[str],
     output_dir: Path,
 ):
-    extensions = extensions or tuple(
-        sorted(
-            f[0]
-            for f in conn.execute(
-                "select distinct lower(originalExtension) from files"
-                " where type = 'Documents' and originalExtension is not null and docId is not null"
+    if not extensions or "all" in extensions:
+        extensions = tuple(
+            sorted(
+                f[0]
+                for f in conn.execute(
+                    "select distinct lower(originalExtension) from files"
+                    " where type = 'Documents' and originalExtension is not null and docId is not null"
+                )
             )
         )
-    )
     sample_lower_limit, sample_higher_limit = ceil(sample_size / 2), sample_size // 2
     sorting_index: int = 1
     if bin_col == "docId":
@@ -72,8 +73,8 @@ def grp_sample():
     """Tag en prøve af dokumenter."""
 
 
-@grp_sample.command("size")
-@argument("extensions", metavar="[EXTENSIONS...]", nargs=-1, required=False)
+@grp_sample.command("size", no_args_is_help=True)
+@argument("extensions", metavar="EXTENSIONS...", nargs=-1, required=True)
 @option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5, help="Antallet af filer i prøven.")
 @option("--min-size", metavar="INTEGER", type=IntRange(min=1), default=None, help="Min filstørrelse i prøven.")
 @option("--max-size", metavar="INTEGER", type=IntRange(min=1), default=None, help="Max filstørrelse i prøven.")
@@ -97,7 +98,8 @@ def cmd_sample_size(
     Der tages en prøve af hver filtype, sorteret efter størrelsen. En halvdel af prøven indeholder filer med de laveste
     størrelser, og den anden del indeholder filer med de højeste.
 
-    Prøven kan begrænses til bestemte originale filtyper ved at bruge EXTENSION argumenter.
+    Prøven begrænses til de originale filtyper i EXTENSION argumenter. For at tage en prøve af alle filtyper brug
+    "all" som argument.
 
     Som default bruges mappen _metadata/sample_size for at gemme prøven. Det kan overrides med --output-dir option.
     """
@@ -123,8 +125,8 @@ def cmd_sample_size(
     sample(avid, conn, "size", sample_size, extensions, where, output_dir)
 
 
-@grp_sample.command("docid")
-@argument("extensions", metavar="[EXTENSIONS...]", nargs=-1, required=False)
+@grp_sample.command("docid", no_args_is_help=True)
+@argument("extensions", metavar="EXTENSIONS...", nargs=-1, required=True)
 @option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5, help="Antallet af filer i prøven.")
 @option("--min-docid", metavar="INTEGER", type=IntRange(min=1), default=None, help="Min docId i prøven.")
 @option("--max-docid", metavar="INTEGER", type=IntRange(min=1), default=None, help="Max docId i prøven.")
@@ -147,7 +149,8 @@ def cmd_sample_size(
     Der tages en prøve af hver filtype, sorteret efter docID. En halvdel af prøven indeholder filer med de laveste
     docId'er, og den anden del indeholder filer med de højeste.
 
-    Prøven kan begrænses til bestemte originale filtyper ved at bruge EXTENSION argumenter.
+    Prøven begrænses til de originale filtyper i EXTENSION argumenter. For at tage en prøve af alle filtyper brug
+    "all" som argument.
 
     Som default bruges mappen _metadata/sample_docid for at gemme prøven. Det kan overrides med --output-dir option.
     """
