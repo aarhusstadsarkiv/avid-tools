@@ -20,8 +20,8 @@ from avid_tools.utils import validate_xml
 @argument(
     "AVID_DIR",
     type=ClickPath(exists=True, file_okay=False, writable=True, readable=True, resolve_path=True),
-    required=False,
-    callback=lambda _c, _p, v: Path(v) if v else Path.cwd(),
+    required=True,
+    callback=lambda _c, _p, v: Path(v),
 )
 @option_help()
 @pass_context
@@ -29,8 +29,8 @@ def cmd_init(ctx: Context, avid_dir: Path):
     """
     Initializer en ny AVID mappe med værktøjets database.
 
-    AVID_DIR argument skal være stien til hoved mappen af en arkiversingsversion (hvor Indices, Tables, osv. ligger), men det
-    kan ignoreres, hvis programmet kører i hoved mappen.
+    AVID_DIR argument skal være stien til hoved mappen af en arkiversingsversion (hvor Indices, Tables, osv. ligger).
+    Hvis programmet kører i hoved mappen, kan man brug "." som sti.
     """
     avid: AVID = AVID(avid_dir)
     db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
