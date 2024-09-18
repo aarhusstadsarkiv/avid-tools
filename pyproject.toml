@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "avid-tools"
-version = "0.1.0.dev2"
+version = "1.0.0"
 description = ""
 authors = ["Matteo Campinoti <matteo.campinoti94@gmail.com>"]
 readme = "README.md"
