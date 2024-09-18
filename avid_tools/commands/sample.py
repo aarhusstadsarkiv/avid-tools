@@ -186,7 +186,7 @@ def cmd_sample_size(
     callback=lambda _c, _p, v: Path(v) if v else None,
 )
 @option_help()
-def cmd_sample_size(
+def cmd_sample_docid(
     extensions: tuple[str, ...],
     sample_size: int,
     min_docid: int | None,
