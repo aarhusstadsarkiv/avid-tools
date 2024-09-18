@@ -30,8 +30,8 @@ Usage: avid-tools [OPTIONS] COMMAND [ARGS]...
   Arbejd med arkiveringsversioner.
 
 Options:
-  --version  Vis versionen og afslut.
-  --help     Show this message and exit.
+  --version   Vis versionen og afslut.
+  -h, --help  Vis denne besked og afslut.
 
 Commands:
   init       Initializer en ny AVID mappe med værktøjets database.
@@ -47,16 +47,16 @@ Commands:
 ### avid-tools init
 
 ```
-Usage: avid-tools init [OPTIONS] [AVID_DIR]
+Usage: avid-tools init [OPTIONS] AVID_DIR
 
   Initializer en ny AVID mappe med værktøjets database.
 
   AVID_DIR argument skal være stien til hoved mappen af en arkiversingsversion
-  (hvor Indices, Tables, osv. ligger), men det kan ignoreres, hvis programmet
-  kører i hoved mappen.
+  (hvor Indices, Tables, osv. ligger). Hvis programmet kører i hoved mappen,
+  kan man brug "." som sti.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 ```
 
 ### avid-tools context
@@ -67,7 +67,7 @@ Usage: avid-tools context [OPTIONS] COMMAND [ARGS]...
   Opdater kontekstdokumentation.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 
 Commands:
   add     Tilføj et kontekstdokument.
@@ -103,7 +103,7 @@ Usage: avid-tools context add [OPTIONS] FILE METADATA
 
 Options:
   --position INTEGER  Placering af det nye kontekstdokument.  [x>=1]
-  --help              Show this message and exit.
+  -h, --help          Vis denne besked og afslut.
 ```
 
 #### avid-tools context update
@@ -131,7 +131,7 @@ Usage: avid-tools context update [OPTIONS] DOC_ID
 Options:
   --file FILE      Kontekstdokument fil.
   --metadata FILE  Kontekstdokument metadata.
-  --help           Show this message and exit.
+  -h, --help       Vis denne besked og afslut.
 ```
 
 #### avid-tools context move
@@ -148,7 +148,7 @@ Usage: avid-tools context move [OPTIONS] FROM_DOC_ID TO_DOC_ID
   at flytte dokumentet til slutningen af dokumentation.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 ```
 
 #### avid-tools context delete
@@ -159,7 +159,7 @@ Usage: avid-tools context delete [OPTIONS] DOC_ID
   Fjern et kontekstdokument med ID DOC_ID fra arkiveringsversionen.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 ```
 
 ### avid-tools tables
@@ -170,7 +170,7 @@ Usage: avid-tools tables [OPTIONS] COMMAND [ARGS]...
   Arbejd med tabellerne.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 
 Commands:
   trim              Trim tabelværdier.
@@ -191,7 +191,7 @@ Usage: avid-tools tables trim [OPTIONS]
 
 Options:
   -t, --table ID  Vælg tabeller.  [x>=1]
-  --help          Show this message and exit.
+  -h, --help      Vis denne besked og afslut.
 ```
 
 #### avid-tools tables update-row-count
@@ -205,7 +205,7 @@ Usage: avid-tools tables update-row-count [OPTIONS]
 
 Options:
   -t, --table ID  Vælg tabeller.  [x>=1]
-  --help          Show this message and exit.
+  -h, --help      Vis denne besked og afslut.
 ```
 
 ### avid-tools index
@@ -216,7 +216,7 @@ Usage: avid-tools index [OPTIONS] COMMAND [ARGS]...
   Vis og opdater indeks filer i Indices.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 
 Commands:
   update  Opdater en indeks file.
@@ -232,7 +232,7 @@ Usage: avid-tools index view [OPTIONS] {archiveIndex|contextDocumentationIndex
   Vis en eller flere indeks filer.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 ```
 
 #### avid-tools index update
@@ -248,7 +248,7 @@ Usage: avid-tools index update [OPTIONS] INDEX_FILE
 Options:
   --type [archiveIndex|contextDocumentationIndex|tableIndex]
                                   Indeks type.
-  --help                          Show this message and exit.
+  -h, --help                      Vis denne besked og afslut.
 ```
 
 ### avid-tools documents
@@ -259,7 +259,7 @@ Usage: avid-tools documents [OPTIONS] COMMAND [ARGS]...
   Vis oversigter af dokumenterne i arkiveringsverionen.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 
 Commands:
   checksums   Vis antallet af md5 hashes.
@@ -290,7 +290,7 @@ Options:
   --limit INTEGER RANGE  Begræns hvor mange resultater vises.  [x>=1]
   --reverse              Vis i stigende rækkefølge.
   --csv-file FILE        Gem output til en CSV fil.
-  --help                 Show this message and exit.
+  -h, --help             Vis denne besked og afslut.
 ```
 
 #### avid-tools documents checksums
@@ -316,7 +316,7 @@ Options:
   --limit INTEGER RANGE  Begræns hvor mange resultater vises.  [x>=1]
   --reverse              Vis i stigende rækkefølge.
   --csv-file FILE        Gem output til en CSV fil.
-  --help                 Show this message and exit.
+  -h, --help             Vis denne besked og afslut.
 ```
 
 ### avid-tools sample
@@ -327,7 +327,7 @@ Usage: avid-tools sample [OPTIONS] COMMAND [ARGS]...
   Tag en prøve af dokumenter.
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Vis denne besked og afslut.
 
 Commands:
   docid  Tag en prøve af dokumenterne baseret på det originale...
@@ -353,11 +353,11 @@ Usage: avid-tools sample size [OPTIONS] EXTENSIONS...
   overrides med --output-dir option.
 
 Options:
-  --sample-size INTEGER   Antallet af filer i prøven.  [x>=1]
+  --sample-size INTEGER   Antallet af filer i prøven.  [default: 5; x>=1]
   --min-size INTEGER      Min filstørrelse i prøven.  [x>=1]
   --max-size INTEGER      Max filstørrelse i prøven.  [x>=1]
   --output-dir DIRECTORY  Mappen hvor prøven skal ligge.
-  --help                  Show this message and exit.
+  -h, --help              Vis denne besked og afslut.
 ```
 
 #### avid-tools sample docid
@@ -379,11 +379,11 @@ Usage: avid-tools sample docid [OPTIONS] EXTENSIONS...
   kan overrides med --output-dir option.
 
 Options:
-  --sample-size INTEGER   Antallet af filer i prøven.  [x>=1]
+  --sample-size INTEGER   Antallet af filer i prøven.  [default: 5; x>=1]
   --min-docid INTEGER     Min docId i prøven.  [x>=1]
   --max-docid INTEGER     Max docId i prøven.  [x>=1]
   --output-dir DIRECTORY
-  --help                  Show this message and exit.
+  -h, --help              Vis denne besked og afslut.
 ```
 
 ### avid-tools search
@@ -409,7 +409,7 @@ Options:
   --limit INTEGER                 Begræns hvor mange resultater vises.  [x>=1]
   --show-columns / --show-rows    Vis alle kolonner i matchende rækker eller
                                   kun rækkenumre.
-  --help                          Show this message and exit.
+  -h, --help                      Vis denne besked og afslut.
 ```
 
 ### avid-tools finalize
@@ -437,6 +437,6 @@ Options:
   --update-hashes [all|index|context|tables|documents|none]
                                   Vælg hvilke hashes skal opdateres.
                                   [default: index, context]
-  --help                          Show this message and exit.
+  -h, --help                      Vis denne besked og afslut.
 ```
 
