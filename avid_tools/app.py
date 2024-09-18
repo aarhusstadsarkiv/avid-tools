@@ -10,10 +10,12 @@ from .commands.init import cmd_init
 from .commands.sample import grp_sample
 from .commands.search import cmd_search
 from .commands.tables.tables import grp_tables
+from .utils import option_help
 
 
-@group("avid-tools", no_args_is_help=True)
+@group("avid-tools", no_args_is_help=True, add_help_option=False)
 @version_option(__version__, help="Vis versionen og afslut.")
+@option_help()
 def app():
     """
     Arbejd med arkiveringsversioner.

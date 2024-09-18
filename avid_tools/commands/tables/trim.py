@@ -23,6 +23,7 @@ from avid_tools.utils import print_line
 from ...database import create_database
 from ...database import update_md5
 from ...utils import find_avid_dir
+from ...utils import option_help
 from .utils import Column
 from .utils import read_table_schema
 
@@ -73,8 +74,9 @@ class ContentHandlerTrim(ContentHandler):
         self.current_content = ""
 
 
-@command("trim", no_args_is_help=True, short_help="Trim tabelværdier.")
+@command("trim", no_args_is_help=True, add_help_option=False, short_help="Trim tabelværdier.")
 @option("--table", "-t", "table_ids", metavar="ID", type=IntRange(1), multiple=True, help="Vælg tabeller.")
+@option_help()
 @pass_context
 def cmd_trim(ctx: Context, table_ids: tuple[int, ...]):
     """

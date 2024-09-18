@@ -18,6 +18,7 @@ from click import pass_context
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
 from avid_tools.utils import find_avid_dir
+from avid_tools.utils import option_help
 
 
 class ContentHandlerTableSearch(ContentHandler):
@@ -66,7 +67,7 @@ class ContentHandlerTableSearch(ContentHandler):
             self.column_id = None
 
 
-@command("search", no_args_is_help=True, short_help="Søg i tabellerne.")
+@command("search", no_args_is_help=True, add_help_option=False, short_help="Søg i tabellerne.")
 @argument("patterns", metavar="PATTERN...", nargs=-1, required=True)
 @option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True, help="Vælg søgetabeller.")
 @option(
@@ -86,6 +87,7 @@ class ContentHandlerTableSearch(ContentHandler):
     default=True,
     help="Vis alle kolonner i matchende rækker eller kun rækkenumre.",
 )
+@option_help()
 @pass_context
 def cmd_search(
     ctx: Context,

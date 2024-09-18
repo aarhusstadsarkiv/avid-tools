@@ -13,15 +13,22 @@ from click import Path as ClickPath
 from avid_tools.database import create_database
 from avid_tools.utils import AVID
 from avid_tools.utils import find_avid_dir
+from avid_tools.utils import option_help
 
 
-@group("documents", no_args_is_help=True)
+@group("documents", no_args_is_help=True, add_help_option=False)
+@option_help()
 def grp_documents():
     """Vis oversigter af dokumenterne i arkiveringsverionen."""
 
 
 # noinspection DuplicatedCode
-@grp_documents.command("extensions", no_args_is_help=True, short_help="Vis antallet af filtypenavner.")
+@grp_documents.command(
+    "extensions",
+    no_args_is_help=True,
+    add_help_option=False,
+    short_help="Vis antallet af filtypenavner.",
+)
 @option("--limit", type=IntRange(1), default=None, help="Begræns hvor mange resultater vises.")
 @option("--reverse", is_flag=True, default=False, help="Vis i stigende rækkefølge.")
 @option(
@@ -30,6 +37,7 @@ def grp_documents():
     callback=lambda _c, _p, v: Path(v) if v else None,
     help="Gem output til en CSV fil.",
 )
+@option_help()
 @pass_context
 def cmd_documents_extensions(_ctx: Context, limit: int | None, reverse: bool, csv_file: Path | None):
     """
@@ -65,7 +73,12 @@ def cmd_documents_extensions(_ctx: Context, limit: int | None, reverse: bool, cs
 
 
 # noinspection DuplicatedCode
-@grp_documents.command("checksums", no_args_is_help=True, short_help="Vis antallet af md5 hashes.")
+@grp_documents.command(
+    "checksums",
+    no_args_is_help=True,
+    add_help_option=False,
+    short_help="Vis antallet af md5 hashes.",
+)
 @option("--limit", type=IntRange(1), default=None, help="Begræns hvor mange resultater vises.")
 @option("--reverse", is_flag=True, default=False, help="Vis i stigende rækkefølge.")
 @option(
@@ -74,6 +87,7 @@ def cmd_documents_extensions(_ctx: Context, limit: int | None, reverse: bool, cs
     callback=lambda _c, _p, v: Path(v) if v else None,
     help="Gem output til en CSV fil.",
 )
+@option_help()
 @pass_context
 def cmd_documents_checksums(_ctx: Context, limit: int | None, reverse: bool, csv_file: Path | None):
     """

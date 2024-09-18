@@ -7,6 +7,7 @@ from typing import TextIO
 
 from click import ClickException
 from click import Context
+from click import help_option
 from click import Parameter
 from xmlschema import XMLSchema
 from xmlschema import XMLSchemaValidationError
@@ -132,6 +133,10 @@ def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
         raise ClickException(f"No _metadata/avid.db found from {path}")
 
     return avid_dir
+
+
+def option_help():
+    return help_option("--help", "-h", help="Vis denne besked og afslut.", is_eager=True)
 
 
 def ctx_params(ctx: Context) -> dict[str, Parameter]:

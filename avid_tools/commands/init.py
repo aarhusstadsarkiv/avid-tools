@@ -12,16 +12,18 @@ from avid_tools.indices import save_doc_index
 from avid_tools.indices import save_file_index
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
+from avid_tools.utils import option_help
 from avid_tools.utils import validate_xml
 
 
-@command("init")
+@command("init", no_args_is_help=True, add_help_option=False)
 @argument(
     "AVID_DIR",
     type=ClickPath(exists=True, file_okay=False, writable=True, readable=True, resolve_path=True),
     required=False,
     callback=lambda _c, _p, v: Path(v) if v else Path.cwd(),
 )
+@option_help()
 @pass_context
 def cmd_init(ctx: Context, avid_dir: Path):
     """

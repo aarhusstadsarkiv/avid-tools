@@ -17,6 +17,7 @@ from avid_tools.indices import write_table_index
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
 from avid_tools.utils import find_avid_dir
+from avid_tools.utils import option_help
 from avid_tools.utils import validate_xml
 
 
@@ -30,8 +31,9 @@ class ContentHandlerRowCount(ContentHandler):
             self.rows += 1
 
 
-@command("update-row-count", no_args_is_help=True, short_help="Opdater antallet af rækker.")
+@command("update-row-count", no_args_is_help=True, add_help_option=False, short_help="Opdater antallet af rækker.")
 @option("--table", "-t", "table_ids", metavar="ID", type=IntRange(min=1), multiple=True, help="Vælg tabeller.")
+@option_help()
 @pass_context
 def cmd_update_row_count(ctx: Context, table_ids: tuple[int, ...]):
     """

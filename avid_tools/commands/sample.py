@@ -13,6 +13,7 @@ from click import Path as ClickPath
 from avid_tools.database import create_database
 from avid_tools.utils import AVID
 from avid_tools.utils import find_avid_dir
+from avid_tools.utils import option_help
 
 
 def sample(
@@ -73,12 +74,13 @@ def sample(
         print()
 
 
-@group("sample", no_args_is_help=True)
+@group("sample", no_args_is_help=True, add_help_option=False)
+@option_help()
 def grp_sample():
     """Tag en prøve af dokumenter."""
 
 
-@grp_sample.command("size", no_args_is_help=True)
+@grp_sample.command("size", no_args_is_help=True, add_help_option=False)
 @argument("extensions", metavar="EXTENSIONS...", nargs=-1, required=True)
 @option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5, help="Antallet af filer i prøven.")
 @option("--min-size", metavar="INTEGER", type=IntRange(min=1), default=None, help="Min filstørrelse i prøven.")
@@ -90,6 +92,7 @@ def grp_sample():
     callback=lambda _c, _p, v: Path(v) if v else None,
     help="Mappen hvor prøven skal ligge.",
 )
+@option_help()
 def cmd_sample_size(
     extensions: tuple[str, ...],
     sample_size: int,
@@ -130,7 +133,7 @@ def cmd_sample_size(
     sample(avid, conn, "size", sample_size, extensions, where, output_dir)
 
 
-@grp_sample.command("docid", no_args_is_help=True)
+@grp_sample.command("docid", no_args_is_help=True, add_help_option=False)
 @argument("extensions", metavar="EXTENSIONS...", nargs=-1, required=True)
 @option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5, help="Antallet af filer i prøven.")
 @option("--min-docid", metavar="INTEGER", type=IntRange(min=1), default=None, help="Min docId i prøven.")
@@ -141,6 +144,7 @@ def cmd_sample_size(
     default=None,
     callback=lambda _c, _p, v: Path(v) if v else None,
 )
+@option_help()
 def cmd_sample_size(
     extensions: tuple[str, ...],
     sample_size: int,

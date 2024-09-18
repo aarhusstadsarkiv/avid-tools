@@ -14,10 +14,11 @@ from avid_tools.indices import generate_file_index
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
 from avid_tools.utils import find_avid_dir
+from avid_tools.utils import option_help
 from avid_tools.utils import validate_xml
 
 
-@command("finalize", no_args_is_help=True)
+@command("finalize", no_args_is_help=True, add_help_option=False)
 @option(
     "--update-hashes",
     type=Choice(["all", "index", "context", "tables", "documents", "none"]),
@@ -29,6 +30,7 @@ from avid_tools.utils import validate_xml
     show_default=True,
     help="Vælg hvilke hashes skal opdateres.",
 )
+@option_help()
 @pass_context
 def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...]):
     """

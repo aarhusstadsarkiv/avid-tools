@@ -21,6 +21,7 @@ from avid_tools.indices import write_context_documentation
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
 from avid_tools.utils import find_avid_dir
+from avid_tools.utils import option_help
 from avid_tools.utils import remove_empty_dir
 from avid_tools.utils import validate_xml
 
@@ -65,13 +66,14 @@ def move_context_docs(
     return {(i + diff) if i in doc_ids else i: d for i, d in context_docs.items()}
 
 
-@group("context", no_args_is_help=True)
+@group("context", no_args_is_help=True, add_help_option=False)
+@option_help()
 def grp_context():
     """Opdater kontekstdokumentation."""
 
 
 # noinspection HttpUrlsUsage,DuplicatedCode
-@grp_context.command("add", no_args_is_help=True, short_help="Tilføj et kontekstdokument.")
+@grp_context.command("add", no_args_is_help=True, add_help_option=False, short_help="Tilføj et kontekstdokument.")
 @argument(
     "file",
     type=ClickPath(exists=True, dir_okay=False, readable=True, resolve_path=True),
@@ -83,6 +85,7 @@ def grp_context():
     callback=lambda _c, _p, v: Path(v),
 )
 @option("--position", metavar="INTEGER", type=IntRange(1), default=None, help="Placering af det nye kontekstdokument.")
+@option_help()
 @pass_context
 def cmd_context_add(ctx: Context, file: Path, metadata: Path, position: int):
     """
@@ -150,7 +153,7 @@ def cmd_context_add(ctx: Context, file: Path, metadata: Path, position: int):
 
 
 # noinspection HttpUrlsUsage,DuplicatedCode
-@grp_context.command("update", no_args_is_help=True, short_help="Opdater et kontekstdokument.")
+@grp_context.command("update", no_args_is_help=True, add_help_option=False, short_help="Opdater et kontekstdokument.")
 @argument("DOC_ID", type=IntRange(1))
 @option(
     "--file",
@@ -166,6 +169,7 @@ def cmd_context_add(ctx: Context, file: Path, metadata: Path, position: int):
     callback=lambda _c, _p, v: Path(v) if v else None,
     help="Kontekstdokument metadata.",
 )
+@option_help()
 @pass_context
 def cmd_context_update(ctx: Context, doc_id: int, file: Path | None, metadata: Path | None):
     """
@@ -235,11 +239,13 @@ def cmd_context_update(ctx: Context, doc_id: int, file: Path | None, metadata: P
 @grp_context.command(
     "move",
     no_args_is_help=True,
+    add_help_option=False,
     context_settings={"ignore_unknown_options": True},
     short_help="Flyt et kontekstdokument.",
 )
 @argument("FROM_DOC_ID", type=IntRange(1))
 @argument("TO_DOC_ID", type=IntRange(-1))
+@option_help()
 @pass_context
 def cmd_context_move(ctx: Context, from_doc_id: int, to_doc_id: int):
     """
@@ -341,8 +347,9 @@ def cmd_context_move(ctx: Context, from_doc_id: int, to_doc_id: int):
 
 
 # noinspection DuplicatedCode
-@grp_context.command("delete", no_args_is_help=True, short_help="Fjern et kontekstdokument.")
+@grp_context.command("delete", no_args_is_help=True, add_help_option=False, short_help="Fjern et kontekstdokument.")
 @argument("DOC_ID", type=IntRange(1))
+@option_help()
 @pass_context
 def cmd_context_delete(ctx: Context, doc_id: int):
     """Fjern et kontekstdokument med ID DOC_ID fra arkiveringsversionen."""

@@ -16,21 +16,24 @@ from avid_tools.database import update_md5
 from avid_tools.utils import AVID
 from avid_tools.utils import ctx_params
 from avid_tools.utils import find_avid_dir
+from avid_tools.utils import option_help
 from avid_tools.utils import validate_xml
 
 
-@group("index", no_args_is_help=True)
+@group("index", no_args_is_help=True, add_help_option=False)
+@option_help()
 def grp_index():
     """Vis og opdater indeks filer i Indices."""
 
 
-@grp_index.command("view", no_args_is_help=True)
+@grp_index.command("view", no_args_is_help=True, add_help_option=False)
 @argument(
     "index",
     type=Choice(["archiveIndex", "contextDocumentationIndex", "tableIndex"], case_sensitive=False),
     nargs=-1,
     required=True,
 )
+@option_help()
 def cmd_index_view(index: tuple[str, ...]):
     """Vis en eller flere indeks filer."""
 
@@ -64,7 +67,7 @@ def cmd_index_view(index: tuple[str, ...]):
         printer(xml)
 
 
-@grp_index.command("update", no_args_is_help=True)
+@grp_index.command("update", no_args_is_help=True, add_help_option=False)
 @argument(
     "index_file",
     type=ClickPath(exists=True, dir_okay=False, readable=True),
@@ -80,6 +83,7 @@ def cmd_index_view(index: tuple[str, ...]):
     required=False,
     help="Indeks type.",
 )
+@option_help()
 @pass_context
 def cmd_index_update(ctx: Context, index_file: Path, index_type: str | None):
     """

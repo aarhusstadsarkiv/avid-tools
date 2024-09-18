@@ -2,9 +2,11 @@ from click import group
 
 from avid_tools.commands.tables.row_count import cmd_update_row_count
 from avid_tools.commands.tables.trim import cmd_trim
+from avid_tools.utils import option_help
 
 
-@group("tables", no_args_is_help=True)
+@group("tables", no_args_is_help=True, add_help_option=False)
+@option_help()
 def grp_tables():
     """Arbejd med tabellerne."""
 
