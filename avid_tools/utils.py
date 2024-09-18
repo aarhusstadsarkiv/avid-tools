@@ -147,10 +147,10 @@ def is_valid_suffix(suffix: str) -> bool:
     return match(r"^\.[a-zA-Z0-9]+$", suffix) is not None
 
 
-def path_suffix(path: Path):
+def path_suffix(path: Path) -> str:
     if is_valid_suffix(suffix := path.suffix):
         return suffix
-    return None
+    return ""
 
 
 def remove_empty_dir(root: Path, path: Path) -> None:
