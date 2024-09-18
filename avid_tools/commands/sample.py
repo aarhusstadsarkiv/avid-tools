@@ -27,34 +27,38 @@ def sample(
 ):
     if not extensions or "all" in extensions:
         extensions = tuple(
-            sorted(
+            *extensions,
+            *(
                 f[0]
                 for f in conn.execute(
                     "select distinct lower(originalExtension) from files"
                     " where type = 'Documents' and originalExtension is not null and docId is not null"
                 )
-            )
+            ),
         )
     elif "all-valid" in extensions:
         extensions = tuple(
-            sorted(
+            *extensions,
+            *(
                 f[0]
                 for f in conn.execute(
                     "select distinct lower(originalExtension) from files"
                     " where type = 'Documents' and originalExtension is not null and originalExtension != '' and docId is not null"
                 )
-            )
+            ),
         )
     elif "all-invalid" in extensions:
         extensions = tuple(
-            sorted(
+            *extensions,
+            *(
                 f[0]
                 for f in conn.execute(
                     "select distinct lower(originalExtension) from files"
                     " where type = 'Documents' and originalExtension is not null and originalExtension = '' and docId is not null"
                 )
-            )
+            ),
         )
+    extensions = tuple(sorted(set(extensions), key=lambda s: s.lower()))
     sample_lower_limit, sample_higher_limit = ceil(sample_size / 2), sample_size // 2
     sorting_index: int = 1
     if bin_col == "docId":
@@ -134,7 +138,8 @@ def cmd_sample_size(
     størrelser, og den anden del indeholder filer med de højeste.
 
     Prøven begrænses til de originale filtyper i EXTENSION argumenter. For at tage en prøve af alle filtyper brug
-    "all" som argument.
+    "all" som argument. For at tage en prøve af valide filtyper alene brug "all-valid" som argument. For at tage en
+    prøve af ikke valide filtyper brug "all-invalid" som argument.
 
     Som default bruges mappen _metadata/sample_size for at gemme prøven. Det kan overrides med --output-dir option.
     """
