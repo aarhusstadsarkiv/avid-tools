@@ -200,7 +200,8 @@ def cmd_sample_docid(
     docId'er, og den anden del indeholder filer med de højeste.
 
     Prøven begrænses til de originale filtyper i EXTENSION argumenter. For at tage en prøve af alle filtyper brug
-    "all" som argument.
+    "all" som argument. For at tage en prøve af valide filtyper alene brug "all-valid" som argument. For at tage en
+    prøve af ikke valide filtyper brug "all-invalid" som argument.
 
     Som default bruges mappen _metadata/sample_docid for at gemme prøven. Det kan overrides med --output-dir option.
     """
