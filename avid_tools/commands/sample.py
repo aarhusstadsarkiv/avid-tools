@@ -35,6 +35,26 @@ def sample(
                 )
             )
         )
+    elif "all-valid" in extensions:
+        extensions = tuple(
+            sorted(
+                f[0]
+                for f in conn.execute(
+                    "select distinct lower(originalExtension) from files"
+                    " where type = 'Documents' and originalExtension is not null and originalExtension != '' and docId is not null"
+                )
+            )
+        )
+    elif "all-invalid" in extensions:
+        extensions = tuple(
+            sorted(
+                f[0]
+                for f in conn.execute(
+                    "select distinct lower(originalExtension) from files"
+                    " where type = 'Documents' and originalExtension is not null and originalExtension = '' and docId is not null"
+                )
+            )
+        )
     sample_lower_limit, sample_higher_limit = ceil(sample_size / 2), sample_size // 2
     sorting_index: int = 1
     if bin_col == "docId":
@@ -56,7 +76,7 @@ def sample(
         ]
         files = sorted(set(files), key=lambda f: f[sorting_index])
 
-        print(extension)
+        print(extension or "<missing>")
 
         if not files:
             print("+--- ingen filer fundet")
