@@ -22,7 +22,7 @@
     * [search](#avid-tools-search)
     * [finalize](#avid-tools-finalize)
 
-# avid-tools
+## avid-tools
 
 ```
 Usage: avid-tools [OPTIONS] COMMAND [ARGS]...
@@ -44,7 +44,7 @@ Commands:
   finalize   Opdater md5 hashes og generer nye Indices/fileIndex.xml og...
 ```
 
-## avid-tools init
+### avid-tools init
 
 ```
 Usage: avid-tools init [OPTIONS] [AVID_DIR]
@@ -59,7 +59,7 @@ Options:
   --help  Show this message and exit.
 ```
 
-## avid-tools context
+### avid-tools context
 
 ```
 Usage: avid-tools context [OPTIONS] COMMAND [ARGS]...
@@ -76,7 +76,7 @@ Commands:
   update  Opdater et kontekstdokument.
 ```
 
-### avid-tools context add
+#### avid-tools context add
 
 ```
 Usage: avid-tools context add [OPTIONS] FILE METADATA
@@ -106,7 +106,7 @@ Options:
   --help              Show this message and exit.
 ```
 
-### avid-tools context update
+#### avid-tools context update
 
 ```
 Usage: avid-tools context update [OPTIONS] DOC_ID
@@ -134,7 +134,7 @@ Options:
   --help           Show this message and exit.
 ```
 
-### avid-tools context move
+#### avid-tools context move
 
 ```
 Usage: avid-tools context move [OPTIONS] FROM_DOC_ID TO_DOC_ID
@@ -151,7 +151,7 @@ Options:
   --help  Show this message and exit.
 ```
 
-### avid-tools context delete
+#### avid-tools context delete
 
 ```
 Usage: avid-tools context delete [OPTIONS] DOC_ID
@@ -162,7 +162,7 @@ Options:
   --help  Show this message and exit.
 ```
 
-## avid-tools tables
+### avid-tools tables
 
 ```
 Usage: avid-tools tables [OPTIONS] COMMAND [ARGS]...
@@ -177,7 +177,7 @@ Commands:
   update-row-count  Opdater antallet af rækker.
 ```
 
-### avid-tools tables trim
+#### avid-tools tables trim
 
 ```
 Usage: avid-tools tables trim [OPTIONS]
@@ -194,7 +194,7 @@ Options:
   --help          Show this message and exit.
 ```
 
-### avid-tools tables update-row-count
+#### avid-tools tables update-row-count
 
 ```
 Usage: avid-tools tables update-row-count [OPTIONS]
@@ -208,7 +208,7 @@ Options:
   --help          Show this message and exit.
 ```
 
-## avid-tools index
+### avid-tools index
 
 ```
 Usage: avid-tools index [OPTIONS] COMMAND [ARGS]...
@@ -223,7 +223,7 @@ Commands:
   view    Vis en eller flere indeks filer.
 ```
 
-### avid-tools index view
+#### avid-tools index view
 
 ```
 Usage: avid-tools index view [OPTIONS] {archiveIndex|contextDocumentationIndex
@@ -235,7 +235,7 @@ Options:
   --help  Show this message and exit.
 ```
 
-### avid-tools index update
+#### avid-tools index update
 
 ```
 Usage: avid-tools index update [OPTIONS] INDEX_FILE
@@ -251,7 +251,7 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## avid-tools documents
+### avid-tools documents
 
 ```
 Usage: avid-tools documents [OPTIONS] COMMAND [ARGS]...
@@ -266,7 +266,7 @@ Commands:
   extensions  Vis antallet af filtypenavner.
 ```
 
-### avid-tools documents extensions
+#### avid-tools documents extensions
 
 ```
 Usage: avid-tools documents extensions [OPTIONS]
@@ -293,7 +293,7 @@ Options:
   --help                 Show this message and exit.
 ```
 
-### avid-tools documents checksums
+#### avid-tools documents checksums
 
 ```
 Usage: avid-tools documents checksums [OPTIONS]
@@ -319,7 +319,7 @@ Options:
   --help                 Show this message and exit.
 ```
 
-## avid-tools sample
+### avid-tools sample
 
 ```
 Usage: avid-tools sample [OPTIONS] COMMAND [ARGS]...
@@ -334,7 +334,7 @@ Commands:
   size   Tag en prøve af dokumenterne baseret på det originale...
 ```
 
-### avid-tools sample size
+#### avid-tools sample size
 
 ```
 Usage: avid-tools sample size [OPTIONS] EXTENSIONS...
@@ -360,7 +360,7 @@ Options:
   --help                  Show this message and exit.
 ```
 
-### avid-tools sample docid
+#### avid-tools sample docid
 
 ```
 Usage: avid-tools sample docid [OPTIONS] EXTENSIONS...
@@ -386,7 +386,7 @@ Options:
   --help                  Show this message and exit.
 ```
 
-## avid-tools search
+### avid-tools search
 
 ```
 Usage: avid-tools search [OPTIONS] PATTERN...
@@ -412,7 +412,7 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## avid-tools finalize
+### avid-tools finalize
 
 ```
 Usage: avid-tools finalize [OPTIONS]
