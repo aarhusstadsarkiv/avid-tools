@@ -1,0 +1,40 @@
+name: Build Wheels
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  PYTHON_VERSION: 3.11.9
+  POETRY_VERSION: 1.8.3
+
+jobs:
+  wheel:
+    name: Build Wheels
+    runs-on: windows-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Get Tag
+        id: tag
+        run: echo "tag=$(git tag -l --sort=-version:refname | head -1)" >> "$GITHUB_OUTPUT"
+      - name: Install Dependencies
+        run: poetry install
+      - name: Create Executable
+        run: pyinstaller avid_tools/__main__.py -n avid-tools --collect-all xmlschema --distpath dist --noupx -F
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
+          files: |
+            dist/avid-tools.exe
