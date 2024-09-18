@@ -347,7 +347,9 @@ Usage: avid-tools sample size [OPTIONS] EXTENSIONS...
   indeholder filer med de højeste.
 
   Prøven begrænses til de originale filtyper i EXTENSION argumenter. For at
-  tage en prøve af alle filtyper brug "all" som argument.
+  tage en prøve af alle filtyper brug "all" som argument. For at tage en prøve
+  af valide filtyper alene brug "all-valid" som argument. For at tage en prøve
+  af ikke valide filtyper brug "all-invalid" som argument.
 
   Som default bruges mappen _metadata/sample_size for at gemme prøven. Det kan
   overrides med --output-dir option.
@@ -373,7 +375,9 @@ Usage: avid-tools sample docid [OPTIONS] EXTENSIONS...
   filer med de højeste.
 
   Prøven begrænses til de originale filtyper i EXTENSION argumenter. For at
-  tage en prøve af alle filtyper brug "all" som argument.
+  tage en prøve af alle filtyper brug "all" som argument. For at tage en prøve
+  af valide filtyper alene brug "all-valid" som argument. For at tage en prøve
+  af ikke valide filtyper brug "all-invalid" som argument.
 
   Som default bruges mappen _metadata/sample_docid for at gemme prøven. Det
   kan overrides med --output-dir option.
