@@ -25,6 +25,8 @@ def sample(
     where: list[str],
     output_dir: Path,
 ):
+    extensions = tuple(filter(bool, map(str.strip, extensions)))
+
     if not extensions or "all" in extensions:
         extensions = tuple(
             *extensions,
