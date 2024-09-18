@@ -82,7 +82,14 @@ def grp_sample():
 
 @grp_sample.command("size", no_args_is_help=True, add_help_option=False)
 @argument("extensions", metavar="EXTENSIONS...", nargs=-1, required=True)
-@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5, help="Antallet af filer i prøven.")
+@option(
+    "--sample-size",
+    metavar="INTEGER",
+    type=IntRange(min=1),
+    default=5,
+    show_default=True,
+    help="Antallet af filer i prøven.",
+)
 @option("--min-size", metavar="INTEGER", type=IntRange(min=1), default=None, help="Min filstørrelse i prøven.")
 @option("--max-size", metavar="INTEGER", type=IntRange(min=1), default=None, help="Max filstørrelse i prøven.")
 @option(
@@ -135,7 +142,14 @@ def cmd_sample_size(
 
 @grp_sample.command("docid", no_args_is_help=True, add_help_option=False)
 @argument("extensions", metavar="EXTENSIONS...", nargs=-1, required=True)
-@option("--sample-size", metavar="INTEGER", type=IntRange(min=1), default=5, help="Antallet af filer i prøven.")
+@option(
+    "--sample-size",
+    metavar="INTEGER",
+    type=IntRange(min=1),
+    default=5,
+    show_default=True,
+    help="Antallet af filer i prøven.",
+)
 @option("--min-docid", metavar="INTEGER", type=IntRange(min=1), default=None, help="Min docId i prøven.")
 @option("--max-docid", metavar="INTEGER", type=IntRange(min=1), default=None, help="Max docId i prøven.")
 @option(
