@@ -146,7 +146,7 @@ def cmd_search(
         file: Path = tables[table_id]
         on_match = lambda r, cs: on_match_print(table_id, r, cs)
 
-        with file.open("r") as fh:
+        with file.open("r", encoding="utf-8") as fh:
             handler = ContentHandlerTableSearch(pattern, on_match, limit, column_ids)
             try:
                 sax_parse(fh, handler)
