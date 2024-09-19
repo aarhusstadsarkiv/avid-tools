@@ -82,7 +82,7 @@ def sample(
         ]
         files = sorted(set(files), key=lambda f: f[sorting_index])
 
-        print(extension or "<missing>")
+        print(extension or "<tom>")
 
         if not files:
             print("+--- ingen filer fundet")
