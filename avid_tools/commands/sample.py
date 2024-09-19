@@ -86,7 +86,10 @@ def sample(
             if bin_col == "size":
                 prefix = f"{size}-"
             file_path: Path = avid.dir.joinpath(path_str)
-            copy_path: Path = output_dir.joinpath(extension, f"{prefix}{doc_id}-{original_name}{file_path.suffix}")
+            copy_path: Path = output_dir.joinpath(
+                extension or "_invalid",
+                f"{prefix}{doc_id}-{original_name}{file_path.suffix}",
+            )
             print(f"{'+' if n == len(files) else '|'}---", copy_path.name)
             copy_path.parent.mkdir(parents=True, exist_ok=True)
             copy2(file_path, copy_path)
