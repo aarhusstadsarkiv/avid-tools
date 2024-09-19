@@ -25,42 +25,36 @@ def sample(
     where: list[str],
     output_dir: Path,
 ):
-    extensions = tuple(filter(bool, map(str.strip, extensions)))
+    extensions = tuple(filter(bool, (e.strip() for e in extensions)))
 
     if not extensions or "all" in extensions:
-        extensions = tuple(
-            *extensions,
+        extensions = (
+            *(e for e in extensions if e not in ("all", "all-valid", "all-invalid")),
             *(
                 f[0]
                 for f in conn.execute(
-                    "select distinct lower(originalExtension) from files"
+                    "select distinct originalExtension from files"
                     " where type = 'Documents' and originalExtension is not null and docId is not null"
                 )
             ),
         )
     elif "all-valid" in extensions:
-        extensions = tuple(
-            *extensions,
+        extensions = (
+            *(e for e in extensions if e not in ("all", "all-valid", "all-invalid")),
             *(
                 f[0]
                 for f in conn.execute(
-                    "select distinct lower(originalExtension) from files"
+                    "select distinct originalExtension from files"
                     " where type = 'Documents' and originalExtension is not null and originalExtension != '' and docId is not null"
                 )
             ),
         )
     elif "all-invalid" in extensions:
-        extensions = tuple(
-            *extensions,
-            *(
-                f[0]
-                for f in conn.execute(
-                    "select distinct lower(originalExtension) from files"
-                    " where type = 'Documents' and originalExtension is not null and originalExtension = '' and docId is not null"
-                )
-            ),
+        extensions = (
+            *(e for e in extensions if e not in ("all", "all-valid", "all-invalid")),
+            "",
         )
-    extensions = tuple(sorted(set(extensions), key=lambda s: s.lower()))
+    extensions = tuple(sorted({e.lower() for e in extensions}))
     sample_lower_limit, sample_higher_limit = ceil(sample_size / 2), sample_size // 2
     sorting_index: int = 1
     if bin_col == "docId":
