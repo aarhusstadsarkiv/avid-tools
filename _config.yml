@@ -1,0 +1,12 @@
+title: avid-tools
+description: Helper functions for working with archival versions
+theme: just-the-docs
+
+# url: https://just-the-docs.github.io
+url: https://aarhusstadsarkiv.github.io/avid-tools
+
+nav_external_links:
+  - title: Aarhus Stadsarkiv
+    url: https://www.aarhusstadsarkiv.dk
+    hide_icon: false # set to true to hide the external link icon - defaults to false
+    opens_in_new_tab: true # set to true to open this link in a new tab - defaults to false
