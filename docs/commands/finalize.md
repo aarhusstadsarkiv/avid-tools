@@ -1,8 +1,5 @@
 ---
 title: finalize
-layout: default
-parent: Kommandoer
-nav_order: 8
 ---
 
 ```shell

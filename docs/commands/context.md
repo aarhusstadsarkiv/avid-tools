@@ -1,8 +1,5 @@
 ---
 title: context
-layout: default
-parent: Kommandoer
-nav_order: 3
 ---
 
 ```shell
@@ -20,6 +17,7 @@ Commands:
   update  Opdater et kontekstdokument.
 ```
 
+## add
 ```shell
 Usage: avid-tools context add [OPTIONS] FILE METADATA
 
@@ -48,6 +46,8 @@ Options:
   -h, --help          Vis denne besked og afslut.
 ```
 
+## update
+
 ```shell
 Usage: avid-tools context update [OPTIONS] DOC_ID
 
@@ -74,6 +74,7 @@ Options:
   -h, --help       Vis denne besked og afslut.
 ```
 
+## move
 ```shell
 Usage: avid-tools context move [OPTIONS] FROM_DOC_ID TO_DOC_ID
 
@@ -89,6 +90,7 @@ Options:
   -h, --help  Vis denne besked og afslut.
 ```
 
+## delete
 ```shell
 Usage: avid-tools context delete [OPTIONS] DOC_ID
 

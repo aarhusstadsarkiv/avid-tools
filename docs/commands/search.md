@@ -1,8 +1,5 @@
 ---
 title: search
-layout: default
-parent: Kommandoer
-nav_order: 7
 ---
 
 ```shell

@@ -1,8 +1,5 @@
 ---
 title: init
-layout: default
-parent: Kommandoer
-nav_order: 1
 ---
 
 ```shell

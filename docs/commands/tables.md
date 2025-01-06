@@ -1,8 +1,5 @@
 ---
 title: tables
-layout: default
-parent: Kommandoer
-nav_order: 4
 ---
 
 ```shell
@@ -18,6 +15,7 @@ Commands:
   update-row-count  Opdater antallet af rækker.
 ```
 
+## trim
 ```shell
 Usage: avid-tools tables trim [OPTIONS]
 
@@ -33,6 +31,7 @@ Options:
   -h, --help      Vis denne besked og afslut.
 ```
 
+## update-row-count
 ```shell
 Usage: avid-tools tables update-row-count [OPTIONS]
 

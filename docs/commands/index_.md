@@ -1,8 +1,5 @@
 ---
 title: index
-layout: default
-parent: Kommandoer
-nav_order: 2
 ---
 
 ```shell
@@ -18,6 +15,7 @@ Commands:
   view    Vis en eller flere indeks filer.
 ```
 
+## view
 ```shell
 Usage: avid-tools index view [OPTIONS] {archiveIndex|contextDocumentationIndex
                              |tableIndex}...
@@ -28,6 +26,7 @@ Options:
   -h, --help  Vis denne besked og afslut.
 ```
 
+## update
 ```shell
 Usage: avid-tools index update [OPTIONS] INDEX_FILE
 

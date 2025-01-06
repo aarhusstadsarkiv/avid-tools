@@ -1,8 +1,5 @@
 ---
 title: documents
-layout: default
-parent: Kommandoer
-nav_order: 5
 ---
 
 ```shell
@@ -18,6 +15,7 @@ Commands:
   extensions  Vis antallet af filtypenavner.
 ```
 
+## extensions
 ```shell
 Usage: avid-tools documents extensions [OPTIONS]
 
@@ -43,6 +41,7 @@ Options:
   -h, --help             Vis denne besked og afslut.
 ```
 
+## checksums
 ```shell
 Usage: avid-tools documents checksums [OPTIONS]
 

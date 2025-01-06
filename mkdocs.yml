@@ -19,10 +19,10 @@ nav:
     - sample: commands/sample.md
     - tables: commands/tables.md
     - search: commands/search.md
-  - changelog.md
-  - feedback.md
-  - installation.md
-  - download.md
+  - Changelog: changelog.md
+  - Feedback: feedback.md
+  - Installation: installation.md
+  - Download: download.md
 
 extra_css:
   - theme.css

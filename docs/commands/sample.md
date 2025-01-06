@@ -1,8 +1,5 @@
 ---
 title: sample
-layout: default
-parent: Kommandoer
-nav_order: 6
 ---
 
 ```shell
@@ -18,6 +15,7 @@ Commands:
   size   Tag en prøve af dokumenterne baseret på det originale...
 ```
 
+## size
 ```shell
 Usage: avid-tools sample size [OPTIONS] EXTENSIONS...
 
@@ -44,6 +42,7 @@ Options:
   -h, --help              Vis denne besked og afslut.
 ```
 
+## docid
 ```shell
 Usage: avid-tools sample docid [OPTIONS] EXTENSIONS...
 
