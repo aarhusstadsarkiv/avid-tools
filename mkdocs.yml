@@ -1,0 +1,75 @@
+site_name: avid-tools
+site_url: https://aarhusstadsarkiv.github.io/avid-tools/
+repo_url: https://github.com/aarhusstadsarkiv/avid-tools
+repo_name: aarhusstadsarkiv/avid-tools
+edit_uri: edit/master/docs/
+site_author: Claus Juhl Knudsen
+site_description: >-
+  Documentation for avid-tools.
+
+nav:
+  - index.md
+  - Kommandoer:
+    # - kommandoer: commands/index.md
+    - context: commands/context.md
+    - documents: commands/documents.md
+    - finalize: commands/finalize.md
+    - index: commands/index_.md
+    - init: commands/init.md
+    - sample: commands/sample.md
+    - tables: commands/tables.md
+    - search: commands/search.md
+  - changelog.md
+  - feedback.md
+  - installation.md
+  - download.md
+
+extra_css:
+  - theme.css
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: indigo
+    accent: blue gray
+  font: false
+  language: da
+  icon:
+    edit: material/pencil
+    view: material/eye
+  features:
+    - content.action.edit
+    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/
+    - navigation.instant
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - navigation.path
+    - content.code.copy
+plugins:
+  # https://squidfunk.github.io/mkdocs-material/reference/variables/#macros
+  - search:
+      lang: da
+# Place any global vars here (macros-plugin can fetch them) to use in jinja
+# extra:
+#   unit:
+#     price: 12
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - meta
+  - def_list
+  # Alerts
+  # https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types
+  - admonition 
+  # Make alerts collapsible
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  # Align images left or right
+  # E.g. ![Placeholder](https://dummyimage.com/600x400/eee/aaa){: align=left }
+  - attr_list
