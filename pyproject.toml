@@ -1,24 +1,27 @@
-[tool.poetry]
+[project]
 name = "avid-tools"
-version = "1.0.4"
+version = "1.1.0"
 description = ""
-authors = ["Matteo Campinoti <matteo.campinoti94@gmail.com>"]
+requires-python = ">=3.11,<3.14"
 readme = "README.md"
+authors = [{name="Matteo Campinoti", email="matteo.campinoti94@gmail.com"}]
 
-[tool.poetry.dependencies]
-python = "^3.11,<3.14"
-xmltodict = "^0.13.0"
-click = "^8.1.7"
-xmlschema = "^3.4.1"
-mkdocs-material = "^9.5.49"
+dependencies = [
+    "xmltodict>=0.13.0",
+    "click>=8.1.7",
+    "xmlschema>=3.4.1",
+    "mkdocs-material>=9.5.49",
+]
 
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.6.4"
-types-click = "^7.1.8"
-pyinstaller = "^6.10.0"
-
-[tool.poetry.scripts]
+[project.scripts]
 avid-tools = "avid_tools.app:app"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6.4",
+    "types-click>=7.1.8",
+    "pyinstaller>=6.10.0",
+]
 
 [tool.ruff]
 line-length = 120
@@ -131,5 +134,5 @@ ignore-decorators = ["pytest.fixture"]
 max-doc-length = 300
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
