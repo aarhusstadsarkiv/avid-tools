@@ -120,7 +120,7 @@ class AVID:
 
 def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
     def inner(p: Path) -> Path | None:
-        if p.joinpath("_metadata", "avid.db").is_file():
+        if p.joinpath("_metadata", "avid_tools.db").is_file():
             return p
         elif p.parent != p:
             return inner(p.parent)
@@ -130,7 +130,7 @@ def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
     avid_dir = inner(path)
 
     if raise_on_error and not avid_dir:
-        raise ClickException(f"No _metadata/avid.db found from {path}")
+        raise ClickException(f"No _metadata/avid_tools.db found from {path}")
 
     return avid_dir
 

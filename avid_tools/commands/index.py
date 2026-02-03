@@ -92,7 +92,7 @@ def cmd_index_update(ctx: Context, index_file: Path, index_type: str | None):
     Indekstype genkendes automatisk fra navnet af INDEX_FILE, men det kan overrides med --type option.
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
 
     if index_file.name in ["archiveIndex.xml", "contextDocumentationIndex.xml", "tableIndex.xml"] and not index_type:

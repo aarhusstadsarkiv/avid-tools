@@ -145,7 +145,7 @@ def cmd_sample_size(
     Som default bruges mappen _metadata/sample_size for at gemme prøven. Det kan overrides med --output-dir option.
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
 
     if not output_dir:
@@ -206,7 +206,7 @@ def cmd_sample_docid(
     Som default bruges mappen _metadata/sample_docid for at gemme prøven. Det kan overrides med --output-dir option.
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
 
     if not output_dir:

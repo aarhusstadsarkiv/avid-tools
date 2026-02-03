@@ -33,10 +33,10 @@ def cmd_init(ctx: Context, avid_dir: Path):
     Hvis programmet kører i hoved mappen, kan man brug "." som sti.
     """
     avid: AVID = AVID(avid_dir)
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
 
     if db_path.is_file():
-        raise BadParameter(f"_metadata/avid.db already exists for {avid_dir.name}.", ctx, ctx_params(ctx)["avid_dir"])
+        raise BadParameter(f"_metadata/avid_tools.db already exists for {avid_dir.name}.", ctx, ctx_params(ctx)["avid_dir"])
 
     missing_indices: list[Path] = []
 
