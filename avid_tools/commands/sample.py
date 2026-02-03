@@ -22,8 +22,9 @@ def sample(
     bin_col: str,
     sample_size: int,
     extensions: tuple[str, ...],
-    where: list[str],
     output_dir: Path,
+    where: list[str],
+    aggregate: list[str] | None = None
 ):
     extensions = tuple(filter(bool, (e.strip() for e in extensions)))
 
@@ -62,15 +63,16 @@ def sample(
 
     for extension in extensions:
         where_stmt: str = " and ".join([*where, "lower(originalExtension) = ?"])
+        aggregate_stmt: str = (" having " + " and ".join(aggregate)) if aggregate is not None else ""
         files: list[tuple[str, int, str, int]] = [
             *conn.execute(
                 "select min(path), min(size), min(originalName), min(docId) from files"
-                f" where {where_stmt} group by md5 order by min({bin_col}) limit {sample_lower_limit}",
+                f" where {where_stmt} group by md5 {aggregate_stmt} order by min({bin_col}) limit {sample_lower_limit}",
                 [extension],
             ),
             *conn.execute(
                 "select min(path), min(size), min(originalName), min(docId) from files"
-                f" where {where_stmt} group by md5 order by min({bin_col}) desc limit {sample_higher_limit}",
+                f" where {where_stmt} group by md5 {aggregate_stmt} order by min({bin_col}) desc limit {sample_higher_limit}",
                 [extension],
             ),
         ]
@@ -155,13 +157,14 @@ def cmd_sample_size(
         )
 
     where: list[str] = ["type = 'Documents'", "docId is not null"]
+    aggregate: list[str] = []
 
     if min_size:
-        where.append(f"min(size) >= {min_size}")
+        aggregate.append(f"min(size) >= {min_size}")
     if max_size:
-        where.append(f"min(size) <= {max_size}")
+        aggregate.append(f"min(size) <= {max_size}")
 
-    sample(avid, conn, "size", sample_size, extensions, where, output_dir)
+    sample(avid, conn, "size", sample_size, extensions, output_dir, where, aggregate)
 
 
 @grp_sample.command("docid", no_args_is_help=True, add_help_option=False)
@@ -221,4 +224,4 @@ def cmd_sample_docid(
     if max_docid:
         where.append(f"min(docId) <= {min_docid}")
 
-    sample(avid, conn, "docId", sample_size, extensions, where, output_dir)
+    sample(avid, conn, "docId", sample_size, extensions, output_dir, where)
