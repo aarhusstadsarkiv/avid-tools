@@ -57,7 +57,7 @@ def cmd_documents_extensions(_ctx: Context, limit: int | None, reverse: bool, cs
     også.
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
     file: TextIO = csv_file.open("w", encoding="utf-8") if csv_file else stdout
     writer = csv_writer(file, delimiter="," if csv_file else "\t")
@@ -106,7 +106,7 @@ def cmd_documents_checksums(_ctx: Context, limit: int | None, reverse: bool, csv
     også.
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
     file: TextIO = csv_file.open("w", encoding="utf-8") if csv_file else stdout
     writer = csv_writer(file, delimiter="," if csv_file else "\t")

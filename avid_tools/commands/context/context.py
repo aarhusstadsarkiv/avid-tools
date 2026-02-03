@@ -111,7 +111,7 @@ def cmd_context_add(ctx: Context, file: Path, metadata: Path, position: int):
     </contextDocumentationIndex>
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
 
     if validation_error := validate_xml(metadata, avid.schemas.contextDocumentationIndex):
@@ -195,7 +195,7 @@ def cmd_context_update(ctx: Context, doc_id: int, file: Path | None, metadata: P
         return
 
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)
@@ -257,7 +257,7 @@ def cmd_context_move(ctx: Context, from_doc_id: int, to_doc_id: int):
     starten af dokumentation, eller -1 for at flytte dokumentet til slutningen af dokumentation.
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)
@@ -354,7 +354,7 @@ def cmd_context_move(ctx: Context, from_doc_id: int, to_doc_id: int):
 def cmd_context_delete(ctx: Context, doc_id: int):
     """Fjern et kontekstdokument med ID DOC_ID fra arkiveringsversionen."""
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)

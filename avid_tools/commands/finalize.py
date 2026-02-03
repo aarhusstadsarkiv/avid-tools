@@ -50,7 +50,7 @@ def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...]):
     * none: ingen hash bliver opdateret
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
     update_hashes = ("index", "context", "tables", "documents") if "all" in update_hashes else update_hashes
 

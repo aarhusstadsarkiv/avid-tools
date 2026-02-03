@@ -87,7 +87,7 @@ def cmd_trim(ctx: Context, table_ids: tuple[int, ...]):
     Som default trimmes alle tabeller. Det kan overrides med --table.
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
-    db_path: Path = avid.dir.joinpath("_metadata", "avid.db")
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
     tables = avid.tables
     schemas = avid.schemas.tables
