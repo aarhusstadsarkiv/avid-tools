@@ -4,11 +4,13 @@ from re import match
 from typing import BinaryIO
 from typing import Callable
 from typing import TextIO
+from typing import overload, Literal
 
 from click import ClickException
 from click import Context
 from click import help_option
 from click import Parameter
+from click import BadParameter
 from xmlschema import XMLSchema
 from xmlschema import XMLSchemaValidationError
 
@@ -118,6 +120,11 @@ class AVID:
         }
 
 
+@overload
+def find_avid_dir(path: Path, *, raise_on_error: Literal[True] = True) -> Path: ...
+@overload
+def find_avid_dir(path: Path, *, raise_on_error: Literal[False] = False) -> Path | None: ...
+
 def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
     def inner(p: Path) -> Path | None:
         if p.joinpath("_metadata", "avid_tools.db").is_file():
@@ -201,3 +208,16 @@ def print_line(
         msg,
         (lambda: None) if file else (lambda: print("\r" + (" " * len(msg)) + "\r", end="", flush=True)),
     )
+
+def validate_archive_xmls(avid: AVID, ctx: Context):
+    for index_file, schema in (
+        (avid.indices.archiveIndex, avid.schemas.archiveIndex),
+        (avid.indices.contextDocumentationIndex, avid.schemas.contextDocumentationIndex),
+        (avid.indices.tableIndex, avid.schemas.tableIndex),
+    ):
+        if validation_error := validate_xml(index_file, schema):
+            raise BadParameter(
+                f"error in Indices/{index_file.name}, {validation_error.msg}",
+                ctx,
+                ctx_params(ctx)["avid_dir"],
+            )

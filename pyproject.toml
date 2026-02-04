@@ -1,6 +1,6 @@
 [project]
 name = "avid-tools"
-version = "1.1.0"
+version = "1.1.1"
 description = ""
 requires-python = ">=3.11,<3.14"
 readme = "README.md"
@@ -11,6 +11,7 @@ dependencies = [
     "click>=8.1.7",
     "xmlschema>=3.4.1",
     "mkdocs-material>=9.5.49",
+    "tqdm>=4.67.3",
 ]
 
 [project.scripts]

@@ -6,11 +6,12 @@ from click import command
 from click import Context
 from click import pass_context
 from click import Path as ClickPath
+from click import option
 
 from avid_tools.database import create_database
 from avid_tools.indices import save_doc_index
 from avid_tools.indices import save_file_index
-from avid_tools.utils import AVID
+from avid_tools.utils import AVID, validate_archive_xmls
 from avid_tools.utils import ctx_params
 from avid_tools.utils import option_help
 from avid_tools.utils import validate_xml
@@ -23,9 +24,10 @@ from avid_tools.utils import validate_xml
     required=True,
     callback=lambda _c, _p, v: Path(v),
 )
+@option("--skip-validate", is_flag=True, default=False)
 @option_help()
 @pass_context
-def cmd_init(ctx: Context, avid_dir: Path):
+def cmd_init(ctx: Context, avid_dir: Path, skip_validate: bool):
     """
     Initializer en ny AVID mappe med værktøjets database.
 
@@ -57,17 +59,8 @@ def cmd_init(ctx: Context, avid_dir: Path):
             ctx_params(ctx)["avid_dir"],
         )
 
-    for index_file, schema in (
-        (avid.indices.archiveIndex, avid.schemas.archiveIndex),
-        (avid.indices.contextDocumentationIndex, avid.schemas.contextDocumentationIndex),
-        (avid.indices.tableIndex, avid.schemas.tableIndex),
-    ):
-        if validation_error := validate_xml(index_file, schema):
-            raise BadParameter(
-                f"error in Indices/{index_file.name}, {validation_error.msg}",
-                ctx,
-                ctx_params(ctx)["avid_dir"],
-            )
+    if not skip_validate:
+        validate_archive_xmls(avid, ctx)
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = create_database(db_path)

@@ -1,3 +1,6 @@
+import logging
+import sys
+
 from click import group
 from click import version_option
 
@@ -11,6 +14,14 @@ from .commands.sample import grp_sample
 from .commands.search import cmd_search
 from .commands.tables.tables import grp_tables
 from .utils import option_help
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=[logging.StreamHandler(sys.stdout)],
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S"
+)
 
 
 @group("avid-tools", no_args_is_help=True, add_help_option=False)
