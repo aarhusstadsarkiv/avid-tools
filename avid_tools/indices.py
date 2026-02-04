@@ -1,8 +1,11 @@
+import logging
+
 from pathlib import Path
 from sqlite3 import Connection
 from sqlite3 import Row
 from typing import Any
 from xml.sax.saxutils import escape
+from tqdm import tqdm
 
 from xmltodict import parse as parse_xml
 from xmltodict import unparse as unparse_xml
@@ -10,6 +13,9 @@ from xmltodict import unparse as unparse_xml
 from .database import insert_file
 from .utils import AVID
 from .utils import path_suffix
+
+
+logger = logging.getLogger(__file__)
 
 
 def save_file_index(conn: Connection, avid: AVID):
@@ -27,6 +33,7 @@ def save_file_index(conn: Connection, avid: AVID):
 
 # noinspection HttpUrlsUsage
 def generate_file_index(conn: Connection, avid: AVID):
+    logger.info("Generate file index")
     with avid.indices.fileIndex.open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
@@ -39,7 +46,7 @@ def generate_file_index(conn: Connection, avid: AVID):
             "select path, md5 from files where path != ? order by path",
             [str(avid.indices.fileIndex.relative_to(avid.dir))],
         )
-        for path_str, md5 in cur:
+        for path_str, md5 in tqdm(cur):
             path = Path(path_str)
             fh.write("    <f>\n")
             fh.write(
@@ -52,6 +59,7 @@ def generate_file_index(conn: Connection, avid: AVID):
 
 
 def save_doc_index(conn: Connection, avid: AVID):
+    logger.info("Save doc index")
     def callback(_, tag: dict[str, str]):
         conn.execute(
             "update files set format = ?, parentId = ?, mId = ?, gmlXsd = ?, originalName = ?, originalExtension = ? where type = 'Documents' and docId = ?",
@@ -75,6 +83,7 @@ def save_doc_index(conn: Connection, avid: AVID):
 
 # noinspection HttpUrlsUsage
 def generate_doc_index(conn: Connection, avid: AVID):
+    logger.info("Generate doc index")
     with avid.indices.docIndex.open("w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="utf-8"?>\n')
         fh.write(
@@ -90,7 +99,7 @@ def generate_doc_index(conn: Connection, avid: AVID):
         )
         cur.row_factory = Row
         document: Row
-        for document in cur:
+        for document in tqdm(cur):
             fh.write("    <doc>\n")
             fh.write(f"        <dID>{document['docId']}</dID>\n")
             if document["parentId"] is not None:
