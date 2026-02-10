@@ -81,8 +81,8 @@ def create_database(path: Path) -> Connection:
     return conn
 
 
-def update_md5(conn: Connection, path: Path):
-    conn.execute(
+def update_md5(conn: Connection, relative_file_path: Path | str, avid_dir: Path = Path()):
+    assert conn.execute(
         "update files set md5 = ?, size = ? where path = ?",
-        [file_md5(path), path.stat().st_size, str(path)],
-    )
+        [file_md5(avid_dir / relative_file_path), (avid_dir / relative_file_path).stat().st_size, str(relative_file_path)],
+    ).rowcount == 1, f"File {relative_file_path} was not affected!"

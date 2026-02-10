@@ -81,10 +81,11 @@ def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...], skip_validate: bo
         
         if "documents" in update_hashes:
             for [document_path] in tqdm(conn.execute("select path from files where type = 'Documents'"), unit="doc"):
-                update_md5(conn, avid.dir.joinpath(document_path))
+                update_md5(conn, document_path, avid.dir)
 
+    with conn:
         generate_doc_index(conn, avid)
-        update_md5(conn, avid.indices.docIndex)
+        update_md5(conn, avid.indices.docIndex.relative_to(avid.dir), avid.dir)
         generate_file_index(conn, avid)
 
     logger.info("Done!")
