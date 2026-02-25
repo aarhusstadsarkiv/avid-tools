@@ -13,6 +13,7 @@ from .commands.init import cmd_init
 from .commands.sample import grp_sample
 from .commands.search import cmd_search
 from .commands.tables.tables import grp_tables
+from .commands.validate import grp_validate
 from .utils import option_help
 
 
@@ -41,5 +42,6 @@ app.add_command(grp_documents, grp_documents.name)
 app.add_command(grp_sample, grp_sample.name)
 app.add_command(cmd_search, cmd_search.name)
 app.add_command(cmd_finalize, cmd_finalize.name)
+app.add_command(grp_validate, grp_validate.name)
 
 app.list_commands = lambda _ctx: list(app.commands)

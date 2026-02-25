@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<table xsi:schemaLocation="http://www.sa.dk/xmlns/siard/1.0/schema0/table4.xsd table4.xsd" xmlns="http://www.sa.dk/xmlns/siard/1.0/schema0/table4.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<row>
+		<c1>1014</c1>
+		<c2>2019-02-02T08:10:11.000Z</c2>
+		<c3>Afklaring af licenstyper</c3>
+		<c4>152</c4>
+		<c5>KT</c5>
+	</row>
+	<row>
+		<c1>1015</c1>
+		<c2>2019-01-02T08:10:11.000Z</c2>
+		<c3>Forberedelse til evt. møde med Richard Stallmann</c3>
+		<c4>17</c4>
+		<c5>LBT</c5>
+	</row>
+	<row>
+		<c1>1016</c1>
+		<c2>2018-12-02T08:10:11.000Z</c2>
+		<c3>Debat omkring sidste revision af Creative Commons</c3>
+		<c4>119</c4>
+		<c5>JNW</c5>
+	</row>
+	<row>
+		<c1>1017</c1>
+		<c2>2018-11-02T08:10:11.000Z</c2>
+		<c3>Åben Kilde bevidsthed i folkeskolen</c3>
+		<c4>119</c4>
+		<c5>JNW</c5>
+	</row>
+	<row>
+		<c1>1018</c1>
+		<c2>2018-10-02T07:10:11.000Z</c2>
+		<c3>Første udkast til et Åben Kilde OS</c3>
+		<c4>48</c4>
+		<c5>IAM</c5>
+	</row>
+	<row>
+		<c1>1019</c1>
+		<c2>2018-09-09T07:10:11.000Z</c2>
+		<c3>Anbefaling af tekstbehandling til den offentlige sektor</c3>
+		<c4>17</c4>
+		<c5>LBT</c5>
+	</row>
+	<row>
+		<c1>1021</c1>
+		<c2>2018-07-02T07:10:11.000Z</c2>
+		<c3>Udfordringer med lukket kilde programmel og formater</c3>
+		<c4>201</c4>
+		<c5>GVR</c5>
+	</row>
+</table>
