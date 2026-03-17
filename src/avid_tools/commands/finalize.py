@@ -67,9 +67,9 @@ def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...], skip_validate: bo
 
     with conn:
         if "index" in update_hashes:
-            update_md5(conn, avid.indices.archiveIndex)
-            update_md5(conn, avid.indices.contextDocumentationIndex)
-            update_md5(conn, avid.indices.tableIndex)
+            update_md5(conn, avid.indices.archiveIndex.relative_to(avid.dir), avid.dir)
+            update_md5(conn, avid.indices.contextDocumentationIndex.relative_to(avid.dir), avid.dir)
+            update_md5(conn, avid.indices.tableIndex.relative_to(avid.dir), avid.dir)
 
         if "context" in update_hashes:
             for [context_doc_path] in tqdm(conn.execute("select path from files where type = 'ContextDocumentation'")):
