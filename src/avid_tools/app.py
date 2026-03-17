@@ -4,7 +4,6 @@ import sys
 from click import group
 from click import version_option
 
-from .__version__ import __version__
 from .commands.context.context import grp_context
 from .commands.documents import grp_documents
 from .commands.finalize import cmd_finalize
@@ -26,7 +25,7 @@ logging.basicConfig(
 
 
 @group("avid-tools", no_args_is_help=True, add_help_option=False)
-@version_option(__version__, help="Vis versionen og afslut.")
+@version_option()
 @option_help()
 def app():
     """
