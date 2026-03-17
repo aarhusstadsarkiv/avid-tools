@@ -1,0 +1,175 @@
+from enum import Enum
+from pathlib import Path
+import re
+import typing as t
+import traceback
+import importlib
+import inspect
+import logging
+
+from avid_validator.common.archive import Loadable, ValidationType
+from avid_validator.common.report import Report, OptReport
+from avid_validator.common.description import METHOD_DESCRIPTIONS, METHOD_CATEGORIES
+import avid_validator.config as av_config
+
+logger = logging.getLogger(__name__)
+
+
+Validator = t.Callable[..., t.Union[OptReport, t.Iterator[OptReport]]]
+
+
+class Part(Enum):
+    SECTION_4A_GENERAL = "section_4a_general"
+    SECTION_4B_PLACEMENT = "section_4b_placement"
+    SECTION_4C_INDICES = "section_4c_indices"
+    SECTION_4D_TABLES = "section_4d_tables"
+    SECTION_4E_CONTEXTDOCS = "section_4e_contextdocs"
+    SECTION_4F_SCHEMAS = "section_4f_schemas"
+    SECTION_4G_DOCUMENTS = "section_4g_documents"
+    SECTION_5 = "section_5"
+
+
+def get_validators(part_name: Part) -> dict[str, Validator]:
+    """
+    Get a list of validators in parts/(part_name). These validators are prefixed by 'validate_'
+    """
+    module_path = f"avid_validator.parts.{part_name.value}"
+
+    try:
+        module = importlib.import_module(module_path)
+    except ModuleNotFoundError:
+        raise ValueError(f"Unknown part module: {part_name}")
+
+    validators = {
+        name: func
+        for name, func in inspect.getmembers(module, inspect.isfunction)
+        if name.startswith("validate_")
+    }
+    return validators
+
+
+def _build_kwargs(func: t.Callable) -> dict[str, t.Any]:
+    """
+    Build kwargs for validation function. These kwargs types must have an 'load' function to be a valid kwarg
+    """
+    type_hints: t.Dict[str, t.Any] = t.get_type_hints(func)
+    type_hints.pop("return", None)
+
+    kwargs: t.Dict[str, t.Any] = {}
+    for argname, argtype in type_hints.items():
+        load = getattr(argtype, "load", None)
+        if not callable(load):
+            raise TypeError(f"Parameter {argname!r} has non-loadable type {argtype!r}")
+
+        loadable_type = t.cast(type[Loadable], argtype)
+        kwargs[argname] = loadable_type.load()
+    return kwargs
+
+
+def _run_one_validator(name: str, func: Validator) -> list[Report]:
+    """
+    Run a single validator function
+    """
+    logger.info("%s", name)
+
+    kwargs = _build_kwargs(func)
+    reports: list[Report] = []
+
+    try:
+        if inspect.isgeneratorfunction(func):
+            for item in func(**kwargs):
+                if item is not None:
+                    reports.append(item)
+        else:
+            result = func(**kwargs)
+            if isinstance(result, Report):
+                reports.append(result)
+    except Exception as e:
+        if av_config.verbose:
+            logger.error(traceback.format_exc())
+        reports.append(Report(success=False, reason=str(e)))
+
+    return reports or [Report(success=True)]
+
+
+def find_parent_matching(pattern: str, start: t.Optional[Path]=None) -> t.Optional[Path]:
+    """
+    Walk up from start (or cwd) and return the first parent directory whose name matches
+    the regex pattern.
+    """
+    if start is None:
+        start = Path.cwd()
+
+    regex = re.compile(pattern)
+
+    for parent in [start] + list(start.parents):
+        if regex.search(parent.name):
+            return parent
+
+    return None
+
+
+def run_validations(
+    checks: t.Sequence[str] | None = None,
+    category: t.Sequence[ValidationType] | None = None,
+    except_vals: t.Sequence[str] | None = None,
+    avid_dir: Path | None = None
+) -> None:
+    """
+    Run validators defined in parts/(part_name) prefixed by "validate_".
+
+    If 'checks' is defined, it only checks validators with names included in 'checks'
+    """
+    if category is None:
+        category = []
+    if except_vals is None:
+        except_vals = []
+    if avid_dir is None:
+        if starting_dir := find_parent_matching(r"(?i)AVID\..*"):
+            av_config.avid_dir = starting_dir
+        else:
+            raise Exception("No avid directory could be found!")
+
+    all_validators = {}
+    for part in Part:
+        validators = get_validators(part)
+        all_validators = all_validators | validators
+
+    # Filter by check name(s)
+    selected = (
+        all_validators
+        if not checks
+        else {name: fn for name, fn in all_validators.items() if name in checks}
+    )
+
+    # Filter off except_vals validators
+    selected = (
+        selected
+        if not except_vals
+        else {
+            name: fn for name, fn in all_validators.items() if name not in except_vals
+        }
+    )
+
+    # If categories are defined, filter also by category
+    if len(category) != 0:
+        selected = {
+            name: fn
+            for name, fn in selected.items()
+            if all([name in METHOD_CATEGORIES[cat] for cat in category])
+        }
+
+    # Run (selected) validators
+    for name, func in selected.items():
+        has_described = False
+        for report in _run_one_validator(name, func):
+            if not report.reason:
+                continue
+
+            # Failed if has reason
+            descr = METHOD_DESCRIPTIONS.get(name)
+            if descr and not has_described:
+                logger.info("%s DESCR: %s", name, descr)
+                has_described = True
+
+            logger.info("%s FAILED: %s", name, report.reason.replace(r"\n", "\n"))
