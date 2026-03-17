@@ -197,8 +197,8 @@ def validate_xml(xml: str | Path, schema: XMLSchema | Path) -> XMLSchemaValidati
 
 def print_line(
     *values: object,
-    sep: str | None = " ",
-    end: str | None = "\n",
+    sep: str = " ",
+    end: str = "\n",
     file: TextIO | BinaryIO | None = None,
     flush: bool = False,
 ) -> tuple[str, Callable[[], None]]:
