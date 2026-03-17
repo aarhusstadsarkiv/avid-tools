@@ -11,6 +11,9 @@ from click import group, option
 from xmlschema.resources.xml_resource import XMLResource
 from xmlschema.validators.exceptions import XMLSchemaValidationError
 
+from avid_validator import runner
+
+
 
 
 def _validate_file(xml_path: Path, xsd_path: Path) -> Optional[XMLSchemaValidationError]:
@@ -64,3 +67,10 @@ def cmd_validate_file(xml_path: Path, xsd_path: Path):
         print("Error:", traceback.format_exc())
     else:
         print("Is valid!")
+
+@grp_validate.command("all")
+def cmd_validate_all():
+    """
+    Run all validations
+    """
+    runner.run_validations()

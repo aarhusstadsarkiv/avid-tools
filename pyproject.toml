@@ -2,7 +2,7 @@
 name = "avid-tools"
 version = "1.1.1"
 description = ""
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.14"
 readme = "README.md"
 authors = [{name="Matteo Campinoti", email="matteo.campinoti94@gmail.com"}]
 
@@ -12,6 +12,9 @@ dependencies = [
     "xmlschema>=3.4.1",
     "mkdocs-material>=9.5.49",
     "tqdm>=4.67.3",
+    "networkx>=3.6.1",
+    "requests>=2.32.5",
+    "tifffile>=2026.3.3",
 ]
 
 [project.scripts]
@@ -138,3 +141,6 @@ max-doc-length = 300
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build]
+packages = ["src/avid_tools", "src/avid_validator"]
