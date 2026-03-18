@@ -10,11 +10,13 @@ from avid_validator.common.report import GenReport, fail
 )
 @categorize(ValidationType.DOCS)
 def validate_4g1(ctx: ValidationContext) -> GenReport:
-    # Skal indeholde en eller flere dokumentsamlingsmapper med kontektsdokumenter
-    min_req_doc = ctx.documents / "docCollection1"
+    doc_count = len(os.listdir(ctx.documents))
 
-    if len(os.listdir(min_req_doc)) == 0:
+    if doc_count == 0:
         yield fail("Must be at least one document!")
+
+    if doc_count > 10_000:
+        yield fail("The documents folder not contain more 10000 document collection folders!")
 
 
 @describe("""Dokumentsamlingsmapperne navngives »docCollection[fortløbende nummer]«,
