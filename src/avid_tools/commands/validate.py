@@ -1,22 +1,18 @@
 import os
 import traceback
+from pathlib import Path
 
 import click
 import xmlschema
-
-from typing import Optional
-from pathlib import Path
-
-from click import group, option
+from click import group
+from click import option
 from xmlschema.resources.xml_resource import XMLResource
 from xmlschema.validators.exceptions import XMLSchemaValidationError
 
-from avid_validator import runner
+from avid_validator import command
 
 
-
-
-def _validate_file(xml_path: Path, xsd_path: Path) -> Optional[XMLSchemaValidationError]:
+def _validate_file(xml_path: Path, xsd_path: Path) -> XMLSchemaValidationError | None:
     index_schema = xmlschema.XMLSchema(xsd_path)
 
     try:
@@ -68,9 +64,4 @@ def cmd_validate_file(xml_path: Path, xsd_path: Path):
     else:
         print("Is valid!")
 
-@grp_validate.command("all")
-def cmd_validate_all():
-    """
-    Run all validations
-    """
-    runner.run_validations()
+grp_validate.add_command(command.cmd_validate_all, "all")

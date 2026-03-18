@@ -1,18 +1,19 @@
 import logging
-import re
 import os
-
+import re
 from pathlib import Path
+
 from tqdm import tqdm
+from xmlschema import XMLResource
 
 from avid_validator.common import utils
-from avid_validator.common.description import categorize, describe
-from avid_validator.common.report import GenReport, fail
-from avid_validator.common.archive import (
-    ValidationContext,
-    ValidationType,
-    XMLIndices,
-)
+from avid_validator.common.archive import ValidationContext
+from avid_validator.common.archive import ValidationType
+from avid_validator.common.archive import XMLIndices
+from avid_validator.common.description import categorize
+from avid_validator.common.description import describe
+from avid_validator.common.report import fail
+from avid_validator.common.report import GenReport
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ def validate_5a1a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
         return
 
     for table in table_idx["siardDiark"]["tables"]["table"]:
-        if not (table["folder"] in tables_dir_files):
+        if table["folder"] not in tables_dir_files:
             yield fail("Table defined in tableIndex not present in Tables folder!")
 
 
@@ -57,7 +58,24 @@ def validate_5a1b(indeces: XMLIndices) -> GenReport:
         yield fail("First table id must be 1!")
 
 
-# 5a2 Indholdet af de enkelte felter skal renses for eventuelle foran- og efterstillede blanktegn.
+@describe(
+    """Indholdet af de enkelte felter skal renses for eventuelle foran- og efterstillede blanktegn"""
+)
+@categorize(ValidationType.TABLES)
+def validate_5a2(ctx: ValidationContext):
+    tables = ctx.tables.rglob("table*.xml")
+    cell_tag_re = re.compile(r"\{.*\}c\d+$")
+    for table in tqdm(tables):
+        res = XMLResource(table, lazy=True)
+        for elem in res.iter():
+            text = elem.text
+            if text is None:
+                continue
+            if not cell_tag_re.match(elem.tag):
+                continue
+            if elem.text is not None and elem.text != elem.text.strip():
+                yield fail(f"Whitespace detected in {table}")
+
 
 """
 5B Datatyper
@@ -83,11 +101,11 @@ def validate_5a1b(indeces: XMLIndices) -> GenReport:
 def validate_5d1a() -> GenReport:
     files = utils.all_files()
     if not files:
-        yield fail(f"List of files could not be generated!")
+        yield fail("List of files could not be generated!")
         return
 
     for file in files:
-        if not "Indices" in file or "Tables" in file:
+        if "Indices" not in file or "Tables" in file:
             continue
 
         well_formed_report = utils.is_well_formed_utf8(Path(file))

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<table xsi:schemaLocation="http://www.sa.dk/xmlns/siard/1.0/schema0/table7.xsd table7.xsd" xmlns="http://www.sa.dk/xmlns/siard/1.0/schema0/table7.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<row>
+		<c1>17</c1>
+		<c2>Linus Benedict Torvalds</c2>
+		<c3>LBT</c3>
+		<c4>2</c4>
+		<c5>3393391</c5>
+		<c6>lbt@måk.dk</c6>
+	</row>
+	<row>
+		<c1>23</c1>
+		<c2>Richard Matthew Stallman</c2>
+		<c3>RMS</c3>
+		<c4>1</c4>
+		<c5>3393392</c5>
+		<c6>rms@måk.dk</c6>
+	</row>
+	<row>
+		<c1>48</c1>
+		<c2>Ian Ashley Murdock</c2>
+		<c3>IAM</c3>
+		<c4>1</c4>
+		<c5>3393394</c5>
+		<c6>iam@måk.dk</c6>
+	</row>
+	<row>
+		<c1>85</c1>
+		<c2>Larry Sanger</c2>
+		<c3>LS</c3>
+		<c4>8</c4>
+		<c5>3393398</c5>
+		<c6>ls@måk.dk</c6>
+	</row>
+	<row>
+		<c1>119</c1>
+		<c2>Jimmy Donal Wales</c2>
+		<c3>JNW</c3>
+		<c4>1</c4>
+		<c5>3393391</c5>
+		<c6>jnw@måk.dk</c6>
+	</row>
+	<row>
+		<c1>152</c1>
+		<c2>Kenneth Thompson</c2>
+		<c3>KT</c3>
+		<c4>7</c4>
+		<c5>3393395</c5>
+		<c6>kt@måk.dk</c6>
+	</row>
+	<row>
+		<c1>201</c1>
+		<c2>Guido van Rossum</c2>
+		<c3>GVR</c3>
+		<c4>1</c4>
+		<c5>3393390</c5>
+		<c6>gvr@måk.dk</c6>
+	</row>
+</table>

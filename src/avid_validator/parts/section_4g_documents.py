@@ -1,5 +1,7 @@
 import os
 import re
+
+from tqdm import tqdm
 from avid_validator.common.archive import ValidationContext, ValidationType, XMLIndices
 from avid_validator.common.description import categorize, describe
 from avid_validator.common.report import GenReport, fail
@@ -55,5 +57,11 @@ def validate_4g3(ctx: ValidationContext) -> GenReport:
 
 
 @describe("""Anvendelse af ekstensions""")
-def validate_4g8(documents_dir: XMLIndices) -> GenReport:
-    yield fail("Not implemented")
+def validate_4g8(ctx: ValidationContext) -> GenReport:
+    allowed_extensions = {".tif", ".mp3", ".mpg", ".jp2", ".gml", ".wav"}
+    files = ctx.documents.rglob("*.*")
+
+    for file in tqdm(files):
+        if file.suffix not in allowed_extensions:
+            yield fail(f"File {file} does not have an allowed extension!")
+
