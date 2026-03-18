@@ -14,6 +14,7 @@ from avid_validator.common.description import categorize
 from avid_validator.common.description import describe
 from avid_validator.common.report import fail
 from avid_validator.common.report import GenReport
+from avid_validator.common.types import get_allowed_table_types
 
 logger = logging.getLogger(__name__)
 
@@ -80,11 +81,62 @@ def validate_5a2(ctx: ValidationContext):
                 break
 
 
+
+
 """
 5B Datatyper
 """
 
-# ...
+@describe(
+    """De standardiserede datatyper, som skal anvendes for tabelindhold, er angivet i figur 5.1.
+    De er et uddrag af datatyper fra standarden SQL:1999 repræsenteret som
+    datatyper i W3C XML Schema Language 1.0
+    """
+)
+@categorize(ValidationType)
+def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
+    """
+    The XSD schemas for each table, should be able to validate the given types.
+
+    Then the large part of this code is validating that the cell types specified in tableIndex.xml,
+    match with the given table schema file.
+    """
+    if indices.tableIndex is None:
+        yield fail("tableIndex has not been parsed, maybe it doesnt exist!")
+        return
+
+    allowed_table_types = get_allowed_table_types()
+    tables = indices.tableIndex["siardDiark"]["tables"]["table"]
+    for table in tables:
+        columns = table["columns"]["column"]
+        table_folder = table["folder"]
+
+        for column in columns:
+            try:
+                ctype = column["type"]
+                column_id = column["columnID"]
+                att = allowed_table_types.match(ctype)
+
+                if att is None:
+                    yield fail(f"Table {table} has column {column['name']} whose type {ctype} could not be parsed! (Maybe it's not valid!)")
+                    continue
+
+                # Parse XSD and make sure it is a valid conversion from tableIndex type!
+                xsd_path = ctx.tables / table["folder"] / (table_folder + ".xsd")
+                xsd_dict = utils.prepare_xml(xsd_path)
+                if xsd_dict is None:
+                    yield fail(f"Could not parse XSD file, {xsd_path}")
+                    continue
+
+                elements = xsd_dict["xs:schema"]["xs:complexType"]["xs:sequence"]["xs:element"]
+                element = [element for element in elements if element["@name"] == column_id][0]
+                element_type = element["@type"].split(":")[1].lower()
+
+                if not att.allowed(element_type):
+                    yield fail(f"Column {column_id} in table {table['name']} has non-allowed type {element_type}. Type rule: {att}")
+            except Exception:
+                yield fail(f"An error occurred when parsing column, {column}, for table, {table}!")
+
 
 """
 5C Konvertering af tabelindhold til digitale dokumenter, lyd, video eller geodata

@@ -9,8 +9,8 @@
   </xs:element>
   <xs:complexType name="rowType">
     <xs:sequence>
-      <xs:element minOccurs="1" name="c1" type="xs:integer" />
-      <xs:element minOccurs="1" name="c2" type="xs:string" />
+      <xs:element minOccurs="1" name="c1" type="xs:number" />
+      <xs:element minOccurs="1" name="c2" type="xs:text" />
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
