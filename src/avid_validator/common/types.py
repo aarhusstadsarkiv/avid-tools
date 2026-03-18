@@ -37,10 +37,10 @@ class AllowedTableTypesBundle:
 def get_allowed_table_types() -> AllowedTableTypesBundle:
     allowed_types: list[AllowedTableTypes] = []
 
-    # Text and hexadecimal
+    # Text and hexadecimal - Der er en fejl i vejledningen, ingen komma mellem nchar og national character varying...
     allowed_types.append(
             AllowedTableTypes(
-                sql_types=["character", "char", "character varying", "char varying", "varchar", "national character", "national char", "nchar national character varying", "national char varying", "nchar varying"],
+                sql_types=["character", "char", "character varying", "char varying", "varchar", "national character", "national char", "nchar", "national character varying", "national char varying", "nchar varying"],
                 xml_datatype=["string", "hexbinary"]
                 )
             )

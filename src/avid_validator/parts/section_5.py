@@ -110,6 +110,7 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
     for table in tables:
         columns = table["columns"]["column"]
         table_folder = table["folder"]
+        table_name = table["name"]
 
         for column in columns:
             try:
@@ -118,7 +119,7 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
                 att = allowed_table_types.match(ctype)
 
                 if att is None:
-                    yield fail(f"Table {table} has column {column['name']} whose type {ctype} could not be parsed! (Maybe it's not valid!)")
+                    yield fail(f"Table '{table_name}' in folder '{table_folder}' has column '{column['name']}' whose type '{ctype}' could not be parsed! (Maybe it's not valid!)")
                     continue
 
                 # Parse XSD and make sure it is a valid conversion from tableIndex type!
@@ -133,9 +134,9 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
                 element_type = element["@type"].split(":")[1].lower()
 
                 if not att.allowed(element_type):
-                    yield fail(f"Column {column_id} in table {table['name']} has non-allowed type {element_type}. Type rule: {att}")
+                    yield fail(f"Column '{column_id}' in XSD schema for table '{table_name}' in folder '{table_folder}' has non-allowed type '{element_type}'. Type rule: '{att}'")
             except Exception:
-                yield fail(f"An error occurred when parsing column, {column}, for table, {table}!")
+                yield fail(f"An error occurred when parsing column, '{column}', for table, {table}!")
 
 
 """
