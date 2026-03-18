@@ -63,9 +63,11 @@ def validate_5a1b(indeces: XMLIndices) -> GenReport:
 )
 @categorize(ValidationType.TABLES)
 def validate_5a2(ctx: ValidationContext):
-    tables = ctx.tables.rglob("table*.xml")
+    tables = sorted(ctx.tables.rglob("table*.xml"))
     cell_tag_re = re.compile(r"\{.*\}c\d+$")
-    for table in tqdm(tables):
+    process = tqdm(tables)
+    for table in process:
+        process.set_description(f"Processing {table.name}")
         res = XMLResource(table, lazy=True)
         for elem in res.iter():
             text = elem.text
@@ -73,8 +75,9 @@ def validate_5a2(ctx: ValidationContext):
                 continue
             if not cell_tag_re.match(elem.tag):
                 continue
-            if elem.text is not None and elem.text != elem.text.strip():
+            if text != text.strip():
                 yield fail(f"Whitespace detected in {table}")
+                break
 
 
 """
