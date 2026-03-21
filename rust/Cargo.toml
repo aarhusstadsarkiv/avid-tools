@@ -1,0 +1,13 @@
+[package]
+name = "whitespacevalidate"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "whitespacevalidate"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.28.2"
+clap = { version = "4.5.26", features = ["derive"] }
+quick-xml = "0.37.2"

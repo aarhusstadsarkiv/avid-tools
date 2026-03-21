@@ -2,6 +2,7 @@ import os
 import traceback
 from pathlib import Path
 
+from avid_tools.utils import Indices
 import click
 import xmlschema
 from click import group
@@ -65,3 +66,14 @@ def cmd_validate_file(xml_path: Path, xsd_path: Path):
         print("Is valid!")
 
 grp_validate.add_command(command.cmd_validate_all, "all")
+
+
+@grp_validate.command("xml-fast")
+@option("--avid-path", required=True, type=click.Path(file_okay=False, dir_okay=True, path_type=Path))  # pyright: ignore
+def cmd_validate_xml_fast(avid_path: Path):
+    avid_path = Path(avid_path)
+    table_index_path = Indices(avid_path).tableIndex.resolve()
+    from avid_tools import whitespacevalidate  # pyright: ignore
+
+    print(table_index_path)
+    whitespacevalidate.validate(str(table_index_path))
