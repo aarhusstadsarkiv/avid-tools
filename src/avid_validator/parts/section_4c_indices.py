@@ -9,7 +9,7 @@ from tqdm import tqdm
 from avid_validator.common import utils
 from avid_validator.common.archive import ValidationContext, ValidationType, XMLIndices
 from avid_validator.common.database import FileHandler
-from avid_validator.common.description import categorize, describe
+from avid_validator.common.description import register, describe
 from avid_validator.common.graph import TableNode
 from avid_validator.common.report import GenReport, fail, ok
 from avid_validator.common.rules import require_files
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 – contextDocumentationIndex.xml
 – tableIndex.xml"""
 )
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c1a(ctx: ValidationContext) -> GenReport:
     yield require_files(
         ctx.indices,
@@ -46,7 +46,7 @@ def validate_4c1a(ctx: ValidationContext) -> GenReport:
     """Hvis arkiveringsversionen indeholder digitale dokumenter, lyd, video eller geodata, skal mappen Indices endvidere indeholde følgende indeksfil:
 – docIndex.xml"""
 )
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c1b(ctx: ValidationContext) -> GenReport:
     if ctx.documents.exists():
         yield require_files(ctx.indices, "docIndex.xml")
@@ -58,7 +58,7 @@ def validate_4c1b(ctx: ValidationContext) -> GenReport:
 med forskning med anvendelse af videnskabelig metode og er afleveret efter reglerne i bilag 9,
 skal mappen Indices endvidere indeholde følgende indeksfil:
 – researchIndex.xml""")
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c1c(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
     if archive_idx := indeces.archiveIndex:
         contains_research = archive_idx["archiveIndex"]["containsResearchData"]
@@ -71,7 +71,7 @@ def validate_4c1c(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
 
 
 @describe("Alle indeksfiler skal overholde deres tilhørende skema, jf. bilag 8.")
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c1d(ctx: ValidationContext) -> GenReport:
     for xml_file in ctx.indices.glob("*.xml"):
         if r := standard_xml_schema_validate(ctx, xml_file):
@@ -80,7 +80,7 @@ def validate_4c1d(ctx: ValidationContext) -> GenReport:
 
 @describe("""fileIndex.xml skal indeholde en komplet liste over samtlige filer,
 der findes i arkiveringsversionen. fileIndex.xml er dog undtaget fra denne regel.""")
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c2a(ctx: ValidationContext) -> GenReport:
     # TODO: Add hex validation
     file_index = utils.prepare_xml(ctx.indices / "fileIndex.xml")
@@ -124,7 +124,7 @@ def validate_4c2a(ctx: ValidationContext) -> GenReport:
 @describe(
     """[fileIndex.xml] For hver enkelt fil i arkiveringsversionen angives de oplysninger, som fremgår af figur 4.2."""
 )
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c2b(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
     file_index = ctx.indices / "fileIndex.xml"
     yield standard_xml_schema_validate(ctx, file_index)
@@ -159,7 +159,7 @@ def validate_4c2b(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
 
 @describe("""contextDocumentationIndex.xml skal indeholde et indeks over de dokumenter,
 som findes i arkiveringsversionens kontekstdokumentation.""")
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c4a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
     yield standard_xml_schema_validate(
         ctx, ctx.indices / "contextDocumentationIndex.xml"
@@ -190,7 +190,7 @@ def validate_4c4a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
     """tableIndex.xml skal indeholde en angivelse af en relationel databasestruktur på 1. normalform 
 eller højere. Samtlige tabeller i arkiveringsversionen skal angives."""
 )
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c5a(ctx: ValidationContext) -> GenReport:
     """
     As per https://www.rigsarkivet.dk/wp-content/uploads/2025/08/Vejledning-til-bekendtgoerelse-128.pdf
@@ -298,7 +298,7 @@ def validate_4c5a(ctx: ValidationContext) -> GenReport:
 @describe(
     """»tableIndex.xml« skal overholde det generelle XML-skema »tableIndex.xsd«, jf. 4. F."""
 )
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c5b(ctx: ValidationContext) -> GenReport:
     yield standard_xml_schema_validate(ctx, ctx.indices / "tableIndex.xml")
 
@@ -312,7 +312,7 @@ def validate_4c5b(ctx: ValidationContext) -> GenReport:
 filtype i arkiveringsversionen samt eventuelle overordnede dokumenter.
 »docIndex.xml« skal ikke indeholde oplysninger om dokumenterne i kontekstdokumentationen."""
 )
-@categorize((ValidationType.INDICES, ValidationType.DOCS))
+@register((ValidationType.INDICES, ValidationType.DOCS))
 def validate_4c6a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
     @dataclass(frozen=True)
     class DocumentFile:
@@ -358,7 +358,7 @@ def validate_4c6a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
 @describe(
     """For hvert enkelt dokument i docIndex.xml angives de oplysninger, som fremgår af figur 4.4."""
 )
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c6b(ctx: ValidationContext) -> GenReport:
     """
     docIndex.xml schema validering
@@ -374,7 +374,7 @@ def validate_4c6b(ctx: ValidationContext) -> GenReport:
 @describe(
     """researchIndex.xml skal indeholde angivelse af hovedtabeller og koder for manglende værdier, jf. figur 4.5:"""
 )
-@categorize(ValidationType.INDICES)
+@register(ValidationType.INDICES)
 def validate_4c7a(ctx: ValidationContext):
     xml_path = ctx.indices.joinpath("researchIndex.xml")
     if xml_path.exists():

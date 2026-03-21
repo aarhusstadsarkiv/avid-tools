@@ -6,14 +6,14 @@ import zipfile
 
 import requests
 from avid_validator.common.archive import ValidationContext, ValidationType
-from avid_validator.common.description import categorize, describe
+from avid_validator.common.description import register, describe
 from avid_validator.common.report import GenReport, fail
 
 
 @describe(
     """Mappen Schemas skal være opdelt i undermapperne standard og localShared."""
 )
-@categorize(ValidationType.SCHEMAS)
+@register(ValidationType.SCHEMAS)
 def validate_4f1(ctx: ValidationContext) -> GenReport:
     if not (ctx.schemas / "standard").is_dir():
         yield fail("Indices/standard is not a directory!")
@@ -25,7 +25,7 @@ def validate_4f1(ctx: ValidationContext) -> GenReport:
     """Mappen standard skal indeholde skemaer for arkiveringsversionens indeksfiler,
 jf. bilag 8, samt W3C standard XML-skema, jf. http://www.w3. org/2001/XMLSchema.xsd."""
 )
-@categorize(ValidationType.SCHEMAS)
+@register(ValidationType.SCHEMAS)
 def validate_4f2(ctx: ValidationContext) -> GenReport:
     # Indeholde indeksfiler
     req_filer = ["archiveIndex", "tableIndex", "docIndex", "fileIndex"]
@@ -44,7 +44,7 @@ def validate_4f2(ctx: ValidationContext) -> GenReport:
 docIndex.xsd, researchIndex.xsd samt W3Cs standard XML-skema gælder, at der altid skal anvendes de skemaer,
 som Rigsarkivet stiller til rådighed. Skemaerne og deres navngivning må ikke ændres i arkiveringsversionen."""
 )
-@categorize(ValidationType.SCHEMAS)
+@register(ValidationType.SCHEMAS)
 def validate_4f3(ctx: ValidationContext) -> GenReport:
     schemas_url = "https://www.rigsarkivet.dk/wp-content/uploads/2022/02/Schemas.zip"
 

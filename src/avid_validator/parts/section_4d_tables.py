@@ -1,14 +1,14 @@
 import os
 import re
 from avid_validator.common.archive import ValidationContext, ValidationType, XMLIndices
-from avid_validator.common.description import categorize, describe
+from avid_validator.common.description import register, describe
 from avid_validator.common.report import GenReport, Report, fail
 
 
 @describe(
     """Mappen Tables skal indeholde én mappe for hver tabel i arkiveringsversionen."""
 )
-@categorize(ValidationType.TABLES)
+@register(ValidationType.TABLES)
 def validate_4d1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
     table_idx = indices.tableIndex
 
@@ -21,7 +21,7 @@ def validate_4d1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
 
 
 @describe("""Mappen for en tabel navngives »table[fortløbende nummer]«.""")
-@categorize(ValidationType.TABLES)
+@register(ValidationType.TABLES)
 def validate_4d2a(ctx: ValidationContext) -> GenReport:
     tables = os.listdir(ctx.tables)
     for table in tables:
@@ -35,7 +35,7 @@ def validate_4d2a(ctx: ValidationContext) -> GenReport:
 @describe(
     """Den fortløbende nummerering begynder med 1. Foranstillede nuller må ikke anvendes."""
 )
-@categorize(ValidationType.TABLES)
+@register(ValidationType.TABLES)
 def validate_4d2b(ctx: ValidationContext) -> GenReport:
     tables = [
         int(re.match(r"table(\d+)$", table).group(1))  # pyright: ignore
@@ -49,7 +49,7 @@ def validate_4d2b(ctx: ValidationContext) -> GenReport:
 @describe(
     "Mappen for hver tabel skal indeholde en fil: table[fortløbende nummer]. xml, jf. dog 4. D. 5"
 )
-@categorize(ValidationType.TABLES)
+@register(ValidationType.TABLES)
 def validate_4d3(ctx: ValidationContext) -> GenReport:
     tables = os.listdir(ctx.tables)
 

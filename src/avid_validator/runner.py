@@ -1,21 +1,29 @@
-from enum import Enum
-from pathlib import Path
-import re
-import typing as t
-import traceback
 import importlib
 import inspect
 import logging
+import pkgutil
+import re
+import traceback
+import typing as t
+from enum import Enum
+from pathlib import Path
 
-from avid_validator.common.archive import Loadable, ValidationType
-from avid_validator.common.report import Report, OptReport
-from avid_validator.common.description import METHOD_DESCRIPTIONS, METHOD_CATEGORIES
 import avid_validator.config as av_config
+from avid_validator import parts
+from avid_validator.common.archive import Loadable
+from avid_validator.common.archive import ValidationType
+from avid_validator.common.description import METHOD_CATEGORIES
+from avid_validator.common.description import METHOD_DESCRIPTIONS
+from avid_validator.common.description import METHOD_VALIDATORS
+from avid_validator.common.report import Report
+from avid_validator.common.report import Validator
 
 logger = logging.getLogger(__name__)
 
+def import_all_submodules(package):
+    for _, module_name, _ in pkgutil.iter_modules(package.__path__):
+        importlib.import_module(f"{package.__name__}.{module_name}")
 
-Validator = t.Callable[..., t.Union[OptReport, t.Iterator[OptReport]]]
 
 
 class Part(Enum):
@@ -29,22 +37,14 @@ class Part(Enum):
     SECTION_5 = "section_5"
 
 
-def get_validators(part_name: Part) -> dict[str, Validator]:
+def get_validators(rust_optimize: bool) -> dict[str, Validator]:
     """
-    Get a list of validators in parts/(part_name). These validators are prefixed by 'validate_'
+    Get a list of validators
     """
-    module_path = f"avid_validator.parts.{part_name.value}"
+    validators = {method.name: method.rust or method.primary if rust_optimize else method.primary for method in METHOD_VALIDATORS}
 
-    try:
-        module = importlib.import_module(module_path)
-    except ModuleNotFoundError:
-        raise ValueError(f"Unknown part module: {part_name}")
+    print("Validators", validators)
 
-    validators = {
-        name: func
-        for name, func in inspect.getmembers(module, inspect.isfunction)
-        if name.startswith("validate_")
-    }
     return validators
 
 
@@ -52,10 +52,10 @@ def _build_kwargs(func: t.Callable) -> dict[str, t.Any]:
     """
     Build kwargs for validation function. These kwargs types must have an 'load' function to be a valid kwarg
     """
-    type_hints: t.Dict[str, t.Any] = t.get_type_hints(func)
+    type_hints: dict[str, t.Any] = t.get_type_hints(func)
     type_hints.pop("return", None)
 
-    kwargs: t.Dict[str, t.Any] = {}
+    kwargs: dict[str, t.Any] = {}
     for argname, argtype in type_hints.items():
         load = getattr(argtype, "load", None)
         if not callable(load):
@@ -92,7 +92,7 @@ def _run_one_validator(name: str, func: Validator) -> list[Report]:
     return reports or [Report(success=True)]
 
 
-def find_parent_matching(pattern: str, start: t.Optional[Path]=None) -> t.Optional[Path]:
+def find_parent_matching(pattern: str, start: Path | None=None) -> Path | None:
     """
     Walk up from start (or cwd) and return the first parent directory whose name matches
     the regex pattern.
@@ -113,13 +113,17 @@ def run_validations(
     checks: t.Sequence[str] | None = None,
     category: t.Sequence[ValidationType] | None = None,
     except_vals: t.Sequence[str] | None = None,
-    avid_dir: Path | None = None
+    avid_dir: Path | None = None,
+    rust_optimize: bool = False
 ) -> None:
     """
     Run validators defined in parts/(part_name) prefixed by "validate_".
 
     If 'checks' is defined, it only checks validators with names included in 'checks'
     """
+    # Make sure all the parts have been imported so the decorated have run
+    import_all_submodules(parts)
+
     if category is None:
         category = []
     if except_vals is None:
@@ -130,10 +134,7 @@ def run_validations(
         else:
             raise Exception("No avid directory could be found!")
 
-    all_validators = {}
-    for part in Part:
-        validators = get_validators(part)
-        all_validators = all_validators | validators
+    all_validators = get_validators(rust_optimize=rust_optimize)
 
     # Filter by check name(s)
     selected = (

@@ -9,7 +9,6 @@ import re
 
 STRIP_NONASCII_RE = re.compile("[^a-zA-Z ]+")
 
-
 def _strip_nonascii(text: str) -> str:
     return STRIP_NONASCII_RE.sub("", text)
 

@@ -1,14 +1,14 @@
 import os
 import re
 from avid_validator.common.archive import ValidationContext, ValidationType
-from avid_validator.common.description import categorize, describe
+from avid_validator.common.description import register, describe
 from avid_validator.common.report import GenReport, fail, ok
 
 
 @describe(
     """Mappen ContextDocumentation skal indeholde en eller flere dokumentsamlingsmapper med kontekstdokumentation, jf. 6. B."""
 )
-@categorize(ValidationType.CONTEXTDOCS)
+@register(ValidationType.CONTEXTDOCS)
 def validate_4e1(ctx: ValidationContext) -> GenReport:
     # Skal indeholde en eller flere dokumentsamlingsmapper med kontektsdokumenter
     min_req_doc = ctx.context_docs / "docCollection1" / "1" / "1.tif"
@@ -20,7 +20,7 @@ def validate_4e1(ctx: ValidationContext) -> GenReport:
 @describe(
     """En dokumentsamlingsmappe med kontekstdokumentation må indeholde op til 10.000 dokumentmapper."""
 )
-@categorize(ValidationType.CONTEXTDOCS)
+@register(ValidationType.CONTEXTDOCS)
 def validate_4e2(ctx: ValidationContext) -> GenReport:
     docCollections = os.listdir(ctx.context_docs)
     for doccol in docCollections:
@@ -28,7 +28,7 @@ def validate_4e2(ctx: ValidationContext) -> GenReport:
             yield fail("Must have no more than 10000 files per docCollection")
 
 
-@categorize(ValidationType.CONTEXTDOCS)
+@register(ValidationType.CONTEXTDOCS)
 def validate_4e3(ctx: ValidationContext) -> GenReport:
     tables = [
         int(re.match(r"docCollection(\d+)$", table).group(1))  # pyright: ignore
@@ -49,7 +49,7 @@ def validate_4e3(ctx: ValidationContext) -> GenReport:
 @describe(
     """Dokumentsamlingsmapperne navngives »docCollection[fortløbende nummer]«, begyndende med 1. Navnet skal være unikt inden for ContextDocumentation."""
 )
-@categorize(ValidationType.CONTEXTDOCS)
+@register(ValidationType.CONTEXTDOCS)
 def validate_4e5(ctx: ValidationContext) -> GenReport:
     # Skal indeholde en eller flere dokumentsamlingsmapper med kontektsdokumenter
     docs = os.listdir(ctx.context_docs / "docCollection1" / "1")
@@ -63,7 +63,7 @@ def validate_4e5(ctx: ValidationContext) -> GenReport:
 @describe(
     """Et dokuments fil (eller filer) navngives fortløbende med et nummer, begyndende med 1 samt formatets ekstension, jf. 4.G.8"""
 )
-@categorize(ValidationType.CONTEXTDOCS)
+@register(ValidationType.CONTEXTDOCS)
 def validate_4e6(ctx: ValidationContext) -> GenReport:
     docs = (ctx.context_docs / "docCollection1").glob("*")
     files = [file.stem for file in docs]

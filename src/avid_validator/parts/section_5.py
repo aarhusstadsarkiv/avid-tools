@@ -10,7 +10,7 @@ from avid_validator.common import utils
 from avid_validator.common.archive import ValidationContext
 from avid_validator.common.archive import ValidationType
 from avid_validator.common.archive import XMLIndices
-from avid_validator.common.description import categorize
+from avid_validator.common.description import register
 from avid_validator.common.description import describe
 from avid_validator.common.report import fail
 from avid_validator.common.report import GenReport
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
     """I overensstemmelse med den tabelstruktur, der i XML-instansen »tableIndex.xml« er defineret for hver tabel,
 skal hver tabel findes i en XML-instans navngivet »table[fortløbende nummer]. xml«."""
 )
-@categorize(ValidationType.TABLES)
+@register(ValidationType.TABLES)
 def validate_5a1a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
     table_idx = indeces.tableIndex
     tables_dir_files = os.listdir(ctx.tables)
@@ -40,7 +40,7 @@ def validate_5a1a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
 @describe(
     """Den fortløbende nummerering begynder med 1. Foranstillede nuller må ikke anvendes."""
 )
-@categorize(ValidationType.TABLES)
+@register(ValidationType.TABLES)
 def validate_5a1b(indeces: XMLIndices) -> GenReport:
     table_idx = indeces.tableIndex
 
@@ -59,10 +59,23 @@ def validate_5a1b(indeces: XMLIndices) -> GenReport:
         yield fail("First table id must be 1!")
 
 
+def _rust_validate_5a2(ctx: ValidationContext) -> GenReport:
+    """
+    This method is Rust alternative to the pure python method 'validate_5a2'
+    """
+    from avid_tools import whitespacevalidate  # pyright: ignore
+
+    table_index_path = ctx.indices.joinpath("tableIndex.xml").resolve()
+    res = whitespacevalidate.validate(str(table_index_path))
+    for item in res:
+        yield fail(f"Failed {item}")
+
+
+
 @describe(
     """Indholdet af de enkelte felter skal renses for eventuelle foran- og efterstillede blanktegn"""
 )
-@categorize(ValidationType.TABLES)
+@register(ValidationType.TABLES, rust=_rust_validate_5a2)
 def validate_5a2(ctx: ValidationContext):
     tables = sorted(ctx.tables.rglob("table*.xml"))
     cell_tag_re = re.compile(r"\{.*\}c\d+$")
@@ -81,8 +94,6 @@ def validate_5a2(ctx: ValidationContext):
                 break
 
 
-
-
 """
 5B Datatyper
 """
@@ -93,7 +104,7 @@ def validate_5a2(ctx: ValidationContext):
     datatyper i W3C XML Schema Language 1.0
     """
 )
-@categorize(ValidationType)
+@register(ValidationType)
 def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
     """
     The XSD schemas for each table, should be able to validate the given types.
@@ -153,7 +164,7 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
 @describe(
     "Data i arkiveringsversionens indeksfiler og tabelindhold skal være indkodet som well-formed UTF-8, som angivet i ISO/IEC 10646:2003 Annex D og som beskrevet i The Unicode Standard 5.1, kapitel 3."
 )
-@categorize((ValidationType.INDICES, ValidationType.TABLES))
+@register((ValidationType.INDICES, ValidationType.TABLES))
 def validate_5d1a() -> GenReport:
     files = utils.all_files()
     if not files:

@@ -3,14 +3,14 @@ import re
 
 from tqdm import tqdm
 from avid_validator.common.archive import ValidationContext, ValidationType, XMLIndices
-from avid_validator.common.description import categorize, describe
+from avid_validator.common.description import register, describe
 from avid_validator.common.report import GenReport, fail
 
 
 @describe(
     """Mappen Documents skal indeholde én eller flere dokumentsamlingsmapper, dog maksimalt 10.000."""
 )
-@categorize(ValidationType.DOCS)
+@register(ValidationType.DOCS)
 def validate_4g1(ctx: ValidationContext) -> GenReport:
     doc_count = len(os.listdir(ctx.documents))
 
@@ -23,7 +23,7 @@ def validate_4g1(ctx: ValidationContext) -> GenReport:
 
 @describe("""Dokumentsamlingsmapperne navngives »docCollection[fortløbende nummer]«,
 begyndende med 1. Navnet skal være unikt inden for Documents.""")
-@categorize(ValidationType.DOCS)
+@register(ValidationType.DOCS)
 def validate_4g2(ctx: ValidationContext) -> GenReport:
     tables = [
         int(re.match(r"docCollection(\d+)$", table).group(1))  # pyright: ignore
@@ -41,7 +41,7 @@ def validate_4g2(ctx: ValidationContext) -> GenReport:
 
 
 @describe("""En dokumentsamlingsmappe må indeholde op til 10.000 dokumentmapper.""")
-@categorize(ValidationType.DOCS)
+@register(ValidationType.DOCS)
 def validate_4g3(ctx: ValidationContext) -> GenReport:
     docCollections = os.listdir(ctx.documents)
     for doccol in docCollections:

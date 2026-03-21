@@ -1,8 +1,9 @@
-from typing import Generator, Optional
+from typing import Generator, Optional, Callable, Union, Iterator
 from dataclasses import dataclass
 
 type OptReport = Optional[Report]
 type GenReport = Generator[Optional[Report]]
+Validator = Callable[..., Union[OptReport, Iterator[OptReport]]]
 
 
 def ok() -> OptReport:
