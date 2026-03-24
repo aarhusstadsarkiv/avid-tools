@@ -132,7 +132,6 @@ pub fn contains_whitespaces(xml_path: &Path) -> Result<bool, Box<dyn std::error:
     let reader = BufReader::new(file);
 
     let mut reader = Reader::from_reader(reader);
-    reader.config_mut().trim_text(true);
 
     let mut buf = Vec::new();
 
@@ -142,7 +141,8 @@ pub fn contains_whitespaces(xml_path: &Path) -> Result<bool, Box<dyn std::error:
             Event::Eof => break,
             Event::Text(ref e) => {
                 let text = e.unescape()?;
-                if text.trim().len() == text.len() {
+                if !text.trim().is_empty() && text.trim().len() != text.len() {
+                    println!("Text is not trimmed: '{}'", text);
                     return Ok(true);
                 }
             }
