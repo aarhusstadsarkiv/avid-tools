@@ -160,7 +160,7 @@ som skal overføres til en arkiveringsversion og som ikke umiddelbart kan overho
 )
 @register(ValidationType.TABLES)
 def validate_5c1(ctx: ValidationContext) -> GenReport:
-    tables = ctx.tables.rglob("table*.xml")
+    tables = list(ctx.tables.rglob("table*.xml"))
     for table_xml_path in tqdm(tables):
         table_xsd_path = table_xml_path.parent.joinpath(f"{table_xml_path.stem}.xsd")
         try:
