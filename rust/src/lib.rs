@@ -134,6 +134,7 @@ pub fn contains_whitespaces(xml_path: &Path) -> Result<bool, Box<dyn std::error:
     let mut reader = Reader::from_reader(reader);
 
     let mut buf = Vec::new();
+    let mut found_any_whitespaces = false;
 
     loop {
         buf.clear();
@@ -143,14 +144,14 @@ pub fn contains_whitespaces(xml_path: &Path) -> Result<bool, Box<dyn std::error:
                 let text = e.unescape()?;
                 if !text.trim().is_empty() && text.trim().len() != text.len() {
                     println!("Text is not trimmed: '{}'", text);
-                    return Ok(true);
+                    found_any_whitespaces = true;
                 }
             }
             _ => {}
         }
     }
 
-    Ok(false)
+    Ok(found_any_whitespaces)
 }
 
 #[pyfunction]
