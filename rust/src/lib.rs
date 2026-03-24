@@ -143,7 +143,7 @@ pub fn contains_whitespaces(xml_path: &Path) -> Result<bool, Box<dyn std::error:
             Event::Text(ref e) => {
                 let text = e.unescape()?;
                 if text.trim().len() == text.len() {
-                    return Ok(false);
+                    return Ok(true);
                 }
             }
             _ => {}
@@ -151,11 +151,6 @@ pub fn contains_whitespaces(xml_path: &Path) -> Result<bool, Box<dyn std::error:
     }
 
     Ok(false)
-}
-
-#[pyfunction]
-fn helloworld() {
-    println!("Hello world!");
 }
 
 #[pyfunction]
@@ -176,7 +171,7 @@ fn validate(table_path: String) -> Vec<String> {
     // Create csv file for each table
     for table in tables {
         println!(
-            "Searching table: {}, table id: {}",
+            "Vaildating table: {}, table id: {}",
             table.name, table.folder
         );
         let table_xml_path = folder_path.join(format!("{}/{}.xml", table.folder, table.folder));
@@ -200,6 +195,5 @@ fn validate(table_path: String) -> Vec<String> {
 #[pymodule]
 fn whitespacevalidate(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate, m)?)?;
-    m.add_function(wrap_pyfunction!(helloworld, m)?)?;
     Ok(())
 }

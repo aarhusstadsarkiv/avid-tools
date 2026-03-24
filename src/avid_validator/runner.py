@@ -43,8 +43,6 @@ def get_validators(rust_optimize: bool) -> dict[str, Validator]:
     """
     validators = {method.name: method.rust or method.primary if rust_optimize else method.primary for method in METHOD_VALIDATORS}
 
-    print("Validators", validators)
-
     return validators
 
 

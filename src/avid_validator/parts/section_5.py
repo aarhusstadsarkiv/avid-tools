@@ -10,8 +10,8 @@ from avid_validator.common import utils
 from avid_validator.common.archive import ValidationContext
 from avid_validator.common.archive import ValidationType
 from avid_validator.common.archive import XMLIndices
-from avid_validator.common.description import register
 from avid_validator.common.description import describe
+from avid_validator.common.description import register
 from avid_validator.common.report import fail
 from avid_validator.common.report import GenReport
 from avid_validator.common.types import get_allowed_table_types
@@ -101,8 +101,7 @@ def validate_5a2(ctx: ValidationContext):
 @describe(
     """De standardiserede datatyper, som skal anvendes for tabelindhold, er angivet i figur 5.1.
     De er et uddrag af datatyper fra standarden SQL:1999 repræsenteret som
-    datatyper i W3C XML Schema Language 1.0
-    """
+    datatyper i W3C XML Schema Language 1.0"""
 )
 @register(ValidationType)
 def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
@@ -162,7 +161,8 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
 
 
 @describe(
-    "Data i arkiveringsversionens indeksfiler og tabelindhold skal være indkodet som well-formed UTF-8, som angivet i ISO/IEC 10646:2003 Annex D og som beskrevet i The Unicode Standard 5.1, kapitel 3."
+    """Data i arkiveringsversionens indeksfiler og tabelindhold skal være indkodet som well-formed UTF-8,
+    som angivet i ISO/IEC 10646:2003 Annex D og som beskrevet i The Unicode Standard 5.1, kapitel 3."""
 )
 @register((ValidationType.INDICES, ValidationType.TABLES))
 def validate_5d1a() -> GenReport:
