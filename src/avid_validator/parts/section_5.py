@@ -15,6 +15,7 @@ from avid_validator.common.description import register
 from avid_validator.common.report import fail
 from avid_validator.common.report import GenReport
 from avid_validator.common.types import get_allowed_table_types
+from xmlschema.validators.exceptions import XMLSchemaValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +154,19 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
 5C Konvertering af tabelindhold til digitale dokumenter, lyd, video eller geodata
 """
 
-# ...
+@describe(
+    """Tabelindhold skal overholde de angivne datatyper, jf. 5. B. Det følger heraf, at dataindhold i tabelform fra et it-system,
+som skal overføres til en arkiveringsversion og som ikke umiddelbart kan overholde dette krav, skal have sit dataindhold konverteret således"""
+)
+@register(ValidationType.TABLES)
+def validate_5c1(ctx: ValidationContext) -> GenReport:
+    tables = ctx.tables.rglob("table*.xml")
+    for table_xml_path in tqdm(tables):
+        table_xsd_path = table_xml_path.parent.joinpath(f"{table_xml_path.stem}.xsd")
+        try:
+            utils.lazy_xml_validate(table_xml_path, table_xsd_path)
+        except XMLSchemaValidationError as e:
+            yield fail(f"{table_xml_path}: {e.message}")
 
 """
 5D Tekstformat
