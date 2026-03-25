@@ -16,6 +16,8 @@ dependencies = [
     "requests>=2.32.5",
     "tifffile>=2026.3.3",
     "maturin>=1.12.6",
+    "lxml>=6.0.2",
+    "types-lxml>=2026.2.16",
 ]
 
 [project.scripts]

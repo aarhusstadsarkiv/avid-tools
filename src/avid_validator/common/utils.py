@@ -2,6 +2,7 @@ import xmltodict
 import codecs
 import xmlschema
 import logging
+from lxml import etree
 
 from pathlib import Path
 from typing import Any, Optional
@@ -36,6 +37,22 @@ def lazy_xml_validate(xml_path: Path, xsd_path: Path):
     xml_res = xmlschema.XMLResource(xml_path, lazy=True)
     schema = xmlschema.XMLSchema(xsd_path)
     schema.validate(xml_res)
+
+
+def lxml_xml_validate(xml_path: Path, xsd_path: Path):
+    schema = etree.XMLSchema(file=xsd_path)
+
+    errors = []
+    try:
+        context = etree.iterparse(xml_path, events=("end",), schema=schema)
+        for _, elem in context:
+            elem.clear()
+
+        return True, []
+    except etree.XMLSyntaxError as e:
+        errors.append(str(e))
+        errors.extend(str(entry) for entry in e.error_log)
+        return False, errors
 
 
 def all_files() -> Optional[list[str]]:

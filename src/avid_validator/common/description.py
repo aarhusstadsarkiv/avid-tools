@@ -40,7 +40,8 @@ def register(
     rust: Validator | None = None
     ) -> Callable[[Validator], Validator]:
     """
-    Categorize a validator function, and registers an equivalent but faster rust method
+    Categorize a validator function, and registers an equivalent but faster rust method.
+    This is a required decorator for all validator functions!
 
     Args:
         validation_types

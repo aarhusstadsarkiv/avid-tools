@@ -163,10 +163,16 @@ def validate_5c1(ctx: ValidationContext) -> GenReport:
     tables = list(ctx.tables.rglob("table*.xml"))
     for table_xml_path in tqdm(tables):
         table_xsd_path = table_xml_path.parent.joinpath(f"{table_xml_path.stem}.xsd")
-        try:
-            utils.lazy_xml_validate(table_xml_path, table_xsd_path)
-        except XMLSchemaValidationError as e:
-            yield fail(f"{table_xml_path}: {e.message}")
+        
+        res, errs = utils.lxml_xml_validate(table_xml_path, table_xsd_path)
+        if not res:
+            print(errs)
+            yield fail(f"Error occurred in {table_xml_path}")
+
+        # try:
+        #     utils.lazy_xml_validate(table_xml_path, table_xsd_path)
+        # except XMLSchemaValidationError as e:
+        #     yield fail(f"{table_xml_path}: {e.message}")
 
 """
 5D Tekstformat
