@@ -207,6 +207,7 @@ def validate_5d_textformat() -> GenReport:
 """
 
 
+@register((ValidationType.DOCS, ValidationType.CONTEXTDOCS))
 def validate_5e() -> GenReport:
     from avid_validator.common import tiff
 

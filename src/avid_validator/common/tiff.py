@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Generator, Optional, Union
+from typing import Any, Generator, Union
 
 import tifffile
 
@@ -33,16 +33,42 @@ class LayoutRule:
 
 
 _ALLOWED_LAYOUTS: tuple[LayoutRule, ...] = (
+    # 1-bit monochrome
     LayoutRule(
         name="FAX_MONO",
         photometric=frozenset({WHITE_IS_ZERO, BLACK_IS_ZERO}),
         bits_per_sample=(1,),
         samples_per_pixel=1,
-        allowed_compressions=frozenset({CCITT_GROUP3, CCITT_GROUP4}),
+        allowed_compressions=frozenset({CCITT_GROUP3, CCITT_GROUP4, LZW, PACKBITS}),
+    ),
+
+    # Grayscale
+    LayoutRule(
+        name="GRAY 2",
+        photometric=frozenset({WHITE_IS_ZERO, BLACK_IS_ZERO}),
+        bits_per_sample=(2,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
     ),
     LayoutRule(
+        name="GRAY 4",
+        photometric=frozenset({WHITE_IS_ZERO, BLACK_IS_ZERO}),
+        bits_per_sample=(4,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+    LayoutRule(
+        name="GRAY 8",
+        photometric=frozenset({WHITE_IS_ZERO, BLACK_IS_ZERO}),
+        bits_per_sample=(8,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+
+    # Palette
+    LayoutRule(
         name="PALETTE 1",
-        photometric=frozenset({PALETTE, WHITE_IS_ZERO, BLACK_IS_ZERO}),
+        photometric=frozenset({PALETTE}),
         bits_per_sample=(1,),
         samples_per_pixel=1,
         allowed_compressions=frozenset({LZW, PACKBITS}),
@@ -68,6 +94,36 @@ _ALLOWED_LAYOUTS: tuple[LayoutRule, ...] = (
         samples_per_pixel=1,
         allowed_compressions=frozenset({LZW, PACKBITS}),
     ),
+
+    # RGB total bit depths allowed by the regulation: 1, 2, 4, 8, 24, 32
+    LayoutRule(
+        name="RGB 1",
+        photometric=frozenset({RGB}),
+        bits_per_sample=(1,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+    LayoutRule(
+        name="RGB 2",
+        photometric=frozenset({RGB}),
+        bits_per_sample=(2,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+    LayoutRule(
+        name="RGB 4",
+        photometric=frozenset({RGB}),
+        bits_per_sample=(4,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+    LayoutRule(
+        name="RGB 8",
+        photometric=frozenset({RGB}),
+        bits_per_sample=(8,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
     LayoutRule(
         name="RGB 8,8,8",
         photometric=frozenset({RGB}),
@@ -80,6 +136,36 @@ _ALLOWED_LAYOUTS: tuple[LayoutRule, ...] = (
         photometric=frozenset({RGB}),
         bits_per_sample=(8, 8, 8, 8),
         samples_per_pixel=4,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+
+    # CMYK total bit depths allowed by the regulation: 1, 2, 4, 8, 32, 40
+    LayoutRule(
+        name="CMYK 1",
+        photometric=frozenset({CMYK}),
+        bits_per_sample=(1,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+    LayoutRule(
+        name="CMYK 2",
+        photometric=frozenset({CMYK}),
+        bits_per_sample=(2,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+    LayoutRule(
+        name="CMYK 4",
+        photometric=frozenset({CMYK}),
+        bits_per_sample=(4,),
+        samples_per_pixel=1,
+        allowed_compressions=frozenset({LZW, PACKBITS}),
+    ),
+    LayoutRule(
+        name="CMYK 8",
+        photometric=frozenset({CMYK}),
+        bits_per_sample=(8,),
+        samples_per_pixel=1,
         allowed_compressions=frozenset({LZW, PACKBITS}),
     ),
     LayoutRule(
@@ -229,15 +315,7 @@ def check_tiff_bek128_bitdepths(path: Union[str, Path]) -> Generator[OptReport, 
                     )
                     continue
 
-                if compression not in rule.allowed_compressions:
-                    had_failures = True
-                    yield _fail(
-                        f"Page {page_index}: disallowed compression {compression} for {rule.name}. "
-                        f"Allowed: {sorted(rule.allowed_compressions)}."
-                    )
-                    continue
-
-                if rule.name == "PALETTE":
+                if photometric == PALETTE:
                     colormap = _get_tag_value(page, "ColorMap")
                     if colormap is None:
                         had_failures = True
