@@ -79,20 +79,12 @@ def _rust_validate_5a2(ctx: ValidationContext) -> GenReport:
 @register(ValidationType.TABLES, rust=_rust_validate_5a2)
 def validate_5a2(ctx: ValidationContext):
     tables = sorted(ctx.tables.rglob("table*.xml"))
-    cell_tag_re = re.compile(r"\{.*\}c\d+$")
     process = tqdm(tables)
     for table in process:
         process.set_description(f"Processing {table.name}")
-        res = XMLResource(table, lazy=True)
-        for elem in res.iter():
-            text = elem.text
-            if text is None:
-                continue
-            if not cell_tag_re.match(elem.tag):
-                continue
-            if text != text.strip():
-                yield fail(f"Whitespace detected in {table}")
-                break
+
+        if not utils.validate_no_whitespaces(table):
+            yield fail(f"Table {table} has whitespaces")
 
 
 """

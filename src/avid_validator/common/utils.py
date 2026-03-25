@@ -1,18 +1,19 @@
-import xmltodict
 import codecs
-import xmlschema
 import logging
+from pathlib import Path
+from typing import Any
+
+import xmlschema
+import xmltodict
 from lxml import etree
 
-from pathlib import Path
-from typing import Any, Optional
 from avid_validator import config as av_config
 from avid_validator.common.report import Report
 
 logger = logging.getLogger(__name__)
 
 
-def prepare_xml(path: Path | str) -> Optional[dict[Any, Any]]:
+def prepare_xml(path: Path | str) -> dict[Any, Any] | None:
     """
     Parse an XML file to a dict object
     """
@@ -55,14 +56,25 @@ def lxml_xml_validate(xml_path: Path, xsd_path: Path):
         return False, errors
 
 
-def all_files() -> Optional[list[str]]:
+def validate_no_whitespaces(xml_path: Path) -> bool:
+    context = etree.iterparse(xml_path, events=("end",))
+    for _, elem in context:
+        if elem.text:
+            if elem.text.strip() != "" and elem.text != elem.text.strip():
+                return False
+        elem.clear()
+
+    return True
+
+
+def all_files() -> list[str] | None:
     """
     Returns a list of filepaths defined in fileIndex.xml
     """
     file_index = prepare_xml(av_config.avid_dir / "Indices" / "fileIndex.xml")
 
     if file_index is None:
-        return
+        return None
 
     file_paths = []
     for item in file_index["fileIndex"]["f"]:
@@ -80,7 +92,7 @@ def is_well_formed_utf8(file_path: Path, chunk_size: int = 1024 * 1024) -> Repor
     """
     Checks if file is well formed AND does not contain forbidden chars
     """
-    FORBIDDEN = set(range(0x00, 0x20)) - {0x09, 0x0A, 0x0D}
+    FORBIDDEN = set(range(0x20)) - {0x09, 0x0A, 0x0D}
 
     decoder = codecs.getincrementaldecoder("utf-8")("strict")
     byte_pos = 0
@@ -96,7 +108,7 @@ def is_well_formed_utf8(file_path: Path, chunk_size: int = 1024 * 1024) -> Repor
 
             try:
                 text = decoder.decode(chunk, final=False)
-            except UnicodeDecodeError as e:
+            except UnicodeDecodeError:
                 return decode_fail
 
             for i, ch in enumerate(text):
@@ -111,7 +123,7 @@ def is_well_formed_utf8(file_path: Path, chunk_size: int = 1024 * 1024) -> Repor
 
         try:
             decoder.decode(b"", final=True)
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             return decode_fail
 
     return Report(True)
