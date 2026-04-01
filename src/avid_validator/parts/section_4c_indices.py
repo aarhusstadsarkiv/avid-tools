@@ -149,7 +149,7 @@ def validate_4c2b(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
                 calc_hash = hashlib.md5(file_path.read_bytes()).hexdigest().upper()
 
                 if not calc_hash == filehash:
-                    yield fail(f"{file_path} has incorrect hash compared to fileIndex!")
+                    yield fail(f"{file_path} has incorrect hash compared to fileIndex! File hash is {calc_hash}")
                 else:
                     handler.mark_clean(file_path)
 
