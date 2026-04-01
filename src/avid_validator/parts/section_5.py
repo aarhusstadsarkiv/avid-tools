@@ -152,7 +152,7 @@ som skal overføres til en arkiveringsversion og som ikke umiddelbart kan overho
 def validate_5c1(ctx: ValidationContext) -> GenReport:
     tables = list(ctx.tables.rglob("table*.xml"))
     for table_xml_path in tqdm(tables):
-        if table_xml_path not in ["table268", "table556", "table269", "table267", "table270", "table559", "table558"]:
+        if table_xml_path.stem not in ["table268", "table556", "table269", "table267", "table270", "table559", "table558"]:
             continue
         table_xsd_path = table_xml_path.parent.joinpath(f"{table_xml_path.stem}.xsd")
         
