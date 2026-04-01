@@ -141,13 +141,6 @@ ignore-decorators = ["pytest.fixture"]
 [tool.ruff.lint.pycodestyle]
 max-doc-length = 300
 
-# [build-system]
-# requires = ["hatchling"]
-# build-backend = "hatchling.build"
-#
-# [tool.hatch.build]
-# packages = ["src/avid_tools", "src/avid_validator"]
-
 [tool.setuptools.package-data]
 avid_validator = ["static/Schemas.zip"]
 
@@ -156,6 +149,6 @@ requires = ["maturin>=1.12,<2.0"]
 build-backend = "maturin"
 
 [tool.maturin]
-manifest-path = "rust/Cargo.toml"
-python-source = "src"
+python-source = "python"
+python-packages = ["avid_tools", "avid_validator"]
 module-name = "avid_tools.whitespacevalidate"
