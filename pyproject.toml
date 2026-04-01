@@ -148,7 +148,8 @@ max-doc-length = 300
 # [tool.hatch.build]
 # packages = ["src/avid_tools", "src/avid_validator"]
 
-
+[tool.setuptools.package-data]
+avid_validator = ["static/Schemas.zip"]
 
 [build-system]
 requires = ["maturin>=1.12,<2.0"]

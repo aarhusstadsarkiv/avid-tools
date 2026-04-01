@@ -3,11 +3,14 @@ import os
 from pathlib import Path
 import tempfile
 import zipfile
+import shutil
 
 import requests
 from avid_validator.common.archive import ValidationContext, ValidationType
 from avid_validator.common.description import register, describe
 from avid_validator.common.report import GenReport, fail
+
+from importlib.resources import files
 
 
 @describe(
@@ -51,9 +54,16 @@ def validate_4f3(ctx: ValidationContext) -> GenReport:
     with tempfile.TemporaryDirectory() as tmpdir:
         schemas_zip_path = os.path.join(tmpdir, "schemas.zip")
         extract_path = tmpdir
-        with open(schemas_zip_path, "wb") as schemas_f:
-            response = requests.get(schemas_url)
-            schemas_f.write(response.content)
+
+        # # Download schema files
+        # with open(schemas_zip_path, "wb") as schemas_f:
+        #     response = requests.get(schemas_url)
+        #     schemas_f.write(response.content)
+
+        # Keep the schema files static
+        resource = files("avid_validator.static").joinpath("Schemas.zip")
+        with resource.open("rb") as src, open(schemas_zip_path, "wb") as dst:
+            shutil.copyfileobj(src, dst)
 
         schemas_zip = zipfile.ZipFile(schemas_zip_path)
         schemas_zip.extractall(extract_path)
