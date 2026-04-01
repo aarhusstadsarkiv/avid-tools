@@ -4,7 +4,6 @@ import re
 from pathlib import Path
 
 from tqdm import tqdm
-from xmlschema import XMLResource
 
 from avid_validator.common import utils
 from avid_validator.common.archive import ValidationContext
@@ -15,7 +14,6 @@ from avid_validator.common.description import register
 from avid_validator.common.report import fail
 from avid_validator.common.report import GenReport
 from avid_validator.common.types import get_allowed_table_types
-from xmlschema.validators.exceptions import XMLSchemaValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -161,10 +159,6 @@ def validate_5c1(ctx: ValidationContext) -> GenReport:
             print(errs)
             yield fail(f"Error occurred in {table_xml_path}")
 
-        # try:
-        #     utils.lazy_xml_validate(table_xml_path, table_xsd_path)
-        # except XMLSchemaValidationError as e:
-        #     yield fail(f"{table_xml_path}: {e.message}")
 
 """
 5D Tekstformat

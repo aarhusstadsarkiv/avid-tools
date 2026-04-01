@@ -2,7 +2,7 @@ import os
 import re
 
 from tqdm import tqdm
-from avid_validator.common.archive import ValidationContext, ValidationType, XMLIndices
+from avid_validator.common.archive import ValidationContext, ValidationType
 from avid_validator.common.description import register, describe
 from avid_validator.common.report import GenReport, fail
 

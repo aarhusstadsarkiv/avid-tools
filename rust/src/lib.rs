@@ -1,6 +1,7 @@
 use std::{fs::File, io::BufReader, path::Path};
 
-use pyo3::prelude::*;
+// use libxml::schemas::SchemaParserContext;
+use pyo3::{exceptions::PyValueError, prelude::*};
 use quick_xml::{Reader, events::Event, name::QName};
 
 #[derive(Clone, Debug)]
@@ -154,6 +155,46 @@ pub fn contains_whitespaces(xml_path: &Path) -> Result<bool, Box<dyn std::error:
     Ok(found_any_whitespaces)
 }
 
+// #[pyfunction]
+// fn validate_xsd(table_path: &str) -> PyResult<Vec<String>> {
+//     let table_path = Path::new(table_path);
+//
+//     // Build "<same file name>.xsd" next to the XML file.
+//     let xsd_path = table_path.with_extension("xsd");
+//
+//     let xsd_str = xsd_path
+//         .to_str()
+//         .ok_or_else(|| PyValueError::new_err("XSD path is not valid UTF-8"))?;
+//
+//     let xml_str = table_path
+//         .to_str()
+//         .ok_or_else(|| PyValueError::new_err("XML path is not valid UTF-8"))?;
+//
+//     let mut parser = SchemaParserContext::from_file(xsd_str);
+//
+//     let mut validator = match SchemaValidationContext::from_parser(&mut parser) {
+//         Ok(v) => v,
+//         Err(errors) => {
+//             let msgs: Vec<String> = errors.into_iter().map(|e| e.message).collect();
+//             return Err(PyValueError::new_err(format!(
+//                 "Failed to parse XSD:\n{}",
+//                 msgs.join("\n")
+//             )));
+//         }
+//     };
+//
+//     match validator.validate_file(xml_str) {
+//         Ok(()) => Ok(Vec::new()),
+//         Err(errors) => {
+//             let msgs: Vec<String> = errors.into_iter().map(|e| e.message).collect();
+//             Err(PyValueError::new_err(format!(
+//                 "XML is not valid:\n{}",
+//                 msgs.join("\n")
+//             )))
+//         }
+//     }
+// }
+
 #[pyfunction]
 fn validate(table_path: String) -> Vec<String> {
     let table_path = Path::new(&table_path);
@@ -196,5 +237,6 @@ fn validate(table_path: String) -> Vec<String> {
 #[pymodule]
 fn whitespacevalidate(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate, m)?)?;
+    // m.add_function(wrap_pyfunction!(validate_xsd, m)?)?;
     Ok(())
 }
