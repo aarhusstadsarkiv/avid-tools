@@ -1,26 +1,61 @@
-# Commands
+# Table of Contents
 
-* [avid-tools](#avid-tools)
-    * [init](#avid-tools-init)
-    * [context](#avid-tools-context)
-        * [add](#avid-tools-context-add)
-        * [update](#avid-tools-context-update)
-        * [move](#avid-tools-context-move)
-        * [delete](#avid-tools-context-delete)
-    * [tables](#avid-tools-tables)
-        * [trim](#avid-tools-tables-trim)
-        * [update-row-count](#avid-tools-tables-update-row-count)
-    * [index](#avid-tools-index)
-        * [view](#avid-tools-index-view)
-        * [update](#avid-tools-index-update)
-    * [documents](#avid-tools-documents)
-        * [extensions](#avid-tools-documents-extensions)
-        * [checksums](#avid-tools-documents-checksums)
-    * [sample](#avid-tools-sample)
-        * [size](#avid-tools-sample-size)
-        * [docid](#avid-tools-sample-docid)
-    * [search](#avid-tools-search)
-    * [finalize](#avid-tools-finalize)
+- [Table of Contents](#table-of-contents)
+- [⚠ Important: Custom Installation Required](#-important-custom-installation-required)
+  - [Prerequisites](#prerequisites)
+  - [Installation Steps](#installation-steps)
+- [Commands](#commands)
+  - [avid-tools](#avid-tools)
+    - [avid-tools init](#avid-tools-init)
+    - [avid-tools context](#avid-tools-context)
+      - [avid-tools context add](#avid-tools-context-add)
+      - [avid-tools context update](#avid-tools-context-update)
+      - [avid-tools context move](#avid-tools-context-move)
+      - [avid-tools context delete](#avid-tools-context-delete)
+    - [avid-tools tables](#avid-tools-tables)
+      - [avid-tools tables trim](#avid-tools-tables-trim)
+      - [avid-tools tables update-row-count](#avid-tools-tables-update-row-count)
+    - [avid-tools index](#avid-tools-index)
+      - [avid-tools index view](#avid-tools-index-view)
+      - [avid-tools index update](#avid-tools-index-update)
+    - [avid-tools documents](#avid-tools-documents)
+      - [avid-tools documents extensions](#avid-tools-documents-extensions)
+      - [avid-tools documents checksums](#avid-tools-documents-checksums)
+    - [avid-tools sample](#avid-tools-sample)
+      - [avid-tools sample size](#avid-tools-sample-size)
+      - [avid-tools sample docid](#avid-tools-sample-docid)
+    - [avid-tools search](#avid-tools-search)
+    - [avid-tools finalize](#avid-tools-finalize)
+
+# ⚠ Important: Custom Installation Required
+
+This project uses a **non-standard installation process** because it combines Python and Rust components.
+
+## Prerequisites
+
+* Rust (required for building the package)
+  Install Rust here: https://rust-lang.org/tools/install
+* `uv` package manager installed
+
+## Installation Steps
+
+```bash
+# 1. Create a virtual environment
+uv sync
+
+# 2. Activate the environment
+source .venv/bin/activate  # Use activate.fish or others if needed
+
+# 3. Build the project (requires Rust)
+maturin build
+
+# 4. Install the CLI tool from the generated wheel
+uv tool install ./target/wheels/avid_tools*.whl
+```
+
+This process builds a Python wheel using Rust and installs it as a CLI tool.
+
+# Commands
 
 ## avid-tools
 

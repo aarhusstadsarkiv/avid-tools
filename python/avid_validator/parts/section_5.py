@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from avid_validator.common import utils
+from avid_validator.common import utils  # pyright: ignore
 from avid_validator.common.archive import ValidationContext
 from avid_validator.common.archive import ValidationType
 from avid_validator.common.archive import XMLIndices
@@ -58,14 +58,13 @@ def validate_5a1b(indeces: XMLIndices) -> GenReport:
         yield fail("First table id must be 1!")
 
 
-def _rust_validate_5a2(ctx: ValidationContext) -> GenReport:
+def _rust_validate_5a2() -> GenReport:
     """
     This method is Rust alternative to the pure python method 'validate_5a2'
     """
     from avid_tools import whitespacevalidate  # pyright: ignore
 
-    table_index_path = ctx.indices.joinpath("tableIndex.xml").resolve()
-    res = whitespacevalidate.validate(str(table_index_path))
+    res = whitespacevalidate.validate_tables_xsd()
     for item in res:
         yield fail(f"Failed {item}")
 
