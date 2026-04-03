@@ -67,7 +67,6 @@ fn search_database(
 
 #[pyfunction]
 fn contains_database(
-    db_path: String,
     search_text: String,
 
     // Args for IgnoreMatcher - Those columns or tables to ignore
@@ -83,12 +82,14 @@ fn contains_database(
         ignore_column_regexes,
     );
 
-    encode::search_loaded(search_text, db_path, &ignore);
+    encode::contains_loaded(search_text, &ignore);
 }
 
 #[pymodule]
 fn whitespacevalidate(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_tables_xsd, m)?)?;
-    m.add_function(wrap_pyfunction!(validate_tables_xsd, m)?)?;
+    m.add_function(wrap_pyfunction!(encode_database, m)?)?;
+    m.add_function(wrap_pyfunction!(search_database, m)?)?;
+    m.add_function(wrap_pyfunction!(contains_database, m)?)?;
     Ok(())
 }
