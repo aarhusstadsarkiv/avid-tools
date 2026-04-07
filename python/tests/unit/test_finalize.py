@@ -47,7 +47,7 @@ class FakeAVID:
     indices: FakeIndices
     def __init__(self, *args, **kwargs) -> None:
         print("Setting up FakeAVID")
-        self.dir = Path("tests/databases/test_avid1")
+        self.dir = Path("python/tests/databases/test_avid1")
         self.indices = FakeIndices(self.dir)
 
 
