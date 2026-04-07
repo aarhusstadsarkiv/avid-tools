@@ -1,3 +1,7 @@
+"""
+This file interfaces Rust implmented Bloom filters.
+"""
+
 import click
 
 
@@ -54,4 +58,4 @@ def cmd_contains(text: str, ignore_tables: list[str], ignore_columns: list[str],
     """
     from avid_tools import whitespacevalidate  # pyright: ignore
 
-    whitespacevalidate.contains_database(db_path, text, ignore_tables, ignore_columns, ignore_table_regexes, ignore_column_regexes)
+    whitespacevalidate.contains_database(text, ignore_tables, ignore_columns, ignore_table_regexes, ignore_column_regexes)
