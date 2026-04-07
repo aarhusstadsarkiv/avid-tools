@@ -3,60 +3,12 @@ use std::{
     io::{BufReader, BufWriter},
 };
 
-use clap::{Args, Parser, Subcommand};
 use pyo3::{FromPyObject, exceptions::{PyTypeError, PyValueError}};
 use regex::Regex;
 use rusqlite::{Connection, ToSql, types::ValueRef};
 use serde::{Deserialize, Serialize};
 
 use pyo3::prelude::*;
-
-#[derive(Parser)]
-#[command(name = "dbhash")]
-#[command(about = "SQLite column membership index using Bloom filters")]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    Encode {
-        db_path: String,
-        #[command(flatten)]
-        ignore: IgnoreArgs,
-    },
-    Contains {
-        text: String,
-        #[command(flatten)]
-        ignore: IgnoreArgs,
-    },
-    Search {
-        db_path: String,
-        text: String,
-        #[command(flatten)]
-        ignore: IgnoreArgs,
-    },
-}
-
-#[derive(Debug, Clone, Args, Default)]
-struct IgnoreArgs {
-    /// Ignore tables by exact name. Can be passed multiple times.
-    #[arg(long = "ignore-table")]
-    ignore_tables: Vec<String>,
-
-    /// Ignore columns by exact name. Can be passed multiple times.
-    #[arg(long = "ignore-column")]
-    ignore_columns: Vec<String>,
-
-    /// Ignore tables whose names match this regex. Can be passed multiple times.
-    #[arg(long = "ignore-table-regex")]
-    ignore_table_regexes: Vec<String>,
-
-    /// Ignore columns whose names match this regex. Can be passed multiple times.
-    #[arg(long = "ignore-column-regex")]
-    ignore_column_regexes: Vec<String>,
-}
 
 pub(crate) struct RegexVec(pub Vec<Regex>);
 
@@ -91,31 +43,6 @@ pub(crate) struct IgnoreMatcher {
 }
 
 impl IgnoreMatcher {
-    fn from_args(args: &IgnoreArgs) -> Result<Self, regex::Error> {
-        Ok(Self {
-            ignore_tables: args
-                .ignore_tables
-                .iter()
-                .map(|s| simplify_string(s))
-                .collect(),
-            ignore_columns: args
-                .ignore_columns
-                .iter()
-                .map(|s| simplify_string(s))
-                .collect(),
-            ignore_table_regexes: args
-                .ignore_table_regexes
-                .iter()
-                .map(|s| Regex::new(s))
-                .collect::<Result<Vec<_>, _>>()?,
-            ignore_column_regexes: args
-                .ignore_column_regexes
-                .iter()
-                .map(|s| Regex::new(s))
-                .collect::<Result<Vec<_>, _>>()?,
-        })
-    }
-
     fn should_ignore_table(&self, table: &str) -> bool {
         let normalized = simplify_string(table);
 
@@ -532,51 +459,3 @@ pub(crate) fn create_encoded_database(
         Err(e) => eprintln!("Could not connect to database: {e}"),
     }
 }
-
-// fn main() {
-//     let cli = Cli::parse();
-//
-//     match cli.command {
-//         Commands::Encode { db_path, ignore } => {
-//             println!("Constructing Bloom-filter encoding...");
-//             let ignore = match IgnoreMatcher::from_args(&ignore) {
-//                 Ok(v) => v,
-//                 Err(e) => {
-//                     eprintln!("Invalid ignore regex: {e}");
-//                     return;
-//                 }
-//             };
-//
-//             match create_connection(db_path) {
-//                 Ok(conn) => construct_encoding(&conn, &ignore),
-//                 Err(e) => eprintln!("Could not connect to database: {e}"),
-//             }
-//         }
-//         Commands::Contains { text, ignore } => {
-//             let ignore = match IgnoreMatcher::from_args(&ignore) {
-//                 Ok(v) => v,
-//                 Err(e) => {
-//                     eprintln!("Invalid ignore regex: {e}");
-//                     return;
-//                 }
-//             };
-//
-//             contains_loaded(text, &ignore);
-//         }
-//         Commands::Search {
-//             db_path,
-//             text,
-//             ignore,
-//         } => {
-//             let ignore = match IgnoreMatcher::from_args(&ignore) {
-//                 Ok(v) => v,
-//                 Err(e) => {
-//                     eprintln!("Invalid ignore regex: {e}");
-//                     return;
-//                 }
-//             };
-//
-//             search_loaded(text, db_path, &ignore);
-//         }
-//     }
-// }
