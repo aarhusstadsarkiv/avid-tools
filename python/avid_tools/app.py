@@ -4,17 +4,17 @@ import sys
 from click import group
 from click import version_option
 
-from .commands.context.context import grp_context
-from .commands.documents import grp_documents
-from .commands.finalize import cmd_finalize
-from .commands.index import grp_index
-from .commands.init import cmd_init
-from .commands.sample import grp_sample
-from .commands.search import cmd_search
-from .commands.tables.tables import grp_tables
-from .commands.validate import grp_validate
-from .commands.encode import grp_encoding
-from .utils import option_help
+from avid_tools.commands.context.context import grp_context
+from avid_tools.commands.documents import grp_documents
+from avid_tools.commands.finalize import cmd_finalize
+from avid_tools.commands.index import grp_index
+from avid_tools.commands.init import cmd_init
+from avid_tools.commands.sample import grp_sample
+from avid_tools.commands.search import cmd_search
+from avid_tools.commands.tables.tables import grp_tables
+from avid_tools.commands.validate import grp_validate
+from avid_tools.commands.encode import grp_encoding
+from avid_tools.utils import option_help
 
 
 logging.basicConfig(

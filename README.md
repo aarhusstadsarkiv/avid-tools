@@ -26,6 +26,18 @@
       - [avid-tools sample docid](#avid-tools-sample-docid)
     - [avid-tools search](#avid-tools-search)
     - [avid-tools finalize](#avid-tools-finalize)
+    - [avid-tools validate](#avid-tools-validate)
+      - [avid-tools validate file](#avid-tools-validate-file)
+      - [avid-tools validate indices](#avid-tools-validate-indices)
+      - [avid-tools validate run](#avid-tools-validate-run)
+    - [avid-tools encoding](#avid-tools-encoding)
+      - [avid-tools encoding bloom](#avid-tools-encoding-bloom)
+        - [avid-tools encoding bloom contains](#avid-tools-encoding-bloom-contains)
+        - [avid-tools encoding bloom encode](#avid-tools-encoding-bloom-encode)
+        - [avid-tools encoding bloom search](#avid-tools-encoding-bloom-search)
+      - [avid-tools encoding rowwise](#avid-tools-encoding-rowwise)
+        - [avid-tools encoding rowwise encode](#avid-tools-encoding-rowwise-encode)
+        - [avid-tools encoding rowwise search](#avid-tools-encoding-rowwise-search)
 
 # ⚠ Important: Custom Installation Required
 
@@ -479,3 +491,192 @@ Options:
   -h, --help                      Vis denne besked og afslut.
 ```
 
+### avid-tools validate
+
+```
+Usage: avid-tools validate [OPTIONS] COMMAND [ARGS]...
+
+  Validate AVID indices
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  file     Validate XML file against XSD file
+  indices  Validate Indices against XSD schemas
+  run      Run archive validation tests
+```
+
+
+#### avid-tools validate file
+
+```
+Usage: avid-tools validate file [OPTIONS]
+
+  Validate XML file against XSD file
+
+Options:
+  --xml-path FILE  [required]
+  --xsd-path FILE  [required]
+  --help           Show this message and exit.
+```
+
+#### avid-tools validate indices
+
+```
+Usage: avid-tools validate indices [OPTIONS]
+
+  Validate Indices against XSD schemas
+
+Options:
+  --path DIRECTORY
+  --help            Show this message and exit.
+```
+
+#### avid-tools validate run
+
+```
+Usage: avid-tools validate run [OPTIONS]
+
+  Run archive validation tests
+
+Options:
+  --check TEXT                    Check specific validation function(s)
+  --verbose                       Set logging level to DEBUG
+  --category [docs|indices|schemas|contextdocs|tables]
+                                  Run all validators of type
+  --except TEXT                   Validators to not check
+  --rust-optimize
+  --help                          Show this message and exit.
+```
+
+### avid-tools encoding
+
+```
+Usage: avid-tools encoding [OPTIONS] COMMAND [ARGS]...
+
+  Encode database or perform actions on encoded database
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  bloom    Encode and search a database using Bloom filters
+  rowwise  This program converts SQLite databases into specially encoded...
+```
+
+#### avid-tools encoding bloom
+
+```
+Usage: avid-tools encoding bloom [OPTIONS] COMMAND [ARGS]...
+
+  Encode and search a database using Bloom filters
+
+  Bloom filters is a space-efficient probabilistic data structure used to test
+  whether an element is a member of a set. It can return false positives, but
+  never false negatives.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  contains  Test if text string may be contained in an SQLite database...
+  encode    Encode an SQLite database in bloom filters
+  search    Search an SQLite database encoded in bloom filters
+```
+
+##### avid-tools encoding bloom contains
+
+```
+Usage: avid-tools encoding bloom contains [OPTIONS] TEXT
+
+  Test if text string may be contained in an SQLite database encoded in bloom
+  filters
+
+Options:
+  --ignore_tables TEXT          Name(s) of tables to ignore
+  --ignore_columns TEXT         Name(s) of columns to ignore
+  --ignore_table_regexes TEXT   Regex(es) of tables to ignore
+  --ignore_column_regexes TEXT  Regex(es) of columns to ignore
+  --help                        Show this message and exit.
+```
+
+##### avid-tools encoding bloom encode
+
+```
+Usage: avid-tools encoding bloom encode [OPTIONS] DB_PATH
+
+  Encode an SQLite database in bloom filters
+
+Options:
+  --ignore_tables TEXT          Name(s) of tables to ignore
+  --ignore_columns TEXT         Name(s) of columns to ignore
+  --ignore_table_regexes TEXT   Regex(es) of tables to ignore
+  --ignore_column_regexes TEXT  Regex(es) of columns to ignore
+  --help                        Show this message and exit.
+```
+
+##### avid-tools encoding bloom search
+
+```
+Usage: avid-tools encoding bloom search [OPTIONS] DB_PATH TEXT
+
+  Search an SQLite database encoded in bloom filters
+
+Options:
+  --ignore_tables TEXT          Name(s) of tables to ignore
+  --ignore_columns TEXT         Name(s) of columns to ignore
+  --ignore_table_regexes TEXT   Regex(es) of tables to ignore
+  --ignore_column_regexes TEXT  Regex(es) of columns to ignore
+  --help                        Show this message and exit.
+```
+
+#### avid-tools encoding rowwise
+
+```
+Usage: avid-tools encoding rowwise [OPTIONS] COMMAND [ARGS]...
+
+  This program converts SQLite databases into specially encoded files for
+  faster search of relationships between tables.
+
+  The first step is to encode the database using the 'encode' command.
+
+  Once the encoded file is ready, the 'search' commands can look for specific
+  values.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  encode  Encode a database.
+  search  Search an encoded database.
+```
+
+
+##### avid-tools encoding rowwise encode
+
+```
+Usage: avid-tools encoding rowwise encode [OPTIONS] FILE [OUTPUT]
+
+Options:
+  --hash NAME     The hash algorithm to use.  [default: md5]
+  --sample ROWS   Encode a random sample of ROWS rows for each table.  [x>=1]
+  --ignore-types  Do not encode type information.
+  --help          Show this message and exit.
+```
+
+##### avid-tools encoding rowwise search
+
+```
+Usage: avid-tools encoding rowwise search [OPTIONS] FILE
+
+Options:
+  --value <SQL-TYPE JSON-VALUE>...
+                                  Search for specific values.
+  --cell <TABLE ROW COLUMN>       Search for the value in a cell.
+  --column <TABLE COLUMN>         Search for all values in column.
+  --max-results INTEGER           Stop after INTEGER results.  [x>=1]
+  --include-null                  Do not skip null values.
+  --show-all-results              Do not aggregate results.
+  --help                          Show this message and exit.
+```
