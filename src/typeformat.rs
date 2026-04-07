@@ -187,10 +187,14 @@ fn is_xsd_time(s: &[u8]) -> bool {
 
 fn is_xsd_datetime(s: &[u8]) -> bool {
     // Match YYYY-MM-DDTHH:MM:SS
+    // or match YYYY-MM-DDTHH:MM:SSZ
     // or match YYYY-MM-DDTHH:MM:SS.sss
+    // or match YYYY-MM-DDTHH:MM:SS.sssZ
     match s.len() {
         19 => is_xsd_date(&s[0..10]) && s[10] == b'T' && is_xsd_time(&s[11..19]),
+        20 => is_xsd_date(&s[0..10]) && s[10] == b'T' && is_xsd_time(&s[11..19]) && s[19] == b'Z',
         23 => is_xsd_date(&s[0..10]) && s[10] == b'T' && is_xsd_time(&s[11..23]),
+        24 => is_xsd_date(&s[0..10]) && s[10] == b'T' && is_xsd_time(&s[11..23]) && s[23] == b'Z',
         _ => false,
     }
 }

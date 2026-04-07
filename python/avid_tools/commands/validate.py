@@ -67,4 +67,4 @@ def cmd_validate_file(xml_path: Path, xsd_path: Path):
     else:
         print("Is valid!")
 
-grp_validate.add_command(command.cmd_validate_all, "all")
+grp_validate.add_command(command.cmd_validate_all, command.cmd_validate_all.name)
