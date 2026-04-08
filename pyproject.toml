@@ -154,4 +154,4 @@ build-backend = "maturin"
 [tool.maturin]
 python-source = "python"
 python-packages = ["avid_tools", "avid_validator"]
-module-name = "avid_tools.whitespacevalidate"
+module-name = "avid_tools.feo2xmlprobe"

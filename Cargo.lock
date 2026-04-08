@@ -198,6 +198,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 
 [[package]]
+name = "feo2xmlprobe"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "blake3",
+ "clap",
+ "glob",
+ "pyo3",
+ "quick-xml",
+ "regex",
+ "rusqlite",
+ "serde",
+]
+
+[[package]]
 name = "find-msvc-tools"
 version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -605,21 +620,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39129a682a6d2d841b6c429d0c51e5cb0ed1a03829d8b3d1e69a011e62cb3d3b"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "whitespacevalidate"
-version = "0.1.0"
-dependencies = [
- "bincode",
- "blake3",
- "clap",
- "glob",
- "pyo3",
- "quick-xml",
- "regex",
- "rusqlite",
- "serde",
 ]
 
 [[package]]

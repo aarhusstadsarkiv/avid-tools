@@ -62,9 +62,9 @@ def _rust_validate_5a2() -> GenReport:
     """
     This method is Rust alternative to the pure python method 'validate_5a2'
     """
-    from avid_tools import whitespacevalidate
+    from avid_tools import feo2xmlprobe
 
-    res = whitespacevalidate.validate_tables_xsd()
+    res = feo2xmlprobe.validate_tables_xsd()
     for item in res:
         yield fail(f"Failed {item}")
 

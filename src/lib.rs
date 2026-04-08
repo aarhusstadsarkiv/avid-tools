@@ -98,7 +98,7 @@ fn search_tables_xml(search_text: String, table_index: String) -> PyResult<()> {
 }
 
 #[pymodule]
-fn whitespacevalidate(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn feo2xmlprobe(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_tables_xsd, m)?)?;
     m.add_function(wrap_pyfunction!(encode_database, m)?)?;
     m.add_function(wrap_pyfunction!(search_database, m)?)?;

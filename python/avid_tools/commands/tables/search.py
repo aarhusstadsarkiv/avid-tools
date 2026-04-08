@@ -2,7 +2,7 @@ import click
 
 from pathlib import Path
 from avid_tools.utils import AVID, find_avid_dir
-from avid_tools import whitespacevalidate
+from avid_tools import feo2xmlprobe
 
 
 @click.command("search", no_args_is_help=True, help="Perform full-text search in tables XML files")
@@ -13,4 +13,4 @@ def cmd_search_tables(text: str):
     """
     avid = AVID(find_avid_dir(Path.cwd()))
 
-    whitespacevalidate.search_tables_xml(text, str(avid.indices.tableIndex))
+    feo2xmlprobe.search_tables_xml(text, str(avid.indices.tableIndex))
