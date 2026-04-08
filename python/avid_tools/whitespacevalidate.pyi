@@ -54,3 +54,12 @@ def contains_database(
         ignore_table_regexes: List of regex strings to ignore tables by name
         ignore_column_regexes: List of regex strings to ignore columns by name
     """
+
+def search_tables_xml(search_text: str, table_index: str):
+    """
+    Search for full text match in all table XML files
+
+    Args:
+            search_text: The full-text to search for
+            table_index: Path to tableIndex.xml file
+    """

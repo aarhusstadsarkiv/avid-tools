@@ -1,7 +1,11 @@
+use std::path::Path;
+
 use pyo3::{exceptions::PyRuntimeError, prelude::*};
+use crate::search::search_xml::search_tables;
 
 mod encode;
 mod typeformat;
+mod search;
 
 fn construct_ignore_matcher(
     ignore_tables: Option<Vec<String>>,
@@ -85,11 +89,20 @@ fn contains_database(
     encode::contains_loaded(search_text, &ignore);
 }
 
+#[pyfunction]
+fn search_tables_xml(search_text: String, table_index: String) -> PyResult<()> {
+    let table_path = Path::new(&table_index);
+
+    search_tables(&table_path, search_text)
+        .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+}
+
 #[pymodule]
 fn whitespacevalidate(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(validate_tables_xsd, m)?)?;
     m.add_function(wrap_pyfunction!(encode_database, m)?)?;
     m.add_function(wrap_pyfunction!(search_database, m)?)?;
     m.add_function(wrap_pyfunction!(contains_database, m)?)?;
+    m.add_function(wrap_pyfunction!(search_tables_xml, m)?)?;
     Ok(())
 }
