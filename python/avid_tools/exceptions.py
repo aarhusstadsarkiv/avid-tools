@@ -1,0 +1,2 @@
+class TableLoadExtensionNotRecognized(Exception):
+    pass

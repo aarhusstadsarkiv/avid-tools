@@ -2,6 +2,7 @@ from click import group
 
 from avid_tools.commands.tables.row_count import cmd_update_row_count
 from avid_tools.commands.tables.trim import cmd_trim
+from avid_tools.commands.tables.load import cmd_load_table
 from avid_tools.utils import option_help
 
 
@@ -13,3 +14,4 @@ def grp_tables():
 
 grp_tables.add_command(cmd_trim, cmd_trim.name)
 grp_tables.add_command(cmd_update_row_count, cmd_update_row_count.name)
+grp_tables.add_command(cmd_load_table, cmd_load_table.name)

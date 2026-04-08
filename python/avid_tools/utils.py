@@ -127,7 +127,11 @@ def find_avid_dir(path: Path, *, raise_on_error: Literal[False] = False) -> Path
 
 def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
     def inner(p: Path) -> Path | None:
+        pattern = r"AVID\.[A-Z]+\.\d+\..*"
+        print(p.name, p, match(pattern, p.name))
         if p.joinpath("_metadata", "avid_tools.db").is_file():
+            return p
+        elif match(pattern, p.name):
             return p
         elif p.parent != p:
             return inner(p.parent)
