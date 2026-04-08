@@ -30,6 +30,7 @@ dev = [
     "types-click>=7.1.8",
     "pyinstaller>=6.10.0",
     "pytest>=9.0.2",
+    "patchelf>=0.17.2.4",
 ]
 
 [tool.ruff]
