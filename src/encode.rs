@@ -331,14 +331,14 @@ fn build_index(
 }
 
 fn save(index: &OnDiskIndex) -> std::io::Result<()> {
-    let file = File::create("data.bin")?;
+    let file = File::create("bloom.bin")?;
     let mut writer = BufWriter::new(file);
     bincode::serialize_into(&mut writer, index).map_err(std::io::Error::other)?;
     Ok(())
 }
 
 fn load() -> std::io::Result<OnDiskIndex> {
-    let file = File::open("data.bin")?;
+    let file = File::open("bloom.bin")?;
     let mut reader = BufReader::new(file);
     let index = bincode::deserialize_from(&mut reader).map_err(std::io::Error::other)?;
     Ok(index)
@@ -362,7 +362,7 @@ pub(crate) fn contains_loaded(search_text: String, ignore: &IgnoreMatcher) {
     let index = match load() {
         Ok(index) => index,
         Err(e) => {
-            eprintln!("Failed to load data.bin: {e}");
+            eprintln!("Failed to load bloom.bin: {e}");
             return;
         }
     };
@@ -398,7 +398,7 @@ pub(crate) fn search_loaded(search_text: String, db_path: String, ignore: &Ignor
     let index = match load() {
         Ok(index) => index,
         Err(e) => {
-            eprintln!("Failed to load data.bin: {e}");
+            eprintln!("Failed to load bloom.bin: {e}");
             return;
         }
     };
