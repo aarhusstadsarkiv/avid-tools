@@ -13,6 +13,8 @@
       - [avid-tools context move](#avid-tools-context-move)
       - [avid-tools context delete](#avid-tools-context-delete)
     - [avid-tools tables](#avid-tools-tables)
+      - [avid-tools tables search](#avid-tools-tables-search)
+      - [avid-tools tables load](#avid-tools-tables-load)
       - [avid-tools tables trim](#avid-tools-tables-trim)
       - [avid-tools tables update-row-count](#avid-tools-tables-update-row-count)
     - [avid-tools index](#avid-tools-index)
@@ -222,6 +224,31 @@ Options:
 Commands:
   trim              Trim tabelværdier.
   update-row-count  Opdater antallet af rækker.
+```
+
+### avid-tools tables load
+
+```
+Usage: avid-tools tables load [OPTIONS]
+
+  Load table into DB from CSV file
+
+Options:
+  --load-file FILE  [required]
+  --db-file FILE    [required]
+  --help            Show this message and exit.
+```
+
+### avid-tools tables search
+
+```
+Usage: avid-tools tables search [OPTIONS]
+
+  Perform full-text search in tables XML files
+
+Options:
+  --text TEXT  [required]
+  --help       Show this message and exit.
 ```
 
 #### avid-tools tables trim

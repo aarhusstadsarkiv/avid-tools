@@ -145,10 +145,13 @@ def _db_load(csv_file: Path, *, conn: sqlite3.Connection, avid: AVID) -> Table |
     return Table(name=table_name, columns=header, table_id=table_id)
 
 
-@click.command("load", no_args_is_help=True)
+@click.command("load", no_args_is_help=True, help="Load table into DB from CSV file")
 @click.option("--load-file", "file", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path)) # pyright: ignore
 @click.option("--db-file", "db", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path))  # pyright: ignore
 def cmd_load_table(file: Path, db: Path):
+    """
+    Load table into DB from CSV file
+    """
     avid = AVID(find_avid_dir(Path.cwd()))
     with sqlite3.connect(db) as conn:
         match file.suffix:
