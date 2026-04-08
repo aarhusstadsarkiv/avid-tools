@@ -2,7 +2,9 @@
 This file interfaces Rust implmented Bloom filters.
 """
 
+
 import click
+from avid_tools import whitespacevalidate
 
 
 def _ignore_args(func):
@@ -36,8 +38,6 @@ def cmd_encode(db_path: str, ignore_tables: list[str], ignore_columns: list[str]
     """
     Encode an SQLite database in bloom filters
     """
-    from avid_tools import whitespacevalidate  # pyright: ignore
-
     whitespacevalidate.encode_database(db_path, ignore_tables, ignore_columns, ignore_table_regexes, ignore_column_regexes)
 
 
@@ -49,8 +49,6 @@ def cmd_search(db_path: str, text: str, ignore_tables: list[str], ignore_columns
     """
     Search an SQLite database encoded in bloom filters
     """
-    from avid_tools import whitespacevalidate  # pyright: ignore
-
     whitespacevalidate.search_database(db_path, text, ignore_tables, ignore_columns, ignore_table_regexes, ignore_column_regexes)
 
 
@@ -61,6 +59,4 @@ def cmd_contains(text: str, ignore_tables: list[str], ignore_columns: list[str],
     """
     Test if text string may be contained in an SQLite database encoded in bloom filters
     """
-    from avid_tools import whitespacevalidate  # pyright: ignore
-
     whitespacevalidate.contains_database(text, ignore_tables, ignore_columns, ignore_table_regexes, ignore_column_regexes)

@@ -62,7 +62,7 @@ def _rust_validate_5a2() -> GenReport:
     """
     This method is Rust alternative to the pure python method 'validate_5a2'
     """
-    from avid_tools import whitespacevalidate  # pyright: ignore
+    from avid_tools import whitespacevalidate
 
     res = whitespacevalidate.validate_tables_xsd()
     for item in res:
