@@ -24,7 +24,7 @@ enum FieldType {
 pub enum Error {
     Io(io::Error),
     Xml(quick_xml::Error),
-    UnknownFieldType(Vec<u8>),
+    UnknownFieldType(String),
     SchemaEmpty
 }
 
@@ -34,7 +34,7 @@ impl fmt::Display for Error {
             Error::Io(e) => write!(f, "I/O error: {e}"),
             Error::Xml(e) => write!(f, "XML error: {e}"),
             Error::UnknownFieldType(v) => {
-                write!(f, "Unknown field type: {:?}", String::from_utf8_lossy(v))
+                write!(f, "Unknown field type: {:?}", v)
             }
             Error::SchemaEmpty => {
                 write!(f, "No validation types given")
@@ -71,7 +71,7 @@ impl FieldType {
             b"xs:time" => Self::Time,
             b"xs:dateTime" => Self::DateTime,
             b"xs:duration" => Self::Duration,
-            _ => return Err(Error::UnknownFieldType(attrib.to_vec())),
+            _ => return Err(Error::UnknownFieldType(String::from_utf8_lossy(attrib).into())),
         };
 
         Ok(ty)
