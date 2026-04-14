@@ -4,6 +4,7 @@
 - [⚠ Important: Custom Installation Required](#-important-custom-installation-required)
   - [Prerequisites](#prerequisites)
   - [Installation Steps](#installation-steps)
+- [Archive Validation](#archive-validation)
 - [Commands](#commands)
   - [avid-tools](#avid-tools)
     - [avid-tools init](#avid-tools-init)
@@ -13,9 +14,9 @@
       - [avid-tools context move](#avid-tools-context-move)
       - [avid-tools context delete](#avid-tools-context-delete)
     - [avid-tools tables](#avid-tools-tables)
-      - [avid-tools tables fastsearch](#avid-tools-tables-search)
-      - [avid-tools tables search](#avid-tools-tables-search)
-      - [avid-tools tables load](#avid-tools-tables-load)
+    - [avid-tools tables search](#avid-tools-tables-search)
+    - [avid-tools tables load](#avid-tools-tables-load)
+    - [avid-tools tables fastsearch](#avid-tools-tables-fastsearch)
       - [avid-tools tables trim](#avid-tools-tables-trim)
       - [avid-tools tables update-row-count](#avid-tools-tables-update-row-count)
     - [avid-tools index](#avid-tools-index)
@@ -27,7 +28,6 @@
     - [avid-tools sample](#avid-tools-sample)
       - [avid-tools sample size](#avid-tools-sample-size)
       - [avid-tools sample docid](#avid-tools-sample-docid)
-    - [avid-tools search](#avid-tools-search)
     - [avid-tools finalize](#avid-tools-finalize)
     - [avid-tools validate](#avid-tools-validate)
       - [avid-tools validate file](#avid-tools-validate-file)
@@ -69,6 +69,75 @@ uv tool install ./target/wheels/avid_tools*.whl
 ```
 
 This process builds a Python wheel using Rust and installs it as a CLI tool.
+
+# Archive Validation
+
+avid-tools allows for archive validation through its `avid-tools validate` command. This command validates archives according to [bekendtgørelse 128](https://www.retsinformation.dk/eli/lta/2020/128).
+
+> [!NOTE]
+> Although the checks are numerous, they are *incomplete*. Filestructure checks and indices checks are solid, however, file content validation of documents are not.
+
+The validation tool performs the following checks:
+
+* __4.b.3__: Mapperne skal navngives som angivet i figur 4.1.
+* __4.b.4a__: Et arkiveringsversionsID består af præfikset AVID, en kode på 2-4 bogstaver (som angiver det modtagende arkiv), samt et arkiveringsversionsløbenummer. Elementerne adskilles med punktum.
+* __4.c.1a__: Mappen Indices skal indeholde følgende indeksfiler med oplysninger om arkiveringsversionen og dens indhold:
+    – fileIndex.xml
+    – archiveIndex.xml
+    – contextDocumentationIndex.xml
+    – tableIndex.xml
+* __4.c.1b__: Hvis arkiveringsversionen indeholder digitale dokumenter, lyd, video eller geodata, skal mappen Indices endvidere indeholde følgende indeksfil:
+    – docIndex.xml
+* __4.c.1c__: Hvis arkiveringsversionen indeholder data, som er skabt i forbindels 
+med forskning med anvendelse af videnskabelig metode og er afleveret efter reglerne i bilag 9,
+skal mappen Indices endvidere indeholde følgende indeksfil:
+    – researchIndex.xml
+* __4.c.1d__: Alle indeksfiler skal overholde deres tilhørende skema, jf. bilag 8.
+* __4.c.2a__: fileIndex.xml skal indeholde en komplet liste over samtlige filer,
+der findes i arkiveringsversionen. fileIndex.xml er dog undtaget fra denne regel.
+* __4.c.2b__: [fileIndex.xml] For hver enkelt fil i arkiveringsversionen angives de oplysninger, som fremgår af figur 4.2.
+* __4.c.4a__: contextDocumentationIndex.xml skal indeholde et indeks over de dokumenter,
+som findes i arkiveringsversionens kontekstdokumentation.
+* __4.c.5a__: tableIndex.xml skal indeholde en angivelse af en relationel databasestruktur på 1. normalform 
+eller højere. Samtlige tabeller i arkiveringsversionen skal angives.
+* __4.c.5b__: »tableIndex.xml« skal overholde det generelle XML-skema »tableIndex.xsd«, jf. 4. F.
+* __4.c.6a__: docIndex.xml skal danne forbindelsen mellem hvert dokument og dets placering.
+»docIndex.xml« skal desuden indeholde oplysninger om dokumenternes oprindelige filnavne,
+filtype i arkiveringsversionen samt eventuelle overordnede dokumenter.
+»docIndex.xml« skal ikke indeholde oplysninger om dokumenterne i kontekstdokumentationen.
+* __4.c.6b__: For hvert enkelt dokument i docIndex.xml angives de oplysninger, som fremgår af figur 4.4.
+* __4.c.7a__: researchIndex.xml skal indeholde angivelse af hovedtabeller og koder for manglende værdier, jf. figur 4.5:
+* __4.d.1__: Mappen Tables skal indeholde én mappe for hver tabel i arkiveringsversionen.
+* __4.d.2a__: Mappen for en tabel navngives »table[fortløbende nummer]«.
+* __4.d2.b__: Den fortløbende nummerering begynder med 1. Foranstillede nuller må ikke anvendes.
+* __4.d.3__: Mappen for hver tabel skal indeholde en fil: table[fortløbende nummer]. xml, jf. dog 4. D. 5
+* __4.e.1__: Mappen ContextDocumentation skal indeholde en eller flere dokumentsamlingsmapper med kontekstdokumentation, jf. 6. B.
+* __4.e.2__: En dokumentsamlingsmappe med kontekstdokumentation må indeholde op til 10.000 dokumentmapper.
+* __4.e.5__: Dokumentsamlingsmapperne navngives »docCollection[fortløbende nummer]«, begyndende med 1. Navnet skal være unikt inden for ContextDocumentation.
+* __4.e.6__: Et dokuments fil (eller filer) navngives fortløbende med et nummer, begyndende med 1 samt formatets ekstension, jf. 4.G.8
+* __4.f.1__: Mappen Schemas skal være opdelt i undermapperne standard og localShared.
+* __4.f.2__: Mappen standard skal indeholde skemaer for arkiveringsversionens indeksfiler,
+jf. bilag 8, samt W3C standard XML-skema, jf. http://www.w3.org/2001/XMLSchema.xsd.
+* __4.f.3__: For skemaerne fileIndex.xsd, archiveIndex.xsd, contextDocumentationIndex.xsd, tableIndex.xsd,
+docIndex.xsd, researchIndex.xsd samt W3Cs standard XML-skema gælder, at der altid skal anvendes de skemaer,
+som Rigsarkivet stiller til rådighed. Skemaerne og deres navngivning må ikke ændres i arkiveringsversionen.
+* __4.g.1__: Mappen Documents skal indeholde én eller flere dokumentsamlingsmapper, dog maksimalt 10.000.
+* __4.g.2__: Dokumentsamlingsmapperne navngives »docCollection[fortløbende nummer]«,
+begyndende med 1. Navnet skal være unikt inden for Documents.
+* __4.g.3__: En dokumentsamlingsmappe må indeholde op til 10.000 dokumentmapper.
+* __4.g.8__: Anvendelse af ekstensions
+* __5.a.1a__: I overensstemmelse med den tabelstruktur, der i XML-instansen »tableIndex.xml« er defineret for hver tabel,
+skal hver tabel findes i en XML-instans navngivet »table[fortløbende nummer]. xml«.
+* __5.a.1b__: Den fortløbende nummerering begynder med 1. Foranstillede nuller må ikke anvendes.
+* __5.a.2__: Indholdet af de enkelte felter skal renses for eventuelle foran- og efterstillede blanktegn
+* __5.b.1__: De standardiserede datatyper, som skal anvendes for tabelindhold, er angivet i figur 5.1.
+    De er et uddrag af datatyper fra standarden SQL:1999 repræsenteret som
+    datatyper i W3C XML Schema Language 1.0
+* __5.c.1__: Tabelindhold skal overholde de angivne datatyper, jf. 5. B. Det følger heraf, at dataindhold i tabelform fra et it-system,
+som skal overføres til en arkiveringsversion og som ikke umiddelbart kan overholde dette krav, skal have sit dataindhold konverteret således
+* __5.d.1a__: Data i arkiveringsversionens indeksfiler og tabelindhold skal være indkodet som well-formed UTF-8,
+    som angivet i ISO/IEC 10646:2003 Annex D og som beskrevet i The Unicode Standard 5.1, kapitel 3.
+
 
 # Commands
 

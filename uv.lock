@@ -18,52 +18,52 @@ source = { editable = "." }
 dependencies = [
     { name = "click" },
     { name = "lxml" },
-    { name = "maturin" },
     { name = "mkdocs-material" },
     { name = "networkx" },
     { name = "orjson" },
     { name = "requests" },
     { name = "tifffile" },
     { name = "tqdm" },
-    { name = "types-lxml" },
     { name = "xmlschema" },
     { name = "xmltodict" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "maturin" },
     { name = "patchelf" },
     { name = "pyinstaller" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "types-click" },
+    { name = "types-lxml" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1.7" },
     { name = "lxml", specifier = ">=6.0.2" },
-    { name = "maturin", specifier = ">=1.12.6" },
     { name = "mkdocs-material", specifier = ">=9.5.49" },
     { name = "networkx", specifier = ">=3.6.1" },
     { name = "orjson", specifier = ">=3.11.8" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "tifffile", specifier = ">=2026.3.3" },
     { name = "tqdm", specifier = ">=4.67.3" },
-    { name = "types-lxml", specifier = ">=2026.2.16" },
     { name = "xmlschema", specifier = ">=3.4.1" },
     { name = "xmltodict", specifier = ">=0.13.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "maturin", specifier = ">=1.12.6" },
     { name = "patchelf", specifier = ">=0.17.2.4" },
     { name = "pyinstaller", specifier = ">=6.10.0" },
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "ruff", specifier = ">=0.6.4" },
     { name = "types-click", specifier = ">=7.1.8" },
+    { name = "types-lxml", specifier = ">=2026.2.16" },
 ]
 
 [[package]]
