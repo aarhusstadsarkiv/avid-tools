@@ -14,9 +14,9 @@
       - [avid-tools context move](#avid-tools-context-move)
       - [avid-tools context delete](#avid-tools-context-delete)
     - [avid-tools tables](#avid-tools-tables)
-    - [avid-tools tables search](#avid-tools-tables-search)
-    - [avid-tools tables load](#avid-tools-tables-load)
-    - [avid-tools tables fastsearch](#avid-tools-tables-fastsearch)
+      - [avid-tools tables search](#avid-tools-tables-search)
+      - [avid-tools tables load](#avid-tools-tables-load)
+      - [avid-tools tables fastsearch](#avid-tools-tables-fastsearch)
       - [avid-tools tables trim](#avid-tools-tables-trim)
       - [avid-tools tables update-row-count](#avid-tools-tables-update-row-count)
     - [avid-tools index](#avid-tools-index)
@@ -296,7 +296,7 @@ Commands:
   update-row-count  Opdater antallet af rækker.
 ```
 
-### avid-tools tables search
+#### avid-tools tables search
 
 ```
 Usage: avid-tools search [OPTIONS] PATTERN...
@@ -322,7 +322,7 @@ Options:
   -h, --help                      Vis denne besked og afslut.
 ```
 
-### avid-tools tables load
+#### avid-tools tables load
 
 ```
 Usage: avid-tools tables load [OPTIONS]
@@ -335,7 +335,7 @@ Options:
   --help            Show this message and exit.
 ```
 
-### avid-tools tables fastsearch
+#### avid-tools tables fastsearch
 
 ```
 Usage: avid-tools tables fastsearch [OPTIONS]
