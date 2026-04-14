@@ -15,9 +15,7 @@ dependencies = [
     "networkx>=3.6.1",
     "requests>=2.32.5",
     "tifffile>=2026.3.3",
-    "maturin>=1.12.6",
     "lxml>=6.0.2",
-    "types-lxml>=2026.2.16",
     "orjson>=3.11.8",
 ]
 
@@ -32,6 +30,8 @@ dev = [
     "pytest>=9.0.2",
     "patchelf>=0.17.2.4",
     "pyright>=1.1.408",
+    "maturin>=1.12.6",
+    "types-lxml>=2026.2.16",
 ]
 
 [tool.ruff]
