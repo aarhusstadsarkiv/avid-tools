@@ -13,6 +13,7 @@
       - [avid-tools context move](#avid-tools-context-move)
       - [avid-tools context delete](#avid-tools-context-delete)
     - [avid-tools tables](#avid-tools-tables)
+      - [avid-tools tables fastsearch](#avid-tools-tables-search)
       - [avid-tools tables search](#avid-tools-tables-search)
       - [avid-tools tables load](#avid-tools-tables-load)
       - [avid-tools tables trim](#avid-tools-tables-trim)
@@ -226,6 +227,32 @@ Commands:
   update-row-count  Opdater antallet af rækker.
 ```
 
+### avid-tools tables search
+
+```
+Usage: avid-tools search [OPTIONS] PATTERN...
+
+  Søg PATTERN i tabel rækker i Tables.
+
+  PATTERN skal være i SQL LIKE format (% til nul eller flere bogstaver og _
+  til nul eller et bogstav). Flere PATTERN kan bruges og matches med "eller"
+  logik (dvs. PATTERN et, eller PATTERN to, eller PATTERN tre, osv.).
+
+  Som default søges PATTERN'er i alle tabeller og kolonner. --table kan bruges
+  for at begrænse søgning til bestemte tabeller. --column kan bruges for at
+  begrænse søgning til bestemte kolloner i bestemte tabeller. Begge --table og
+  --column kan bruges.
+
+Options:
+  -t, --table ID                  Vælg søgetabeller.  [x>=1]
+  -c, --column TABLE_ID COLUMN_ID
+                                  Vælg søgekolonner i tabeller.
+  --limit INTEGER                 Begræns hvor mange resultater vises.  [x>=1]
+  --show-columns / --show-rows    Vis alle kolonner i matchende rækker eller
+                                  kun rækkenumre.
+  -h, --help                      Vis denne besked og afslut.
+```
+
 ### avid-tools tables load
 
 ```
@@ -239,10 +266,10 @@ Options:
   --help            Show this message and exit.
 ```
 
-### avid-tools tables search
+### avid-tools tables fastsearch
 
 ```
-Usage: avid-tools tables search [OPTIONS]
+Usage: avid-tools tables fastsearch [OPTIONS]
 
   Perform full-text search in tables XML files
 
@@ -462,32 +489,6 @@ Options:
   --max-docid INTEGER     Max docId i prøven.  [x>=1]
   --output-dir DIRECTORY
   -h, --help              Vis denne besked og afslut.
-```
-
-### avid-tools search
-
-```
-Usage: avid-tools search [OPTIONS] PATTERN...
-
-  Søg PATTERN i tabel rækker i Tables.
-
-  PATTERN skal være i SQL LIKE format (% til nul eller flere bogstaver og _
-  til nul eller et bogstav). Flere PATTERN kan bruges og matches med "eller"
-  logik (dvs. PATTERN et, eller PATTERN to, eller PATTERN tre, osv.).
-
-  Som default søges PATTERN'er i alle tabeller og kolonner. --table kan bruges
-  for at begrænse søgning til bestemte tabeller. --column kan bruges for at
-  begrænse søgning til bestemte kolloner i bestemte tabeller. Begge --table og
-  --column kan bruges.
-
-Options:
-  -t, --table ID                  Vælg søgetabeller.  [x>=1]
-  -c, --column TABLE_ID COLUMN_ID
-                                  Vælg søgekolonner i tabeller.
-  --limit INTEGER                 Begræns hvor mange resultater vises.  [x>=1]
-  --show-columns / --show-rows    Vis alle kolonner i matchende rækker eller
-                                  kun rækkenumre.
-  -h, --help                      Vis denne besked og afslut.
 ```
 
 ### avid-tools finalize
