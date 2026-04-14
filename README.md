@@ -4,6 +4,8 @@
 - [⚠ Important: Custom Installation Required](#-important-custom-installation-required)
   - [Prerequisites](#prerequisites)
   - [Installation Steps](#installation-steps)
+- [Python + Rust Integration](#python--rust-integration)
+  - [Development](#development)
 - [Archive Validation](#archive-validation)
 - [Commands](#commands)
   - [avid-tools](#avid-tools)
@@ -44,7 +46,8 @@
 
 # ⚠ Important: Custom Installation Required
 
-This project uses a **non-standard installation process** because it combines Python and Rust components.
+> [!IMPORTANT]
+> This project uses a **non-standard installation process** because it combines Python and Rust components.
 
 ## Prerequisites
 
@@ -62,13 +65,33 @@ uv sync
 source .venv/bin/activate  # Use activate.fish or others if needed
 
 # 3. Build the project (requires Rust)
-maturin build
+maturin build -r
 
 # 4. Install the CLI tool from the generated wheel
 uv tool install ./target/wheels/avid_tools*.whl
 ```
 
 This process builds a Python wheel using Rust and installs it as a CLI tool.
+
+> [!TIP]
+> If you get an import error after following the above steps, then make sure you have _deactivated_ the Python virtual environment before running the `avid-tools` command.
+
+# Python + Rust Integration
+
+`avid-tools` employs Rust-written methods for otherwise time intensive Python methods. This is done using the `maturin` build tool. Upon installation, these Rust-written methods become methods of the submodule `avid_tools.feo2xmlprobe`. This submodule has the following methods defined:
+* __validate_tables_xsd__: Validate the typeformats of table XML files against their XSD files.
+* __encode_database__: Encode a database in a Bloom filter.
+* __search_database__: Search a database encoded in a Bloom filter.
+* __contains_database__: Check if string is contained in Bloom filter (database).
+* __search_tables_xml__: Perform string search across all tablex XML files.
+
+These methods are also described in the Python interface file `avid_tools/feo2xmlprobe.pyi`. This interface file is added such that intellisense programs can, in Python, perform type checks and add DOCSTRINGS to these Rust-written methods.
+
+> [!NOTE]
+> `maturin` requires a specific filestructure for Rust+Python integration: Python modules are placed in the python/ folder and Rust code is placed in the src/ folder. An attempt had been made to preserve Python modules in the _"correct"_ src/ placement, but this yielded several errors.
+
+## Development
+When developing this tool, use the maturin command `maturin develop`. This command places a shared library file of the Rust-written module in the `python/avid_tools` folder, such that any imports of `feo2xmlprobe` from within the Python files raises no ImportErrors!
 
 # Archive Validation
 
