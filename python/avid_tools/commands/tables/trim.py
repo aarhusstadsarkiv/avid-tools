@@ -1,7 +1,7 @@
+import logging
 from pathlib import Path
 from re import compile as re_compile
 from re import Pattern
-from typing import Optional
 from typing import TextIO
 from xml.sax import ContentHandler
 from xml.sax import parse as sax_parse
@@ -9,16 +9,16 @@ from xml.sax.saxutils import escape
 from xml.sax.saxutils import quoteattr
 from xml.sax.xmlreader import AttributesImpl
 
+from avid_tools.utils import AVID
+from avid_tools.utils import ctx_params
+from avid_tools.utils import print_line
+from avid_tools.versioncontrol import AVIDEditFile, AVIDVersionControl
 from click import BadParameter
 from click import command
 from click import Context
 from click import IntRange
 from click import option
 from click import pass_context
-
-from avid_tools.utils import AVID
-from avid_tools.utils import ctx_params
-from avid_tools.utils import print_line
 
 from ...database import create_database
 from ...database import update_md5
@@ -27,9 +27,12 @@ from ...utils import option_help
 from .utils import Column
 from .utils import read_table_schema
 
-_whitespace: str = "".join(map(chr, range(0, 33)))
+_whitespace: str = "".join(map(chr, range(33)))
 _col_name: Pattern = re_compile(r"^c\d+$")
 _escape_entities: dict[str, str] = {'"': "&quot;"}
+
+
+logger = logging.getLogger(__name__)
 
 
 class ContentHandlerTrim(ContentHandler):
@@ -37,7 +40,7 @@ class ContentHandlerTrim(ContentHandler):
         super().__init__()
         self.handle: TextIO = file_handle
         self.columns: dict[str, Column] = columns
-        self.current_tag: Optional[str] = None
+        self.current_tag: str | None = None
         self.current_tag_is_col: bool = False
         self.current_content: str = ""
 
@@ -86,12 +89,14 @@ def cmd_trim(ctx: Context, table_ids: tuple[int, ...]):
 
     Som default trimmes alle tabeller. Det kan overrides med --table.
     """
-    avid: AVID = AVID(find_avid_dir(Path.cwd()))
+    avid_path = find_avid_dir(Path.cwd())
+    avid: AVID = AVID(avid_path)
     db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
     tables = avid.tables
     schemas = avid.schemas.tables
     table_ids = table_ids or tuple(tables.keys())
+    avidvc = AVIDVersionControl(avid_path)
 
     if invalid_ids := [i for i in table_ids if i not in tables]:
         raise BadParameter(f"no tables with ID {', '.join(map(str, invalid_ids))}", ctx, ctx_params(ctx)["table_ids"])
@@ -101,22 +106,22 @@ def cmd_trim(ctx: Context, table_ids: tuple[int, ...]):
         file: Path = tables[table_id]
         out_file: Path = file.with_name("." + file.name)
 
-        try:
-            _, clear_line = print_line(f"{file.name}/cleaning... ", end="", flush=True)
+        with AVIDEditFile(avidvc, file):
+            try:
+                _, clear_line = print_line(f"{file.name}/cleaning... ", end="", flush=True)
 
-            with file.open("r", encoding="utf-8") as fi:
-                with out_file.open("w", encoding="utf-8") as fo:
+                with file.open("r", encoding="utf-8") as fi, out_file.open("w", encoding="utf-8") as fo:
                     sax_parse(fi, ContentHandlerTrim(fo, {c.name: c for c in columns}))
 
-            clear_line()
+                clear_line()
 
-            _, clear_line = print_line(f"{file.name}/updating hash... ", end="", flush=True)
+                _, clear_line = print_line(f"{file.name}/updating hash... ", end="", flush=True)
 
-            out_file.replace(file)
+                out_file.replace(file)
 
-            update_md5(conn, file)
-            conn.commit()
+                update_md5(conn, file)
+                conn.commit()
 
-            clear_line()
-        finally:
-            out_file.unlink(missing_ok=True)
+                clear_line()
+            finally:
+                out_file.unlink(missing_ok=True)
