@@ -3,13 +3,6 @@ from xml.sax import ContentHandler
 from xml.sax import parse as sax_parse
 from xml.sax.xmlreader import AttributesImpl
 
-from click import BadParameter
-from click import command
-from click import Context
-from click import IntRange
-from click import option
-from click import pass_context
-
 from avid_tools.database import create_database
 from avid_tools.database import update_md5
 from avid_tools.indices import read_table_index
@@ -19,6 +12,12 @@ from avid_tools.utils import ctx_params
 from avid_tools.utils import find_avid_dir
 from avid_tools.utils import option_help
 from avid_tools.utils import validate_xml
+from click import BadParameter
+from click import command
+from click import Context
+from click import IntRange
+from click import option
+from click import pass_context
 
 
 class ContentHandlerRowCount(ContentHandler):

@@ -5,6 +5,7 @@ from sqlite3 import Connection
 from sqlite3 import Row
 from typing import Any
 from xml.sax.saxutils import escape
+from avid_tools.versioncontrol import AVIDEditFile, AVIDVersionControl
 from tqdm import tqdm
 
 from xmltodict import parse as parse_xml
@@ -140,7 +141,9 @@ def write_context_documentation(avid: AVID, context_docs: dict[int, dict[str, An
             ],
         }
     }
-    avid.indices.contextDocumentationIndex.write_text(unparse_xml(xml, encoding="utf-8", pretty=True), encoding="utf-8")
+    avidvc = AVIDVersionControl(avid.dir)
+    with AVIDEditFile(avidvc, avid.indices.contextDocumentationIndex):
+        avid.indices.contextDocumentationIndex.write_text(unparse_xml(xml, encoding="utf-8", pretty=True), encoding="utf-8")
 
 
 def read_table_index(avid: AVID) -> dict[str, Any]:
@@ -172,4 +175,6 @@ def write_table_index(avid: AVID, index: dict[str, Any]):
             **index,
         }
     }
-    avid.indices.tableIndex.write_text(unparse_xml(xml, encoding="utf-8", pretty=True), encoding="utf-8")
+    avidvc = AVIDVersionControl()
+    with AVIDEditFile(avidvc, avid.indices.tableIndex):
+        avid.indices.tableIndex.write_text(unparse_xml(xml, encoding="utf-8", pretty=True), encoding="utf-8")

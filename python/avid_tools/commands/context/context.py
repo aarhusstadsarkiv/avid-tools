@@ -3,6 +3,7 @@ from pathlib import Path
 from shutil import copy2
 from sqlite3 import Connection
 
+from avid_tools.versioncontrol import AVIDVersionControl
 from click import argument
 from click import BadParameter
 from click import Context
@@ -199,6 +200,7 @@ def cmd_context_update(ctx: Context, doc_id: int, file: Path | None, metadata: P
     conn = create_database(db_path)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)
+    avidvc = AVIDVersionControl(avid.dir)
 
     if doc_id not in context_docs:
         raise BadParameter(f"no context document with ID {doc_id}", ctx, ctx_params(ctx)["doc_id"])
@@ -225,7 +227,9 @@ def cmd_context_update(ctx: Context, doc_id: int, file: Path | None, metadata: P
             "select path from files where type = 'ContextDocumentation' and docId = ?",
             [doc_id],
         ).fetchone()[0]
-        copy2(file, path := avid.dir.joinpath(path_str).with_suffix(file.suffix))
+        path = avid.dir.joinpath(path_str).with_suffix(file.suffix)
+        copy2(file, path)
+        avidvc.add(path)
         conn.execute(
             "update files set path = ? where type = 'ContextDocumentation' and docId = ?",
             [str(path.relative_to(avid.dir)), doc_id],
@@ -356,6 +360,7 @@ def cmd_context_delete(ctx: Context, doc_id: int):
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
     conn = create_database(db_path)
+    avidvc = AVIDVersionControl(avid.dir)
 
     context_docs: dict[int, dict] = read_context_documentation(avid)
 
@@ -366,7 +371,8 @@ def cmd_context_delete(ctx: Context, doc_id: int):
         "select path from files where type = 'ContextDocumentation' and docId = ?",
         [doc_id],
     ).fetchone()[0]
-    avid.dir.joinpath(path_str).unlink(missing_ok=True)
+
+    avidvc.delete(path_str)
     conn.execute("delete from files where path = ?", [path_str])
     remove_empty_dir(avid.dir.joinpath("ContextDocumentation"), avid.dir.joinpath(path_str).parent)
 
