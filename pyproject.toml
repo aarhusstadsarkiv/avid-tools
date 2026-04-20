@@ -17,6 +17,7 @@ dependencies = [
     "tifffile>=2026.3.3",
     "lxml>=6.0.2",
     "orjson>=3.11.8",
+    "gitpython>=3.1.46",
 ]
 
 [project.scripts]

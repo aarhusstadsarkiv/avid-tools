@@ -21,6 +21,8 @@
       - [avid-tools tables fastsearch](#avid-tools-tables-fastsearch)
       - [avid-tools tables trim](#avid-tools-tables-trim)
       - [avid-tools tables update-row-count](#avid-tools-tables-update-row-count)
+      - [avid-tools tables keys](#avid-tools-tables-keys)
+        - [avid-tools tables keys add-primary](#avid-tools-tables-keys-add-primary)
     - [avid-tools index](#avid-tools-index)
       - [avid-tools index view](#avid-tools-index-view)
       - [avid-tools index update](#avid-tools-index-update)
@@ -399,6 +401,32 @@ Usage: avid-tools tables update-row-count [OPTIONS]
 Options:
   -t, --table ID  Vælg tabeller.  [x>=1]
   -h, --help      Vis denne besked og afslut.
+```
+
+### avid-tools tables keys
+```
+Usage: avid-tools tables keys [OPTIONS] COMMAND [ARGS]...
+
+  Work with primary and foreign keys of tables
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add-primary  Add primary keys to all tables in tableIndex that lack it.
+```
+
+#### avid-tools tables keys add-primary
+```
+Usage: avid-tools tables keys add-primary [OPTIONS]
+
+  Add primary keys to all tables in tableIndex that lack it.
+
+  The first column listed in the table is then specified to be the primary key
+  for that table.
+
+Options:
+  --help  Show this message and exit.
 ```
 
 ### avid-tools index
