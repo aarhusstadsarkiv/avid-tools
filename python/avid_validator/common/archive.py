@@ -27,7 +27,7 @@ class XMLIndices:
 
     @lru_cache()
     @staticmethod
-    def load() -> XMLIndices:
+    def load() -> "XMLIndices":
         def _prepend(path: str) -> Optional[dict[Any, Any]]:
             return utils.prepare_xml(av_config.avid_dir / path)
 
@@ -71,7 +71,7 @@ class ValidationContext:
 
     @lru_cache()
     @staticmethod
-    def load() -> ValidationContext:
+    def load() -> "ValidationContext":
         return ValidationContext(root=av_config.avid_dir)
 
 
