@@ -109,7 +109,7 @@ class AVIDEditFile:
         self.file = file
         self.message = message
 
-    def __enter__(self) -> AVIDEditFile:
+    def __enter__(self) -> "AVIDEditFile":
         rel_path = self.file if isinstance(self.file,str) else self.file.relative_to(self.vc.avid_dir)
         logger.info(f"ADD {rel_path} pre modification")
         self.vc.add(self.file, self.message or f"ADD {rel_path} pre modification")

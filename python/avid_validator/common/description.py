@@ -7,9 +7,6 @@ from typing import TypeVar
 from avid_validator.common.archive import ValidationType
 from avid_validator.common.report import Validator
 
-METHOD_DESCRIPTIONS: dict[str, str] = {}
-METHOD_CATEGORIES: dict[ValidationType, set[str]] = {}
-METHOD_VALIDATORS: set[ValidatorMeta] = set()
 
 
 P = ParamSpec("P")
@@ -21,6 +18,11 @@ class ValidatorMeta:
     name: str
     primary: Validator
     rust: Validator | None = None
+
+
+METHOD_DESCRIPTIONS: dict[str, str] = {}
+METHOD_CATEGORIES: dict[ValidationType, set[str]] = {}
+METHOD_VALIDATORS: set[ValidatorMeta] = set()
 
 
 def describe(description: str) -> Callable[[Callable[P, R]], Callable[P, R]]:
