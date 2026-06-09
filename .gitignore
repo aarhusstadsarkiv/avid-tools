@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 validation.db
+avid_tools.db
 
 # C extensions
 *.so
