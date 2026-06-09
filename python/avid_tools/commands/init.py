@@ -14,7 +14,6 @@ from avid_tools.indices import save_file_index
 from avid_tools.utils import AVID, validate_archive_xmls
 from avid_tools.utils import ctx_params
 from avid_tools.utils import option_help
-from avid_tools.utils import validate_xml
 
 
 @command("init", add_help_option=False)
@@ -36,9 +35,6 @@ def cmd_init(ctx: Context, avid_dir: Path, skip_validate: bool):
     """
     avid: AVID = AVID(avid_dir)
     db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
-
-    if db_path.is_file():
-        raise BadParameter(f"_metadata/avid_tools.db already exists for {avid_dir.name}.", ctx, ctx_params(ctx)["avid_dir"])
 
     missing_indices: list[Path] = []
 
