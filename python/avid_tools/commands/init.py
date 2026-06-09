@@ -17,7 +17,7 @@ from avid_tools.utils import option_help
 from avid_tools.utils import validate_xml
 
 
-@command("init", no_args_is_help=True, add_help_option=False)
+@command("init", add_help_option=False)
 @argument(
     "AVID_DIR",
     type=ClickPath(exists=True, file_okay=False, writable=True, readable=True, resolve_path=True),

@@ -67,25 +67,25 @@ def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...], skip_validate: bo
 
     with conn:
         if "index" in update_hashes:
-            update_md5(conn, avid.indices.archiveIndex.relative_to(avid.dir), avid.dir)
-            update_md5(conn, avid.indices.contextDocumentationIndex.relative_to(avid.dir), avid.dir)
-            update_md5(conn, avid.indices.tableIndex.relative_to(avid.dir), avid.dir)
+            update_md5(conn, avid.indices.archiveIndex.relative_to(avid.dir), avid.dir, False)
+            update_md5(conn, avid.indices.contextDocumentationIndex.relative_to(avid.dir), avid.dir, False)
+            update_md5(conn, avid.indices.tableIndex.relative_to(avid.dir), avid.dir, False)
 
         if "context" in update_hashes:
             for [context_doc_path] in tqdm(conn.execute("select path from files where type = 'ContextDocumentation'")):
-                update_md5(conn, context_doc_path, avid.dir)
+                update_md5(conn, context_doc_path, avid.dir, False)
 
         if "tables" in update_hashes:
             for table_path in tqdm(avid.tables.values()):
-                update_md5(conn, table_path.relative_to(avid.dir), avid.dir)
+                update_md5(conn, table_path.relative_to(avid.dir), avid.dir, False)
         
         if "documents" in update_hashes:
             for [document_path] in tqdm(conn.execute("select path from files where type = 'Documents'"), unit="doc"):
-                update_md5(conn, document_path, avid.dir)
+                update_md5(conn, document_path, avid.dir, False)
 
     with conn:
         generate_doc_index(conn, avid)
-        update_md5(conn, avid.indices.docIndex.relative_to(avid.dir), avid.dir)
+        update_md5(conn, avid.indices.docIndex.relative_to(avid.dir), avid.dir, False)
         generate_file_index(conn, avid)
 
     logger.info("Done!")
