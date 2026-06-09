@@ -1,32 +1,11 @@
 from avid_tools.utils import file_md5
 import pytest
 import sqlite3
-import shutil
 
 from click.testing import CliRunner
 from pathlib import Path
 from avid_tools.commands import finalize
 from avid_tools.commands import init
-
-
-@pytest.fixture
-def avid_dir(tmpdir: Path):
-    shutil.copytree("python/tests/databases/AVID.SA.18004.1", tmpdir / "AVID.SA.18004.1")
-    return Path(tmpdir / "AVID.SA.18004.1")
-
-
-@pytest.fixture
-def avid_dir_with_db(tmpdir: Path, monkeypatch: pytest.MonkeyPatch):
-    shutil.copytree("python/tests/databases/AVID.SA.18004.1", tmpdir / "AVID.SA.18004.1")
-    tmp_avid_dir = Path(tmpdir / "AVID.SA.18004.1")
-
-    monkeypatch.chdir(tmp_avid_dir)
-
-    CliRunner().invoke(init.cmd_init, ["."])
-
-    assert (tmp_avid_dir / "_metadata" / "avid_tools.db").exists()
-
-    return tmp_avid_dir
 
 
 @pytest.fixture
@@ -210,7 +189,24 @@ def test_finalize_fixes_contextDocumentationIndex_md5(monkeypatch: pytest.Monkey
     assert file_hash in (avid_dir_with_db / "Indices" / "fileIndex.xml").read_text(encoding="utf8")
 
 
-def test_document_added_also_adds_hash(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: Path):
+def test_recreate_file_index(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: Path):
+    monkeypatch.chdir(avid_dir_with_db)
+
+    file = avid_dir_with_db / "Tables" / "table1" / "table1.xml"
+    file_hash = file_md5(file)
+
+    file_index = (avid_dir_with_db / "Indices" / "fileIndex.xml")
+    file_index.unlink()
+
+    print(file_index.exists())
+
+    runner = CliRunner()
+    runner.invoke(finalize.cmd_finalize, ["--skip-validate", "--update-hashes", "tables"], catch_exceptions=False)
+
+    assert file_hash in file_index.read_text(encoding="utf8")
+
+
+def test_added_document_also_adds_hash(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: Path):
     monkeypatch.chdir(avid_dir_with_db)
 
     file = avid_dir_with_db / "Documents" / "docCollection1" / "3141" / "1.tif"

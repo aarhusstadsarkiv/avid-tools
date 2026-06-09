@@ -28,10 +28,13 @@ from avid_tools.utils import option_help
 @pass_context
 def cmd_init(ctx: Context, avid_dir: Path, skip_validate: bool):
     """
-    Initializer en ny AVID mappe med værktøjets database.
+    Initializer en ny AVID mappe med værktøjets database. Denne kommando indlæser alle filer tilgængelige i fileIndex.xml
 
     AVID_DIR argument skal være stien til hoved mappen af en arkiversingsversion (hvor Indices, Tables, osv. ligger).
     Hvis programmet kører i hoved mappen, kan man brug "." som sti.
+
+    Obs.:
+        Hvis en fil ikke eksisterer i fileIndex.xml, bliver filen ikke behandlet!
     """
     avid: AVID = AVID(avid_dir)
     db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
