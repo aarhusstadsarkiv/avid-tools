@@ -123,6 +123,19 @@ class AVID:
             if f.is_dir() and match(r"table\d+", f.name)
         }
 
+    @property
+    def tables_xsd(self) -> dict[int, Path]:
+        """Tables
+
+        Returns:
+            dict: table id as key, Path to table as value
+        """
+        return {
+            int(f.name.removeprefix("table")): f.joinpath(f.name).with_suffix(".xsd")
+            for f in self.dir.joinpath("Tables").iterdir()
+            if f.is_dir() and match(r"table\d+", f.name)
+        }
+
 
 @overload
 def find_avid_dir(path: Path, *, raise_on_error: Literal[True] = True) -> Path: ...

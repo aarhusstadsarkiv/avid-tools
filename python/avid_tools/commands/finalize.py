@@ -56,6 +56,9 @@ def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...], skip_validate: bo
     """
     avid: AVID = AVID(find_avid_dir(Path.cwd()))
     db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
+    if not db_path.exists():
+        raise FileNotFoundError("avid_tools.db does not exist! Run `avid-tools init` before running this command!")
+
     conn = create_database(db_path)
     update_hashes = ("index", "context", "tables", "documents") if "all" in update_hashes else update_hashes
 
@@ -76,8 +79,8 @@ def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...], skip_validate: bo
                 update_md5(conn, context_doc_path, avid.dir, False)
 
         if "tables" in update_hashes:
-            for table_path in tqdm(avid.tables.values()):
-                update_md5(conn, table_path.relative_to(avid.dir), avid.dir, False)
+            for [table_path] in tqdm(conn.execute("select path from files where type = 'Tables'"), unit="doc"):
+                update_md5(conn, table_path, avid.dir, False)
         
         if "documents" in update_hashes:
             for [document_path] in tqdm(conn.execute("select path from files where type = 'Documents'"), unit="doc"):

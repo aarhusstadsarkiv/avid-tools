@@ -61,6 +61,8 @@ def validate_no_whitespaces(xml_path: Path) -> bool:
     for _, elem in context:
         if elem.text:
             if elem.text.strip() != "" and elem.text != elem.text.strip():
+                print(f"1: '{elem.text.strip()}'")
+                print(f"2: '{elem.text}'")
                 return False
         elem.clear()
 
