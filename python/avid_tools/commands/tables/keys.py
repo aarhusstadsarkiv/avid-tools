@@ -11,7 +11,6 @@ from avid_tools.versioncontrol import AVIDVersionControl
 logger = logging.getLogger(__name__)
 
 
-
 def _add_missing_pkeys(table_index: Path):
     """
     Add missing primary key if it is missing for a table
@@ -35,6 +34,7 @@ def _add_missing_pkeys(table_index: Path):
         if has_modified:
             with open(table_index, "w", encoding="utf-8") as f:
                 f.write(xmltodict.unparse(table_index_dict, pretty=True, indent=4))
+
 
 @click.group("keys")
 def grp_keys():

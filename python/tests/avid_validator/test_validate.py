@@ -16,7 +16,9 @@ def test_valid_db_is_validated(monkeypatch: pytest.MonkeyPatch, avid_dir: Path, 
     assert "FAILED" not in caplog.text, "Some validation tests failed when it shouldnt have!"
 
 
-def test_valid_db_fails_on_deliberate_index_error(monkeypatch: pytest.MonkeyPatch, avid_dir: Path, caplog: pytest.LogCaptureFixture):
+def test_valid_db_fails_on_deliberate_index_error(
+    monkeypatch: pytest.MonkeyPatch, avid_dir: Path, caplog: pytest.LogCaptureFixture
+):
     monkeypatch.chdir(avid_dir)
     runner = CliRunner()
 

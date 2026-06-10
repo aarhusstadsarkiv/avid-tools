@@ -23,5 +23,3 @@ def avid_dir_with_db(tmpdir: Path, monkeypatch: pytest.MonkeyPatch):
     assert (tmp_avid_dir / "_metadata" / "avid_tools.db").exists()
 
     return tmp_avid_dir
-
-

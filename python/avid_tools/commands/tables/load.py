@@ -35,21 +35,21 @@ def tableIndex_add(table: Table, *, avid: AVID):
     tables: list[dict] = dobj["siardDiark"]["tables"]["table"]
 
     table_obj = {
-            "name": table.name,
-            "folder": f"table{table.table_id}",
-            "description": table_desc,
-            "columns": {
-                "column": [
-                    {
-                        "name": col,
-                        "columnID": f"c{cid+1}",
-                        "type": _default_type_input(f"Type for {col}"),
-                        "nullable": str(_prompt(f"Is {col} nullable?")).lower()
-                    }
-                for cid, col in enumerate(table.columns)
-                ]
+        "name": table.name,
+        "folder": f"table{table.table_id}",
+        "description": table_desc,
+        "columns": {
+            "column": [
+                {
+                    "name": col,
+                    "columnID": f"c{cid + 1}",
+                    "type": _default_type_input(f"Type for {col}"),
+                    "nullable": str(_prompt(f"Is {col} nullable?")).lower(),
                 }
-            }
+                for cid, col in enumerate(table.columns)
+            ]
+        },
+    }
     shutil.copy(table_idx_path, table_idx_path.parent.joinpath("backup_tableIndex.xml"))
     tables.append(table_obj)
 
@@ -70,7 +70,7 @@ def docs_add(table: Table, *, avid: AVID, conn: sqlite3.Connection):
     with open(table_path.joinpath(table_name + ".xml"), "w") as f:
         first_lines = [
             """<?xml version="1.0" encoding="utf-8"?>\n""",
-            f"""<table xsi:schemaLocation="http://www.sa.dk/xmlns/siard/1.0/schema0/{table_name}.xsd {table_name}.xsd" xmlns="http://www.sa.dk/xmlns/siard/1.0/schema0/{table_name}.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n"""
+            f"""<table xsi:schemaLocation="http://www.sa.dk/xmlns/siard/1.0/schema0/{table_name}.xsd {table_name}.xsd" xmlns="http://www.sa.dk/xmlns/siard/1.0/schema0/{table_name}.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n""",
         ]
         f.writelines(first_lines)
         for row in rows:
@@ -95,21 +95,22 @@ def docs_add(table: Table, *, avid: AVID, conn: sqlite3.Connection):
   </xs:element>
   <xs:complexType name="rowType">
     <xs:sequence>
-{''.join(f'      <xs:element minOccurs="1" name="c{cidx+1}" nillable="false" type="xs:string" />\n' for cidx in range(len(table.columns)))}
+{"".join(f'      <xs:element minOccurs="1" name="c{cidx + 1}" nillable="false" type="xs:string" />\n' for cidx in range(len(table.columns)))}
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
 """)
 
 
-def _prompt(msg:str = "") -> bool:
+def _prompt(msg: str = "") -> bool:
     print(msg)
     while True:
-        yn = input("Y/n?" ).lower()
+        yn = input("Y/n?").lower()
         if yn != "y" and yn != "n" and yn != "":
             continue
 
         return yn == "y" or yn == ""
+
 
 def _db_load(csv_file: Path, *, conn: sqlite3.Connection, avid: AVID) -> Table | None:
     cursor = conn.cursor()
@@ -128,15 +129,13 @@ def _db_load(csv_file: Path, *, conn: sqlite3.Connection, avid: AVID) -> Table |
 
         cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
-            {', '.join(header)}
+            {", ".join(header)}
         )
         """)
 
-        insert_str = f"INSERT INTO {table_name} VALUES ({', '.join('?'*len(header))})"
+        insert_str = f"INSERT INTO {table_name} VALUES ({', '.join('?' * len(header))})"
         for row in reader:
-            cursor.execute(
-                insert_str, row
-            )
+            cursor.execute(insert_str, row)
 
     conn.commit()
 
@@ -146,7 +145,7 @@ def _db_load(csv_file: Path, *, conn: sqlite3.Connection, avid: AVID) -> Table |
 
 
 @click.command("load", no_args_is_help=True, help="Load table into DB from CSV file")
-@click.option("--load-file", "file", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path)) # pyright: ignore
+@click.option("--load-file", "file", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path))  # pyright: ignore
 @click.option("--db-file", "db", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path))  # pyright: ignore
 def cmd_load_table(file: Path, db: Path):
     """

@@ -24,7 +24,7 @@ def sample(
     extensions: tuple[str, ...],
     output_dir: Path,
     where: list[str],
-    aggregate: list[str] | None = None
+    aggregate: list[str] | None = None,
 ):
     extensions = tuple(filter(bool, (e.strip() for e in extensions)))
 

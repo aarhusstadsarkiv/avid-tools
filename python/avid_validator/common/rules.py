@@ -54,9 +54,7 @@ def require_dir_entries_max(base: Path, limit: int, msg: str) -> OptReport:
     return ok() if count <= limit else fail(msg)
 
 
-def require_numbered_folders(
-    base: Path, pattern: str, start_at: int = 1, label: str = "folder"
-) -> OptReport:
+def require_numbered_folders(base: Path, pattern: str, start_at: int = 1, label: str = "folder") -> OptReport:
     """
     Require folders to be numbered starting at 1
     """
@@ -78,9 +76,7 @@ def require_numbered_folders(
     return ok()
 
 
-def validate_xml_against_standard_schema(
-    ctx: ValidationContext, xml_file: Path
-) -> OptReport:
+def validate_xml_against_standard_schema(ctx: ValidationContext, xml_file: Path) -> OptReport:
     """
     Validate an XML file against "standard" XSD schema file -- Here standard means it lies in Schemas/standard
     """
@@ -120,8 +116,7 @@ def require_node_connectivity(nodes: list[TableNode]) -> OptReport:
         comps = list(nx.weakly_connected_components(G))
         # comps is a list of sets of node names
         msg = "Table references has islands:\n" + "\n".join(
-            f"- component {i+1} ({len(c)} nodes): {sorted(c)}"
-            for i, c in enumerate(comps)
+            f"- component {i + 1} ({len(c)} nodes): {sorted(c)}" for i, c in enumerate(comps)
         )
         return fail(msg)
 

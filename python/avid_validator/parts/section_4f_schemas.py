@@ -13,9 +13,7 @@ from avid_validator.common.report import GenReport, fail
 from importlib.resources import files
 
 
-@describe(
-    """Mappen Schemas skal være opdelt i undermapperne standard og localShared."""
-)
+@describe("""Mappen Schemas skal være opdelt i undermapperne standard og localShared.""")
 @register(ValidationType.SCHEMAS)
 def validate_4f1(ctx: ValidationContext) -> GenReport:
     if not (ctx.schemas / "standard").is_dir():

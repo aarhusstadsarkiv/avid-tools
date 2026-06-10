@@ -7,6 +7,7 @@ class FileHandler:
     """
     Context manager to manage files
     """
+
     conn: sqlite3.Connection
     db_filename = "validation.db"
 
@@ -28,9 +29,7 @@ class FileHandler:
         """
         Get recorded modification date for file
         """
-        row = self.conn.execute(
-            "SELECT mdate FROM files WHERE path = ?", (str(file),)
-        ).fetchone()
+        row = self.conn.execute("SELECT mdate FROM files WHERE path = ?", (str(file),)).fetchone()
 
         if row is None:
             return None

@@ -17,9 +17,7 @@ def validate_4e1(ctx: ValidationContext) -> GenReport:
         yield fail("Must at least have one context documentation!")
 
 
-@describe(
-    """En dokumentsamlingsmappe med kontekstdokumentation må indeholde op til 10.000 dokumentmapper."""
-)
+@describe("""En dokumentsamlingsmappe med kontekstdokumentation må indeholde op til 10.000 dokumentmapper.""")
 @register(ValidationType.CONTEXTDOCS)
 def validate_4e2(ctx: ValidationContext) -> GenReport:
     docCollections = os.listdir(ctx.context_docs)

@@ -81,7 +81,7 @@ def cmd_finalize(ctx: Context, update_hashes: tuple[str, ...], skip_validate: bo
         if "tables" in update_hashes:
             for [table_path] in tqdm(conn.execute("select path from files where type = 'Tables'"), unit="doc"):
                 update_md5(conn, table_path, avid.dir, False)
-        
+
         if "documents" in update_hashes:
             for [document_path] in tqdm(conn.execute("select path from files where type = 'Documents'"), unit="doc"):
                 update_md5(conn, document_path, avid.dir, False)

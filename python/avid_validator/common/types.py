@@ -9,6 +9,7 @@ import re
 
 STRIP_NONASCII_RE = re.compile("[^a-zA-Z ]+")
 
+
 def _strip_nonascii(text: str) -> str:
     return STRIP_NONASCII_RE.sub("", text)
 
@@ -38,82 +39,64 @@ def get_allowed_table_types() -> AllowedTableTypesBundle:
 
     # Text and hexadecimal - Der er en fejl i vejledningen, ingen komma mellem nchar og national character varying...
     allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["character", "char", "character varying", "char varying", "varchar", "national character", "national char", "nchar", "national character varying", "national char varying", "nchar varying"],
-                xml_datatype=["string", "hexbinary"]
-                )
-            )
+        AllowedTableTypes(
+            sql_types=[
+                "character",
+                "char",
+                "character varying",
+                "char varying",
+                "varchar",
+                "national character",
+                "national char",
+                "nchar",
+                "national character varying",
+                "national char varying",
+                "nchar varying",
+            ],
+            xml_datatype=["string", "hexbinary"],
+        )
+    )
 
     # whole numbers
-    allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["integer", "int", "smallint"],
-                xml_datatype=["integer"]
-                )
-            )
+    allowed_types.append(AllowedTableTypes(sql_types=["integer", "int", "smallint"], xml_datatype=["integer"]))
 
     # decimal numbers
-    allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["numeric", "decimal", "dec"],
-                xml_datatype=["decimal"]
-                )
-            )
+    allowed_types.append(AllowedTableTypes(sql_types=["numeric", "decimal", "dec"], xml_datatype=["decimal"]))
 
     # float
-    allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["float"],
-                xml_datatype=["float"]
-                )
-            )
+    allowed_types.append(AllowedTableTypes(sql_types=["float"], xml_datatype=["float"]))
 
     # real, double precision
-    allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["real", "double precision"],
-                xml_datatype=["double"]
-                )
-            )
+    allowed_types.append(AllowedTableTypes(sql_types=["real", "double precision"], xml_datatype=["double"]))
 
     # boolean
-    allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["boolean"],
-                xml_datatype=["boolean"]
-                )
-            )
+    allowed_types.append(AllowedTableTypes(sql_types=["boolean"], xml_datatype=["boolean"]))
 
     # date
-    allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["date"],
-                xml_datatype=["date"]
-                )
-            )
+    allowed_types.append(AllowedTableTypes(sql_types=["date"], xml_datatype=["date"]))
 
     # time
     allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["time"], # TIME[WITH TIME ZONE]
-                xml_datatype=["datetime"]
-                )
-            )
+        AllowedTableTypes(
+            sql_types=["time"],  # TIME[WITH TIME ZONE]
+            xml_datatype=["datetime"],
+        )
+    )
 
     # timestamp
     allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["timestamp"], # TIME[WITH TIME ZONE]
-                xml_datatype=["datetime"]
-                )
-            )
+        AllowedTableTypes(
+            sql_types=["timestamp"],  # TIME[WITH TIME ZONE]
+            xml_datatype=["datetime"],
+        )
+    )
 
     # timeperiod
     allowed_types.append(
-            AllowedTableTypes(
-                sql_types=["interval"], # TIME[WITH TIME ZONE]
-                xml_datatype=["duration"]
-                )
-            )
+        AllowedTableTypes(
+            sql_types=["interval"],  # TIME[WITH TIME ZONE]
+            xml_datatype=["duration"],
+        )
+    )
 
     return AllowedTableTypesBundle(types=allowed_types)

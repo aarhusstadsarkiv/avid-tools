@@ -27,7 +27,9 @@ def _validate_indices(path: Path):
     path_files = os.listdir(path)
     indices_files = list((path / "Indices").glob("*.xml"))
 
-    assert "Indices" in path_files and "Schemas" in path_files, "Both Indices and Schemas must be present in the given path!"
+    assert "Indices" in path_files and "Schemas" in path_files, (
+        "Both Indices and Schemas must be present in the given path!"
+    )
     assert len(indices_files) != 0, "No index files found!"
 
     for index_path in indices_files:
@@ -66,5 +68,6 @@ def cmd_validate_file(xml_path: Path, xsd_path: Path):
         print("Error:", traceback.format_exc())
     else:
         print("Is valid!")
+
 
 grp_validate.add_command(command.cmd_validate_all, command.cmd_validate_all.name)

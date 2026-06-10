@@ -41,7 +41,6 @@ _ALLOWED_LAYOUTS: tuple[LayoutRule, ...] = (
         samples_per_pixel=1,
         allowed_compressions=frozenset({CCITT_GROUP3, CCITT_GROUP4, LZW, PACKBITS}),
     ),
-
     # Grayscale
     LayoutRule(
         name="GRAY 2",
@@ -64,7 +63,6 @@ _ALLOWED_LAYOUTS: tuple[LayoutRule, ...] = (
         samples_per_pixel=1,
         allowed_compressions=frozenset({LZW, PACKBITS}),
     ),
-
     # Palette
     LayoutRule(
         name="PALETTE 1",
@@ -94,7 +92,6 @@ _ALLOWED_LAYOUTS: tuple[LayoutRule, ...] = (
         samples_per_pixel=1,
         allowed_compressions=frozenset({LZW, PACKBITS}),
     ),
-
     # RGB total bit depths allowed by the regulation: 1, 2, 4, 8, 24, 32
     LayoutRule(
         name="RGB 1",
@@ -138,7 +135,6 @@ _ALLOWED_LAYOUTS: tuple[LayoutRule, ...] = (
         samples_per_pixel=4,
         allowed_compressions=frozenset({LZW, PACKBITS}),
     ),
-
     # CMYK total bit depths allowed by the regulation: 1, 2, 4, 8, 32, 40
     LayoutRule(
         name="CMYK 1",
@@ -213,10 +209,7 @@ def _normalize_bps(value: Any) -> tuple[int, ...] | None:
 
 
 def _match_layout(
-    photometric: int,
-    samples_per_pixel: int,
-    bits_per_sample: tuple[int, ...],
-    compression: int
+    photometric: int, samples_per_pixel: int, bits_per_sample: tuple[int, ...], compression: int
 ) -> LayoutRule | None:
     for rule in _ALLOWED_LAYOUTS:
         if (
@@ -273,9 +266,7 @@ def check_tiff_bek128_bitdepths(path: Union[str, Path]) -> Generator[OptReport, 
                 ]
                 if missing:
                     had_failures = True
-                    yield _fail(
-                        f"Page {page_index}: missing required TIFF tags: {', '.join(missing)}."
-                    )
+                    yield _fail(f"Page {page_index}: missing required TIFF tags: {', '.join(missing)}.")
                     continue
 
                 if photometric is None:
@@ -302,7 +293,7 @@ def check_tiff_bek128_bitdepths(path: Union[str, Path]) -> Generator[OptReport, 
                     photometric=photometric,
                     samples_per_pixel=samples_per_pixel,
                     bits_per_sample=bits_per_sample,
-                    compression=compression
+                    compression=compression,
                 )
 
                 if rule is None:

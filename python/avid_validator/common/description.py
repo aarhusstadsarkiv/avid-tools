@@ -8,7 +8,6 @@ from avid_validator.common.archive import ValidationType
 from avid_validator.common.report import Validator
 
 
-
 P = ParamSpec("P")
 R = TypeVar("R")
 
@@ -38,9 +37,8 @@ def describe(description: str) -> Callable[[Callable[P, R]], Callable[P, R]]:
 
 
 def register(
-    validation_types: Iterable[ValidationType] | ValidationType,
-    rust: Validator | None = None
-    ) -> Callable[[Validator], Validator]:
+    validation_types: Iterable[ValidationType] | ValidationType, rust: Validator | None = None
+) -> Callable[[Validator], Validator]:
     """
     Categorize a validator function, and registers an equivalent but faster rust method.
     This is a required decorator for all validator functions!
@@ -51,16 +49,8 @@ def register(
     """
 
     def add_categories(func: Validator) -> Validator:
-        METHOD_VALIDATORS.add(ValidatorMeta(
-            name=func.__name__,
-            primary=func,
-            rust=rust
-        ))
-        it_validation_types = (
-            [validation_types]
-            if isinstance(validation_types, ValidationType)
-            else validation_types
-        )
+        METHOD_VALIDATORS.add(ValidatorMeta(name=func.__name__, primary=func, rust=rust))
+        it_validation_types = [validation_types] if isinstance(validation_types, ValidationType) else validation_types
         for val_type in it_validation_types:
             METHOD_CATEGORIES.setdefault(val_type, set()).add(func.__name__)
         return func

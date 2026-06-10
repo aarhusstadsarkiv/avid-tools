@@ -15,9 +15,7 @@ ALL_CATEGORIES = (
 @describe("Mapperne skal navngives som angivet i figur 4.1.")
 @register(ALL_CATEGORIES)
 def validate_4b3(ctx: ValidationContext) -> GenReport:
-    yield require_dirs(
-        ctx, "Indices", "Tables", "ContextDocumentation", "Schemas", "Documents"
-    )
+    yield require_dirs(ctx, "Indices", "Tables", "ContextDocumentation", "Schemas", "Documents")
 
 
 @describe(

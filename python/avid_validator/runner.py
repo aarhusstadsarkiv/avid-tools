@@ -20,10 +20,10 @@ from avid_validator.common.report import Validator
 
 logger = logging.getLogger(__name__)
 
+
 def import_all_submodules(package):
     for _, module_name, _ in pkgutil.iter_modules(package.__path__):
         importlib.import_module(f"{package.__name__}.{module_name}")
-
 
 
 class Part(Enum):
@@ -41,7 +41,9 @@ def get_validators(rust_optimize: bool) -> dict[str, Validator]:
     """
     Get a list of validators
     """
-    validators = {method.name: method.rust or method.primary if rust_optimize else method.primary for method in METHOD_VALIDATORS}
+    validators = {
+        method.name: method.rust or method.primary if rust_optimize else method.primary for method in METHOD_VALIDATORS
+    }
 
     return validators
 
@@ -90,7 +92,7 @@ def _run_one_validator(name: str, func: Validator) -> list[Report]:
     return reports or [Report(success=True)]
 
 
-def find_parent_matching(pattern: str, start: Path | None=None) -> Path | None:
+def find_parent_matching(pattern: str, start: Path | None = None) -> Path | None:
     """
     Walk up from start (or cwd) and return the first parent directory whose name matches
     the regex pattern.
@@ -112,7 +114,7 @@ def run_validations(
     category: t.Sequence[ValidationType] | None = None,
     except_vals: t.Sequence[str] | None = None,
     avid_dir: Path | None = None,
-    rust_optimize: bool = False
+    rust_optimize: bool = False,
 ) -> None:
     """
     Run validators defined in parts/(part_name) prefixed by "validate_".
@@ -135,27 +137,17 @@ def run_validations(
     all_validators = get_validators(rust_optimize=rust_optimize)
 
     # Filter by check name(s)
-    selected = (
-        all_validators
-        if not checks
-        else {name: fn for name, fn in all_validators.items() if name in checks}
-    )
+    selected = all_validators if not checks else {name: fn for name, fn in all_validators.items() if name in checks}
 
     # Filter off except_vals validators
     selected = (
-        selected
-        if not except_vals
-        else {
-            name: fn for name, fn in all_validators.items() if name not in except_vals
-        }
+        selected if not except_vals else {name: fn for name, fn in all_validators.items() if name not in except_vals}
     )
 
     # If categories are defined, filter also by category
     if len(category) != 0:
         selected = {
-            name: fn
-            for name, fn in selected.items()
-            if all([name in METHOD_CATEGORIES[cat] for cat in category])
+            name: fn for name, fn in selected.items() if all([name in METHOD_CATEGORIES[cat] for cat in category])
         }
 
     # Run (selected) validators

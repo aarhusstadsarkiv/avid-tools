@@ -36,9 +36,7 @@ def validate_5a1a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
             yield fail("Table defined in tableIndex not present in Tables folder!")
 
 
-@describe(
-    """Den fortløbende nummerering begynder med 1. Foranstillede nuller må ikke anvendes."""
-)
+@describe("""Den fortløbende nummerering begynder med 1. Foranstillede nuller må ikke anvendes.""")
 @register(ValidationType.TABLES)
 def validate_5a1b(indeces: XMLIndices) -> GenReport:
     table_idx = indeces.tableIndex
@@ -69,10 +67,7 @@ def _rust_validate_5a2() -> GenReport:
         yield fail(f"Failed {item}")
 
 
-
-@describe(
-    """Indholdet af de enkelte felter skal renses for eventuelle foran- og efterstillede blanktegn"""
-)
+@describe("""Indholdet af de enkelte felter skal renses for eventuelle foran- og efterstillede blanktegn""")
 @register(ValidationType.TABLES, rust=_rust_validate_5a2)
 def validate_5a2(ctx: ValidationContext):
     tables = sorted(ctx.tables.rglob("table*.xml"))
@@ -87,6 +82,7 @@ def validate_5a2(ctx: ValidationContext):
 """
 5B Datatyper
 """
+
 
 @describe(
     """De standardiserede datatyper, som skal anvendes for tabelindhold, er angivet i figur 5.1.
@@ -119,7 +115,9 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
                 att = allowed_table_types.match(ctype)
 
                 if att is None:
-                    yield fail(f"Table '{table_name}' in folder '{table_folder}' has column '{column['name']}' whose type '{ctype}' could not be parsed! (Maybe it's not valid!)")
+                    yield fail(
+                        f"Table '{table_name}' in folder '{table_folder}' has column '{column['name']}' whose type '{ctype}' could not be parsed! (Maybe it's not valid!)"
+                    )
                     continue
 
                 # Parse XSD and make sure it is a valid conversion from tableIndex type!
@@ -134,7 +132,9 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
                 element_type = element["@type"].split(":")[1].lower()
 
                 if not att.allowed(element_type):
-                    yield fail(f"Column '{column_id}' in XSD schema for table '{table_name}' in folder '{table_folder}' has non-allowed type '{element_type}'. Type rule: '{att}'")
+                    yield fail(
+                        f"Column '{column_id}' in XSD schema for table '{table_name}' in folder '{table_folder}' has non-allowed type '{element_type}'. Type rule: '{att}'"
+                    )
             except Exception:
                 yield fail(f"An error occurred when parsing column, '{column}', for table, {table}!")
 
@@ -142,6 +142,7 @@ def validate_5b1(ctx: ValidationContext, indices: XMLIndices) -> GenReport:
 """
 5C Konvertering af tabelindhold til digitale dokumenter, lyd, video eller geodata
 """
+
 
 @describe(
     """Tabelindhold skal overholde de angivne datatyper, jf. 5. B. Det følger heraf, at dataindhold i tabelform fra et it-system,
@@ -152,7 +153,7 @@ def validate_5c1(ctx: ValidationContext) -> GenReport:
     tables = list(ctx.tables.rglob("table*.xml"))
     for table_xml_path in tqdm(tables):
         table_xsd_path = table_xml_path.parent.joinpath(f"{table_xml_path.stem}.xsd")
-        
+
         res, errs = utils.lxml_xml_validate(table_xml_path, table_xsd_path)
         if not res:
             print(errs)

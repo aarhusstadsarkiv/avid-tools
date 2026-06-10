@@ -42,13 +42,10 @@ logger = logging.getLogger(__name__)
     multiple=True,
     help="Validators to not check",
 )
-@click.option(
-    "--rust-optimize",
-    type=bool,
-    is_flag=True,
-    default=False
-)
-def cmd_validate_all(check: list[str], verbose: bool, categories: list[str], except_vals: list[str], rust_optimize: bool):
+@click.option("--rust-optimize", type=bool, is_flag=True, default=False)
+def cmd_validate_all(
+    check: list[str], verbose: bool, categories: list[str], except_vals: list[str], rust_optimize: bool
+):
     """
     Run archive validation tests
     """
@@ -57,4 +54,6 @@ def cmd_validate_all(check: list[str], verbose: bool, categories: list[str], exc
     valtype_categories = [ValidationType(cat.lower()) for cat in categories]
 
     logger.info("Running validator!")
-    runner.run_validations(checks=check, category=valtype_categories, except_vals=except_vals, rust_optimize=rust_optimize)
+    runner.run_validations(
+        checks=check, category=valtype_categories, except_vals=except_vals, rust_optimize=rust_optimize
+    )

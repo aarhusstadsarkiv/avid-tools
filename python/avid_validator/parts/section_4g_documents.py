@@ -7,9 +7,7 @@ from avid_validator.common.description import register, describe
 from avid_validator.common.report import GenReport, fail
 
 
-@describe(
-    """Mappen Documents skal indeholde én eller flere dokumentsamlingsmapper, dog maksimalt 10.000."""
-)
+@describe("""Mappen Documents skal indeholde én eller flere dokumentsamlingsmapper, dog maksimalt 10.000.""")
 @register(ValidationType.DOCS)
 def validate_4g1(ctx: ValidationContext) -> GenReport:
     doc_count = len(os.listdir(ctx.documents))
@@ -64,4 +62,3 @@ def validate_4g8(ctx: ValidationContext) -> GenReport:
     for file in tqdm(files):
         if file.suffix not in allowed_extensions:
             yield fail(f"File {file} does not have an allowed extension!")
-

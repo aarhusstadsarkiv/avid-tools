@@ -12,6 +12,7 @@ class AVIDVersionControl:
     """
     Perform version control on files that are to be edited
     """
+
     repo: git.Repo
     avid_dir: Path
 
@@ -30,7 +31,7 @@ class AVIDVersionControl:
         unstaged = self.repo.index.diff(None, paths=[file])
         staged = self.repo.index.diff("HEAD", paths=[file])
 
-        unchanged = (len(unstaged) == 0 and len(staged) == 0)
+        unchanged = len(unstaged) == 0 and len(staged) == 0
         return not unchanged
 
     def _rel_path(self, file: str | Path) -> Path:
@@ -62,16 +63,16 @@ class AVIDVersionControl:
     def delete(self, file: str | Path, message: str | None = None) -> bool:
         """
         Delete file from disk and register the deletion in the version control
-        """ 
+        """
         file_rel = self._rel_path(file)
 
         if not file_rel.exists():
             return False
 
         if not self._is_tracked(file):
-           # Only items changed are tracked by git, otherwise it becomes too large
-           # add to git before removing
-           self.add(file, f"ADD {file_rel} before removal")
+            # Only items changed are tracked by git, otherwise it becomes too large
+            # add to git before removing
+            self.add(file, f"ADD {file_rel} before removal")
 
         self.repo.index.remove(str(file_rel), working_tree=True)
         self.repo.index.commit(message or f"DELETE {file_rel}")
@@ -91,32 +92,29 @@ class AVIDVersionControl:
 
         self.repo.index.move()
 
+
 class AVIDEditFile:
     """
     Context manager that adds/commits a file on enter and exit
     """
+
     vc: AVIDVersionControl
     file: str | Path
     message: str | None
 
-    def __init__(
-            self,
-            vc: AVIDVersionControl,
-            file: str | Path,
-            message: str | None = None
-            ):
+    def __init__(self, vc: AVIDVersionControl, file: str | Path, message: str | None = None):
         self.vc = vc
         self.file = file
         self.message = message
 
     def __enter__(self) -> "AVIDEditFile":
-        rel_path = self.file if isinstance(self.file,str) else self.file.relative_to(self.vc.avid_dir)
+        rel_path = self.file if isinstance(self.file, str) else self.file.relative_to(self.vc.avid_dir)
         logger.info(f"ADD {rel_path} pre modification")
         self.vc.add(self.file, self.message or f"ADD {rel_path} pre modification")
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> bool:
-        rel_path = self.file if isinstance(self.file,str) else self.file.relative_to(self.vc.avid_dir)
+        rel_path = self.file if isinstance(self.file, str) else self.file.relative_to(self.vc.avid_dir)
         logger.info(f"ADD {rel_path} post modification")
         self.vc.add(self.file, self.message or f"ADD {rel_path} post modification")
         return False

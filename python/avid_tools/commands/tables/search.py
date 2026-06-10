@@ -33,7 +33,6 @@ def cmd_search_tables(text: str):
     feo2xmlprobe.search_tables_xml(text, str(avid.indices.tableIndex))
 
 
-
 class ContentHandlerTableSearch(ContentHandler):
     def __init__(
         self,

@@ -20,7 +20,7 @@ logging.basicConfig(
     level=logging.INFO,
     handlers=[logging.StreamHandler(sys.stdout)],
     format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%H:%M:%S"
+    datefmt="%H:%M:%S",
 )
 
 

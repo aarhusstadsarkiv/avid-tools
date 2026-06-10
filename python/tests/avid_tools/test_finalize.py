@@ -33,7 +33,9 @@ def basic_conn():
             """
     )
 
-    conn.execute("insert into files(path, md5, size, type) values(?, ?, ?, ?)", ("Documents/1/1.tif", "", "", "Documents"))
+    conn.execute(
+        "insert into files(path, md5, size, type) values(?, ?, ?, ?)", ("Documents/1/1.tif", "", "", "Documents")
+    )
     conn.execute("insert into files(path, md5, size) values(?, ?, ?)", ("Indices/docIndex.xml", "", ""))
 
     try:
@@ -44,6 +46,7 @@ def basic_conn():
 
 class FakeIndices:
     docIndex: Path
+
     def __init__(self, dir) -> None:
         self.docIndex = dir / Path("Indices/docIndex.xml")
 
@@ -51,6 +54,7 @@ class FakeIndices:
 class FakeAVID:
     dir: Path
     indices: FakeIndices
+
     def __init__(self, *args, **kwargs) -> None:
         print("Setting up FakeAVID")
         self.dir = Path("python/tests/databases/test_avid1")
@@ -66,6 +70,7 @@ def test_finalize(basic_conn: sqlite3.Connection, monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(finalize, "create_database", lambda _: basic_conn)
     monkeypatch.setattr(finalize, "find_avid_dir", lambda _: None)
     original_exists = Path.exists
+
     def fake_exists(self):
         if self.name == "avid_tools.db":
             return True
@@ -82,16 +87,18 @@ def test_finalize(basic_conn: sqlite3.Connection, monkeypatch: pytest.MonkeyPatc
 
     hashes = basic_conn.execute("select md5 from files").fetchall()
 
-    for hash, in hashes:
+    for (hash,) in hashes:
         assert len(hash) != 0
 
 
 def test_finalize_raises_error_when_no_db_found(monkeypatch: pytest.MonkeyPatch, avid_dir: Path):
     monkeypatch.chdir(avid_dir)
-    
+
     with pytest.raises(FileNotFoundError, match="avid_tools.db"):
         runner = CliRunner()
-        runner.invoke(finalize.cmd_finalize, ["--skip-validate", "--update-hashes", "documents"], catch_exceptions=False)
+        runner.invoke(
+            finalize.cmd_finalize, ["--skip-validate", "--update-hashes", "documents"], catch_exceptions=False
+        )
 
 
 def test_finalize_fixes_table_xml_md5(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: Path):
@@ -198,7 +205,7 @@ def test_recreate_file_index(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: 
     file = avid_dir_with_db / "Tables" / "table1" / "table1.xml"
     file_hash = file_md5(file)
 
-    file_index = (avid_dir_with_db / "Indices" / "fileIndex.xml")
+    file_index = avid_dir_with_db / "Indices" / "fileIndex.xml"
     file_index.unlink()
 
     print(file_index.exists())
@@ -288,7 +295,9 @@ def test_init_from_files_then_finalize_does_not_destroy_information(monkeypatch:
     assert "debian_popularity_contest.ods" in doc_index
 
 
-def test_init_then_init_from_files_then_finalize_does_not_destroy_information(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: Path):
+def test_init_then_init_from_files_then_finalize_does_not_destroy_information(
+    monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: Path
+):
     monkeypatch.chdir(avid_dir_with_db)
     file = avid_dir_with_db / "Documents" / "docCollection1" / "232323" / "table25.xml"
     file.parent.mkdir(parents=True)

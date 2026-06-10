@@ -140,33 +140,37 @@ class AVID:
     @property
     def documents(self) -> list[Path]:
         """Documents
-        
+
         Returns:
             list: list of all document paths
         """
-        return [file_path
-                for doc_collection in self.dir.joinpath("Documents").iterdir()
-                for doc_id in doc_collection.iterdir()
-                for file_path in doc_id.iterdir()]
-
+        return [
+            file_path
+            for doc_collection in self.dir.joinpath("Documents").iterdir()
+            for doc_id in doc_collection.iterdir()
+            for file_path in doc_id.iterdir()
+        ]
 
     @property
     def context_documents(self) -> list[Path]:
         """Documents
-        
+
         Returns:
             list: list of all document paths
         """
-        return [file_path
-                for doc_collection in self.dir.joinpath("ContextDocumentation").iterdir()
-                for doc_id in doc_collection.iterdir()
-                for file_path in doc_id.iterdir()]
+        return [
+            file_path
+            for doc_collection in self.dir.joinpath("ContextDocumentation").iterdir()
+            for doc_id in doc_collection.iterdir()
+            for file_path in doc_id.iterdir()
+        ]
 
 
 @overload
 def find_avid_dir(path: Path, *, raise_on_error: Literal[True] = True) -> Path: ...
 @overload
 def find_avid_dir(path: Path, *, raise_on_error: Literal[False] = False) -> Path | None: ...
+
 
 def find_avid_dir(path: Path, *, raise_on_error: bool = True) -> Path | None:
     def inner(p: Path) -> Path | None:
@@ -254,6 +258,7 @@ def print_line(
         msg,
         (lambda: None) if file else (lambda: print("\r" + (" " * len(msg)) + "\r", end="", flush=True)),
     )
+
 
 def validate_archive_xmls(avid: AVID, ctx: Context):
     for index_file, schema in (

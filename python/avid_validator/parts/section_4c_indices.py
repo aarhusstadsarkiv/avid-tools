@@ -93,10 +93,7 @@ def validate_4c2a(ctx: ValidationContext) -> GenReport:
     file_paths = []
     for item in file_index["fileIndex"]["f"]:
         file_path: str = item["foN"]
-        file_path = (
-            file_path.replace("\\", "/").replace(f"{ctx.root.name}/", "")
-            + f"/{item["fiN"]}"
-        )
+        file_path = file_path.replace("\\", "/").replace(f"{ctx.root.name}/", "") + f"/{item['fiN']}"
         file_paths.append(file_path)
 
     doc_containers = [
@@ -161,9 +158,7 @@ def validate_4c2b(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
 som findes i arkiveringsversionens kontekstdokumentation.""")
 @register(ValidationType.INDICES)
 def validate_4c4a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
-    yield standard_xml_schema_validate(
-        ctx, ctx.indices / "contextDocumentationIndex.xml"
-    )
+    yield standard_xml_schema_validate(ctx, ctx.indices / "contextDocumentationIndex.xml")
 
     documents = indeces.contextIndex["contextDocumentationIndex"][  # pyright: ignore
         "document"
@@ -175,15 +170,11 @@ def validate_4c4a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
 
     for id in ids:
         if id not in context_dir_ids:
-            yield fail(
-                f"contextDocumentationIndex document entry {id} not present in contextDocumentation folder!"
-            )
+            yield fail(f"contextDocumentationIndex document entry {id} not present in contextDocumentation folder!")
 
     for id in context_dir_ids:
         if id not in ids:
-            yield fail(
-                f"contextDocumentation folder document entry {id} not present in contextDocumentationIndex!"
-            )
+            yield fail(f"contextDocumentation folder document entry {id} not present in contextDocumentationIndex!")
 
 
 @describe(
@@ -254,9 +245,7 @@ def validate_4c5a(ctx: ValidationContext) -> GenReport:
             TableNode(
                 name=name,
                 referenced_tables=referenced_tables,
-                primarykeys=(
-                    [primary_keys] if isinstance(primary_keys, str) else primary_keys
-                ),
+                primarykeys=([primary_keys] if isinstance(primary_keys, str) else primary_keys),
                 referenced_columns=referenced_columns,
             )
         )
@@ -271,14 +260,10 @@ def validate_4c5a(ctx: ValidationContext) -> GenReport:
     for node in nodes:
         if len(node.primarykeys) == 0:
             yield fail(f"table {node.name} has no primary keys!")
-        for reference_tablename, reference_columnname in zip(
-            node.referenced_tables, node.referenced_columns
-        ):
+        for reference_tablename, reference_columnname in zip(node.referenced_tables, node.referenced_columns):
             ref_node = _node_from_name(reference_tablename)
             if ref_node is None:
-                yield fail(
-                    f"{node.name} references table {reference_tablename} that does not exist!"
-                )
+                yield fail(f"{node.name} references table {reference_tablename} that does not exist!")
                 continue
             if reference_columnname not in ref_node.primarykeys:
                 yield fail(
@@ -295,9 +280,7 @@ def validate_4c5a(ctx: ValidationContext) -> GenReport:
 # 4c4b --||--
 
 
-@describe(
-    """»tableIndex.xml« skal overholde det generelle XML-skema »tableIndex.xsd«, jf. 4. F."""
-)
+@describe("""»tableIndex.xml« skal overholde det generelle XML-skema »tableIndex.xsd«, jf. 4. F.""")
 @register(ValidationType.INDICES)
 def validate_4c5b(ctx: ValidationContext) -> GenReport:
     yield standard_xml_schema_validate(ctx, ctx.indices / "tableIndex.xml")
@@ -334,9 +317,7 @@ def validate_4c6a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
         for docid in os.listdir(ctx.documents / directory):
             docid_id = int(docid)
             file_ext = os.listdir(ctx.documents / directory / docid)[0].split(".")[1]
-            doc_file.append(
-                DocumentFile(docId=int(docid_id), ext=file_ext, _source="dir")
-            )
+            doc_file.append(DocumentFile(docId=int(docid_id), ext=file_ext, _source="dir"))
 
     doc_index = indeces.docIndex
     if doc_index is None:
@@ -345,9 +326,7 @@ def validate_4c6a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
 
     docs = doc_index["docIndex"]["doc"]
     for doc in docs:
-        index_file.append(
-            DocumentFile(docId=int(doc["dID"]), ext=doc["aFt"], _source="idx")
-        )
+        index_file.append(DocumentFile(docId=int(doc["dID"]), ext=doc["aFt"], _source="idx"))
 
     differences = set(doc_file) - set(index_file)
 
@@ -355,9 +334,7 @@ def validate_4c6a(ctx: ValidationContext, indeces: XMLIndices) -> GenReport:
         yield fail(f"File {difference} is missing its docIndex/doc file counterpart")
 
 
-@describe(
-    """For hvert enkelt dokument i docIndex.xml angives de oplysninger, som fremgår af figur 4.4."""
-)
+@describe("""For hvert enkelt dokument i docIndex.xml angives de oplysninger, som fremgår af figur 4.4.""")
 @register(ValidationType.INDICES)
 def validate_4c6b(ctx: ValidationContext) -> GenReport:
     """

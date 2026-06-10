@@ -81,10 +81,7 @@ def all_files() -> list[str] | None:
     file_paths = []
     for item in file_index["fileIndex"]["f"]:
         file_path: str = item["foN"]
-        file_path = (
-            file_path.replace("\\", "/").replace(f"{av_config.avid_dir.name}/", "")
-            + f"/{item["fiN"]}"
-        )
+        file_path = file_path.replace("\\", "/").replace(f"{av_config.avid_dir.name}/", "") + f"/{item['fiN']}"
         file_paths.append(file_path)
 
     return file_paths
@@ -99,9 +96,7 @@ def is_well_formed_utf8(file_path: Path, chunk_size: int = 1024 * 1024) -> Repor
     decoder = codecs.getincrementaldecoder("utf-8")("strict")
     byte_pos = 0
 
-    decode_fail = Report(
-        success=False, reason=f"{file_path} is not a utf-8 well formed file"
-    )
+    decode_fail = Report(success=False, reason=f"{file_path} is not a utf-8 well formed file")
     with open(file_path, "rb") as f:
         while True:
             chunk = f.read(chunk_size)

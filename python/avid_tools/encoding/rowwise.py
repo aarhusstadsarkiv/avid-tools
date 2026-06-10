@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from dataclasses import asdict
 from dataclasses import dataclass
 from datetime import timedelta
@@ -6,8 +7,9 @@ from hashlib import algorithms_available
 from hashlib import new as new_hash
 from json import loads
 from pathlib import Path
+from re import compile as re_compile
 from re import IGNORECASE
-from re import Pattern, compile as re_compile
+from re import Pattern
 from sqlite3 import Connection
 from struct import calcsize
 from struct import pack
@@ -15,8 +17,6 @@ from struct import unpack
 from timeit import timeit
 from typing import Any
 from typing import BinaryIO
-from typing import Generator
-from typing import Optional
 
 from click import argument
 from click import Choice
@@ -47,7 +47,7 @@ class ColInfo:
     name: str
     type: str
     notnull: bool
-    dflt_value: Optional[Any]
+    dflt_value: Any | None
     pk: bool
 
     @property
@@ -67,7 +67,7 @@ class Header:
     hash_algorithm: str
     preserve_types: bool
     tables: list[TableInfo]
-    bytes_data: Optional[bytes] = None
+    bytes_data: bytes | None = None
 
     @property
     def length(self) -> int:
@@ -82,7 +82,7 @@ class Header:
         return dumps(asdict(self))
 
     @classmethod
-    def from_handle(cls, handle: BinaryIO) -> 'Header':
+    def from_handle(cls, handle: BinaryIO) -> "Header":
         handle.seek(0)
         length: int = unpack("<L", handle.read(4))[0]
         bytes_data: bytes = handle.read(length)
@@ -93,8 +93,10 @@ class Header:
         ]
 
         return Header(
-            hash_algorithm=data["hash_algorithm"], preserve_types=data["preserve_types"],
-            tables=tables, bytes_data=bytes_data
+            hash_algorithm=data["hash_algorithm"],
+            preserve_types=data["preserve_types"],
+            tables=tables,
+            bytes_data=bytes_data,
         )
 
     def to_bytes(self):
@@ -106,7 +108,7 @@ def get_columns(conn: Connection, table: str) -> list[ColInfo]:
 
 
 # noinspection SqlNoDataSourceInspection,SqlResolve
-def count_rows(conn: Connection, table: str, sample: Optional[int]) -> int:
+def count_rows(conn: Connection, table: str, sample: int | None) -> int:
     rows: int = conn.execute(f'select count(*) from "{table}"').fetchone()[0]
     return min(sample, rows) if sample else rows
 
@@ -115,14 +117,13 @@ def encode_table_column(value: Any, type_byte: bytes, hash_algorithm: str, prese
     type_byte = type_byte if preserve_types else bytes([1])
     value = value if preserve_types else str(value)
     return (
-            type_byte +
-            new_hash(hash_algorithm, value if isinstance(value, bytes) else dumps(value, default=str)).digest()
+        type_byte + new_hash(hash_algorithm, value if isinstance(value, bytes) else dumps(value, default=str)).digest()
     )
 
 
 # noinspection SqlNoDataSourceInspection,SqlResolve
 def encode_table_rows(
-        conn: Connection, table: str, hash_algorithm: str, preserve_types: bool, sample: Optional[int]
+    conn: Connection, table: str, hash_algorithm: str, preserve_types: bool, sample: int | None
 ) -> Generator[bytes, None, None]:
     columns: list[ColInfo] = get_columns(conn, table)
     sql: str = f'select * from "{table}" limit "{sample}"' if sample else f'select * from "{table}"'
@@ -135,9 +136,10 @@ def encode_table_rows(
 
 
 # noinspection SqlNoDataSourceInspection,SqlResolve
-def encode_database(conn: Connection, file: Path, hash_algorithm: str, preserve_types: bool, sample: Optional[int]):
+def encode_database(conn: Connection, file: Path, hash_algorithm: str, preserve_types: bool, sample: int | None):
     tables: list[str] = [
-        t for [t] in conn.execute("select name from sqlite_master where type = 'table'")
+        t
+        for [t] in conn.execute("select name from sqlite_master where type = 'table'")
         if not exclude_tables_pattern.match(t)
     ]
 
@@ -146,11 +148,7 @@ def encode_database(conn: Connection, file: Path, hash_algorithm: str, preserve_
     for i, table in enumerate(tables):
         print(f"Getting header for table {i + 1} '{table}' ...", end=" ", flush=True)
         header.tables.append(
-            TableInfo(
-                name=table,
-                rows=count_rows(conn, table, sample),
-                columns=get_columns(conn, table)
-            )
+            TableInfo(name=table, rows=count_rows(conn, table, sample), columns=get_columns(conn, table))
         )
         print("Done")
 
@@ -167,7 +165,8 @@ def encode_database(conn: Connection, file: Path, hash_algorithm: str, preserve_
                 if (j % 1000) == 0:
                     print(
                         f"\rWriting table {i + 1} rows '{table_info.name}' ... {j / table_info.rows:02.01f}%",
-                        end=" ", flush=True
+                        end=" ",
+                        flush=True,
                     )
             print(f"\rWriting table {i + 1} rows '{table_info.name}' ... Done  ")
 
@@ -191,8 +190,7 @@ class Database:
 
     def encode_value(self, value_type: str, value: Any) -> bytes:
         return encode_table_column(
-            value, bytes([sql_types_int[value_type]]), self.header.hash_algorithm,
-            self.header.preserve_types
+            value, bytes([sql_types_int[value_type]]), self.header.hash_algorithm, self.header.preserve_types
         )
 
     @cached_property
@@ -230,14 +228,13 @@ class Database:
 def print_all_results(results: list[tuple[TableInfo, list[int]]]):
     for table, blocks in results:
         print(
-            f"Found match in '{table.name}'", f"{(blocks[0] // len(table.columns)) + 1}:"
-                                              f"{','.join(str((b % len(table.columns)) + 1) for b in blocks)}",
-            ' '.join(f"'{table.columns[b % len(table.columns)].name}'" for b in blocks)
+            f"Found match in '{table.name}'",
+            f"{(blocks[0] // len(table.columns)) + 1}:{','.join(str((b % len(table.columns)) + 1) for b in blocks)}",
+            " ".join(f"'{table.columns[b % len(table.columns)].name}'" for b in blocks),
         )
 
     print(
-        f"{len(results)} matches found",
-        f"across {len(set(t.name for [t, _] in results))} tables." if results else ""
+        f"{len(results)} matches found", f"across {len(set(t.name for [t, _] in results))} tables." if results else ""
     )
 
 
@@ -249,16 +246,16 @@ def print_aggregated_results(results: list[tuple[TableInfo, list[int]]]):
         columns: tuple[str, ...] = tuple(
             sorted(
                 (table.columns[block % len(table.columns)].name for block in blocks),
-                key=[c.name for c in table.columns].index
+                key=[c.name for c in table.columns].index,
             )
         )
         tables[table.name] = table
         tables_results[(table.name, columns)] = tables_results.get((table.name, columns), 0) + 1
 
-    sorter = (lambda tc: (tc[0][0], [c.name for c in tables[tc[0][0]].columns].index(tc[0][1][0])))
+    sorter = lambda tc: (tc[0][0], [c.name for c in tables[tc[0][0]].columns].index(tc[0][1][0]))
 
     for [table, columns], count in sorted(tables_results.items(), key=sorter):
-        print(f"Found {count} matches in '{table}' in columns", ' '.join(f"'{c}'" for c in columns))
+        print(f"Found {count} matches in '{table}' in columns", " ".join(f"'{c}'" for c in columns))
 
     print(f"Found {len(results)} matches", f"across {len(set(t.name for [t, _] in results))} tables" if results else "")
 
@@ -268,7 +265,7 @@ def sort_results(output: list[tuple[TableInfo, list[int]]]) -> list[tuple[TableI
 
 
 def find_value_in_region(
-        file: Path, value_hash: bytes, table: TableInfo, start: int, end: int, max_results: int = 0
+    file: Path, value_hash: bytes, table: TableInfo, start: int, end: int, max_results: int = 0
 ) -> list[int]:
     if not table.columns:
         return []
@@ -294,7 +291,7 @@ def find_value_in_region(
 
 
 def find_values_in_region(
-        file: Path, value_hashes: set[bytes], table: TableInfo, start: int, end: int, _max_results: int = 0
+    file: Path, value_hashes: set[bytes], table: TableInfo, start: int, end: int, _max_results: int = 0
 ) -> list[list[int]]:
     if len(value_hashes) > len(table.columns):
         return []
@@ -326,7 +323,7 @@ def find_values_in_region(
 
 
 def find_value_parent(
-        db: Database, value_hash: bytes, exclude: list[str], max_results: int
+    db: Database, value_hash: bytes, exclude: list[str], max_results: int
 ) -> list[tuple[TableInfo, list[int]]]:
     exclude = [e.lower() for e in exclude or []]
     output: list[tuple[TableInfo, list[int]]] = []
@@ -335,17 +332,16 @@ def find_value_parent(
         if table.name.lower() in exclude:
             continue
         table_output = find_value_in_region(
-            db.file, value_hash, table, db.table_offset_start(table.name),
-            db.table_offset_end(table.name), max_results
+            db.file, value_hash, table, db.table_offset_start(table.name), db.table_offset_end(table.name), max_results
         )
         if table_output:
-            output.extend(((table, [b]) for b in table_output))
+            output.extend((table, [b]) for b in table_output)
 
     return sort_results(output)
 
 
 def find_values_parent(
-        db: Database, value_hashes: set[bytes], exclude: list[str], max_results: int
+    db: Database, value_hashes: set[bytes], exclude: list[str], max_results: int
 ) -> list[tuple[TableInfo, list[int]]]:
     exclude = [e.lower() for e in exclude or []]
     output: list[tuple[TableInfo, list[int]]] = []
@@ -354,8 +350,12 @@ def find_values_parent(
         if table.name.lower() in exclude:
             continue
         table_output = find_values_in_region(
-            db.file, value_hashes, table, db.table_offset_start(table.name),
-            db.table_offset_end(table.name), max_results
+            db.file,
+            value_hashes,
+            table,
+            db.table_offset_start(table.name),
+            db.table_offset_end(table.name),
+            max_results,
         )
         output.extend((table, xs) for xs in table_output if xs)
 
@@ -364,14 +364,14 @@ def find_values_parent(
 
 # noinspection DuplicatedCode
 def find_value(
-        db: Database, value_type: str, value_serialised: str, *, max_results: int, exclude_null: bool
+    db: Database, value_type: str, value_serialised: str, *, max_results: int, exclude_null: bool
 ) -> list[tuple[TableInfo, list[int]]]:
     value_hash: bytes
 
     if not db.header.preserve_types or value_type == "text":
         value_hash = db.encode_value("text", value_serialised)
     elif value_type == "blob":
-        value_hash = bytes([int(value_serialised[n:n + 2], base=16) for n in range(0, len(value_serialised), 2)])
+        value_hash = bytes([int(value_serialised[n : n + 2], base=16) for n in range(0, len(value_serialised), 2)])
     else:
         value_hash = db.encode_value(value_type, loads(value_serialised))
 
@@ -387,7 +387,7 @@ def find_value(
 
 # noinspection DuplicatedCode
 def find_values(
-        db: Database, values: tuple[tuple[str, str]], *, max_results: int, exclude_null: bool
+    db: Database, values: tuple[tuple[str, str]], *, max_results: int, exclude_null: bool
 ) -> list[tuple[TableInfo, list[int]]]:
     value_hashes: set[bytes] = set()
 
@@ -395,7 +395,7 @@ def find_values(
         if not db.header.preserve_types or value_type == "text":
             value_hash = db.encode_value("text", value_serialised)
         elif value_type == "blob":
-            value_hash = bytes([int(value_serialised[n:n + 2], base=16) for n in range(0, len(value_serialised), 2)])
+            value_hash = bytes([int(value_serialised[n : n + 2], base=16) for n in range(0, len(value_serialised), 2)])
         else:
             value_hash = db.encode_value(value_type, loads(value_serialised))
 
@@ -417,7 +417,7 @@ def find_values(
 
 
 def find_cell(
-        db: Database, table: str, row: int, column: int, *, max_results: int, exclude_null: bool
+    db: Database, table: str, row: int, column: int, *, max_results: int, exclude_null: bool
 ) -> list[tuple[TableInfo, list[int]]]:
     value_hash: bytes = db.seek_read(db.table_offset_start(table, row - 1, column - 1), db.hash_length)
 
@@ -433,7 +433,7 @@ def find_cell(
 
 
 def find_column(
-        db: Database, table: str, column: int, *, max_results: int, exclude_null: bool
+    db: Database, table: str, column: int, *, max_results: int, exclude_null: bool
 ) -> list[tuple[TableInfo, list[int]]]:
     table_info: TableInfo = db.tables[table.lower()]
 
@@ -450,7 +450,7 @@ def find_column(
         if exclude_null and value_hash == db.null_hash:
             print("Skipping null value")
             continue
-        elif value_hash in values_hashes:
+        if value_hash in values_hashes:
             print("Skipping searched value")
             continue
 
@@ -496,20 +496,30 @@ def grp_rowwise():
 @grp_rowwise.command("encode", short_help="Encode a database.")
 @argument("file", required=True, type=ClickPath(exists=True, dir_okay=False, resolve_path=True, path_type=Path))
 @argument(
-    "output", required=False, default=None,
-    type=ClickPath(exists=False, dir_okay=False, resolve_path=True, path_type=Path)
+    "output",
+    required=False,
+    default=None,
+    type=ClickPath(exists=False, dir_okay=False, resolve_path=True, path_type=Path),
 )
 @option(
-    "--hash", "hash_algo", metavar="NAME", type=Choice(sorted(algorithms_available)), default="md5",
-    show_default=True, help="The hash algorithm to use."
+    "--hash",
+    "hash_algo",
+    metavar="NAME",
+    type=Choice(sorted(algorithms_available)),
+    default="md5",
+    show_default=True,
+    help="The hash algorithm to use.",
 )
 @option(
-    "--sample", metavar="ROWS", type=IntRange(1), default=None,
-    help="Encode a random sample of ROWS rows for each table."
+    "--sample",
+    metavar="ROWS",
+    type=IntRange(1),
+    default=None,
+    help="Encode a random sample of ROWS rows for each table.",
 )
 @option("--ignore-types", is_flag=True, default=False, help="Do not encode type information.")
 @timer("Converted database in")
-def encode(file: Path, output: Path, hash_algo: str, ignore_types: bool, sample: Optional[int]):
+def encode(file: Path, output: Path, hash_algo: str, ignore_types: bool, sample: int | None):
     """
     Encode a SQLite database FILE into a searchable format containing the hashes of each cell's value.
 
@@ -525,24 +535,28 @@ def encode(file: Path, output: Path, hash_algo: str, ignore_types: bool, sample:
 @grp_rowwise.command("search", short_help="Search an encoded database.")
 @argument("file", required=True, type=ClickPath(exists=True, dir_okay=False, resolve_path=True, path_type=Path))
 @option(
-    "--value", metavar="<SQL-TYPE JSON-VALUE>...", type=(Choice(list(sql_types_int.keys())), str),
-    multiple=True, help="Search for specific values."
+    "--value",
+    metavar="<SQL-TYPE JSON-VALUE>...",
+    type=(Choice(list(sql_types_int.keys())), str),
+    multiple=True,
+    help="Search for specific values.",
 )
 @option(
-    "--cell", metavar="<TABLE ROW COLUMN>", type=(str, IntRange(1), IntRange(1)),
-    help="Search for the value in a cell."
+    "--cell", metavar="<TABLE ROW COLUMN>", type=(str, IntRange(1), IntRange(1)), help="Search for the value in a cell."
 )
-@option(
-    "--column", metavar="<TABLE COLUMN>", type=(str, IntRange(1)),
-    help="Search for all values in column."
-)
+@option("--column", metavar="<TABLE COLUMN>", type=(str, IntRange(1)), help="Search for all values in column.")
 @option("--max-results", metavar="INTEGER", type=IntRange(1), help="Stop after INTEGER results.")
 @option("--include-null", is_flag=True, default=False, help="Do not skip null values.")
 @option("--show-all-results", is_flag=True, default=False, help="Do not aggregate results.")
 @timer("Search completed in")
 def find(
-        file: Path, value: tuple[tuple[str, str]], cell: Optional[tuple[str, int, int]],
-        column: Optional[tuple[str, int]], max_results: Optional[int], include_null: bool, show_all_results: bool
+    file: Path,
+    value: tuple[tuple[str, str]],
+    cell: tuple[str, int, int] | None,
+    column: tuple[str, int] | None,
+    max_results: int | None,
+    include_null: bool,
+    show_all_results: bool,
 ):
     """
     Search for specific values, cells, or columns inside an encoded FILE.
@@ -567,7 +581,7 @@ def find(
     elif column:
         results = find_column(db, *column, max_results=max_results or 0, exclude_null=not include_null)
     else:
-        raise NotImplemented()
+        raise NotImplementedError
 
     if show_all_results:
         print_all_results(results)

@@ -6,7 +6,11 @@ from avid_tools.utils import AVID
 
 
 def _get_property_paths_from(class_properties: object) -> list[Path]:
-    return [getattr(class_properties, name) for name, value in type(class_properties).__dict__.items() if isinstance(value, property) and isinstance(getattr(class_properties, name), Path)]
+    return [
+        getattr(class_properties, name)
+        for name, value in type(class_properties).__dict__.items()
+        if isinstance(value, property) and isinstance(getattr(class_properties, name), Path)
+    ]
 
 
 def save_all_archive_paths(conn: Connection, avid: AVID):

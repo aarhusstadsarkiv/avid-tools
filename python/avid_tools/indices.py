@@ -61,6 +61,7 @@ def generate_file_index(conn: Connection, avid: AVID):
 
 def save_doc_index(conn: Connection, avid: AVID):
     logger.info("Save doc index")
+
     def callback(_, tag: dict[str, str]):
         conn.execute(
             "update files set format = ?, parentId = ?, mId = ?, gmlXsd = ?, originalName = ?, originalExtension = ? where type = 'Documents' and docId = ?",
@@ -107,7 +108,7 @@ def generate_doc_index(conn: Connection, avid: AVID):
                 fh.write(f"        <pID>{document['parentId']}</pID>\n")
             fh.write(f"        <mID>{document['mId']}</mID>\n")
             fh.write(f"        <dCf>docCollection{document['docCollection']}</dCf>\n")
-            fh.write(f"        <oFn>{escape(document['originalName']) if document['originalName'] else '' }</oFn>\n")
+            fh.write(f"        <oFn>{escape(document['originalName']) if document['originalName'] else ''}</oFn>\n")
             fh.write(f"        <aFt>{escape(document['format'])}</aFt>\n")
             if document["gmlXsd"] is not None:
                 fh.write(f"        <gmlXsd>{escape(document['gmlXsd'])}</gmlXsd>\n")
@@ -143,7 +144,9 @@ def write_context_documentation(avid: AVID, context_docs: dict[int, dict[str, An
     }
     avidvc = AVIDVersionControl(avid.dir)
     with AVIDEditFile(avidvc, avid.indices.contextDocumentationIndex):
-        avid.indices.contextDocumentationIndex.write_text(unparse_xml(xml, encoding="utf-8", pretty=True), encoding="utf-8")
+        avid.indices.contextDocumentationIndex.write_text(
+            unparse_xml(xml, encoding="utf-8", pretty=True), encoding="utf-8"
+        )
 
 
 def read_table_index(avid: AVID) -> dict[str, Any]:
