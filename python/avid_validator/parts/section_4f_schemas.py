@@ -5,7 +5,6 @@ import tempfile
 import zipfile
 import shutil
 
-import requests
 from avid_validator.common.archive import ValidationContext, ValidationType
 from avid_validator.common.description import register, describe
 from avid_validator.common.report import GenReport, fail
