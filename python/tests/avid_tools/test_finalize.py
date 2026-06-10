@@ -1,4 +1,7 @@
-from avid_tools.utils import file_md5
+import logging
+from avid_tools.archive import save_all_archive_paths
+from avid_tools.database import create_database
+from avid_tools.utils import AVID, file_md5
 import pytest
 import sqlite3
 
@@ -206,16 +209,111 @@ def test_recreate_file_index(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: 
     assert file_hash in file_index.read_text(encoding="utf8")
 
 
-def test_added_document_also_adds_hash(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: Path):
-    monkeypatch.chdir(avid_dir_with_db)
-
-    file = avid_dir_with_db / "Documents" / "docCollection1" / "3141" / "1.tif"
+def test_added_table_also_adds_hash(monkeypatch: pytest.MonkeyPatch, avid_dir: Path):
+    monkeypatch.chdir(avid_dir)
+    file = avid_dir / "Tables" / "table25" / "table25.xml"
+    file_xsd = avid_dir / "Tables" / "table25" / "table25.xsd"
     file.parent.mkdir(parents=True)
+    file.write_text("new table text")
+    file_xsd.write_text("new table xsd text")
+
+    file_hash = file_md5(file)
+
+    runner = CliRunner()
+    runner.invoke(init.cmd_init, [".", "--from-files"], catch_exceptions=False)
+    runner.invoke(finalize.cmd_finalize, ["--skip-validate", "--update-hashes", "tables"], catch_exceptions=False)
+
+    assert file_hash in (avid_dir / "Indices" / "fileIndex.xml").read_text(encoding="utf8")
+
+
+def test_save_all_archives_paths_works(monkeypatch: pytest.MonkeyPatch, avid_dir: Path):
+    monkeypatch.chdir(avid_dir)
+
+    avid_dir.joinpath("_metadata").mkdir()
+
+    avid: AVID = AVID(avid_dir)
+    db_path: Path = avid.dir.joinpath("_metadata", "avid_tools.db")
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    conn = create_database(db_path)
+    [[n_rows]] = conn.execute("select count(*) from files").fetchall()
+    print(n_rows, type(n_rows))
+    assert n_rows == 0, "Already has files loaded"
+
+    save_all_archive_paths(conn, avid)
+
+    [[n_rows]] = conn.execute("select count(*) from files").fetchall()
+    assert n_rows != 0, "No rows were affected!"
+
+
+def test_added_document_also_adds_hash(monkeypatch: pytest.MonkeyPatch, avid_dir: Path):
+    monkeypatch.chdir(avid_dir)
+    file = avid_dir / "Documents" / "docCollection1" / "232323" / "table25.xml"
+    file.parent.mkdir(parents=True)
+
     file.write_text("new document text")
 
     file_hash = file_md5(file)
 
     runner = CliRunner()
+    runner.invoke(init.cmd_init, [".", "--from-files"], catch_exceptions=False)
     runner.invoke(finalize.cmd_finalize, ["--skip-validate", "--update-hashes", "documents"], catch_exceptions=False)
 
-    assert file_hash in (avid_dir_with_db / "Indices" / "fileIndex.xml").read_text(encoding="utf8")
+    assert file_hash in (avid_dir / "Indices" / "fileIndex.xml").read_text(encoding="utf8")
+
+
+def test_init_from_files_then_finalize_does_not_destroy_information(monkeypatch: pytest.MonkeyPatch, avid_dir: Path):
+    monkeypatch.chdir(avid_dir)
+    file = avid_dir / "Documents" / "docCollection1" / "232323" / "table25.xml"
+    file.parent.mkdir(parents=True)
+
+    file.write_text("new document text")
+
+    runner = CliRunner()
+    runner.invoke(init.cmd_init, [".", "--from-files"], catch_exceptions=False)
+    runner.invoke(finalize.cmd_finalize, ["--skip-validate", "--update-hashes", "documents"], catch_exceptions=False)
+
+    doc_index = (avid_dir / "Indices" / "docIndex.xml").read_text(encoding="utf8")
+
+    assert "docCollection1" in doc_index
+    assert "tif" in doc_index
+    assert "99999992" in doc_index
+    assert "99999992.odt" in doc_index
+
+    assert "13" in doc_index
+    assert "aaben_kilde_multimedie.zip" in doc_index
+
+    assert "WG60-WriterGuideLO.pdf" in doc_index
+
+    assert "debian_popularity_contest.ods" in doc_index
+
+
+def test_init_then_init_from_files_then_finalize_does_not_destroy_information(monkeypatch: pytest.MonkeyPatch, avid_dir_with_db: Path):
+    monkeypatch.chdir(avid_dir_with_db)
+    file = avid_dir_with_db / "Documents" / "docCollection1" / "232323" / "table25.xml"
+    file.parent.mkdir(parents=True)
+
+    file.write_text("new document text")
+
+    file_hash = file_md5(file)
+
+    runner = CliRunner()
+    runner.invoke(init.cmd_init, [".", "--from-files"], catch_exceptions=False)
+    runner.invoke(finalize.cmd_finalize, ["--skip-validate", "--update-hashes", "documents"], catch_exceptions=False)
+
+    doc_index = (avid_dir_with_db / "Indices" / "docIndex.xml").read_text(encoding="utf8")
+    file_index = (avid_dir_with_db / "Indices" / "fileIndex.xml").read_text(encoding="utf8")
+
+    assert file_hash in file_index
+
+    assert "docCollection1" in doc_index
+    assert "tif" in doc_index
+    assert "99999992" in doc_index
+    assert "99999992.odt" in doc_index
+
+    assert "13" in doc_index
+    assert "aaben_kilde_multimedie.zip" in doc_index
+
+    assert "WG60-WriterGuideLO.pdf" in doc_index
+
+    assert "debian_popularity_contest.ods" in doc_index

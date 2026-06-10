@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from avid_tools.archive import save_all_archive_paths
 from click import argument
 from click import BadParameter
 from click import command
@@ -24,9 +25,10 @@ from avid_tools.utils import option_help
     callback=lambda _c, _p, v: Path(v),
 )
 @option("--skip-validate", is_flag=True, default=False)
+@option("--from-files", is_flag=True, help="Load files into database from archive folder, and not from Indices/fileIndex.xml")
 @option_help()
 @pass_context
-def cmd_init(ctx: Context, avid_dir: Path, skip_validate: bool):
+def cmd_init(ctx: Context, avid_dir: Path, skip_validate: bool, from_files: bool):
     """
     Initializer en ny AVID mappe med værktøjets database. Denne kommando indlæser alle filer tilgængelige i fileIndex.xml
 
@@ -63,5 +65,10 @@ def cmd_init(ctx: Context, avid_dir: Path, skip_validate: bool):
 
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = create_database(db_path)
-    save_file_index(conn, avid)
-    save_doc_index(conn, avid)
+
+    if from_files:
+        save_all_archive_paths(conn, avid)
+        save_doc_index(conn, avid)
+    else:
+        save_file_index(conn, avid)
+        save_doc_index(conn, avid)

@@ -1,16 +1,17 @@
+from collections.abc import Callable
 from hashlib import md5
 from pathlib import Path
 from re import match
 from typing import BinaryIO
-from typing import Callable
+from typing import Literal
+from typing import overload
 from typing import TextIO
-from typing import overload, Literal
 
+from click import BadParameter
 from click import ClickException
 from click import Context
 from click import help_option
 from click import Parameter
-from click import BadParameter
 from xmlschema import XMLSchema
 from xmlschema import XMLSchemaValidationError
 
@@ -135,6 +136,31 @@ class AVID:
             for f in self.dir.joinpath("Tables").iterdir()
             if f.is_dir() and match(r"table\d+", f.name)
         }
+
+    @property
+    def documents(self) -> list[Path]:
+        """Documents
+        
+        Returns:
+            list: list of all document paths
+        """
+        return [file_path
+                for doc_collection in self.dir.joinpath("Documents").iterdir()
+                for doc_id in doc_collection.iterdir()
+                for file_path in doc_id.iterdir()]
+
+
+    @property
+    def context_documents(self) -> list[Path]:
+        """Documents
+        
+        Returns:
+            list: list of all document paths
+        """
+        return [file_path
+                for doc_collection in self.dir.joinpath("ContextDocumentation").iterdir()
+                for doc_id in doc_collection.iterdir()
+                for file_path in doc_id.iterdir()]
 
 
 @overload

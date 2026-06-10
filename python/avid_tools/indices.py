@@ -107,7 +107,7 @@ def generate_doc_index(conn: Connection, avid: AVID):
                 fh.write(f"        <pID>{document['parentId']}</pID>\n")
             fh.write(f"        <mID>{document['mId']}</mID>\n")
             fh.write(f"        <dCf>docCollection{document['docCollection']}</dCf>\n")
-            fh.write(f"        <oFn>{escape(document['originalName'])}</oFn>\n")
+            fh.write(f"        <oFn>{escape(document['originalName']) if document['originalName'] else '' }</oFn>\n")
             fh.write(f"        <aFt>{escape(document['format'])}</aFt>\n")
             if document["gmlXsd"] is not None:
                 fh.write(f"        <gmlXsd>{escape(document['gmlXsd'])}</gmlXsd>\n")
