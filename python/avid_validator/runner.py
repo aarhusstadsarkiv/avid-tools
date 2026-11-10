@@ -18,6 +18,10 @@ from avid_validator.common.description import METHOD_VALIDATORS
 from avid_validator.common.report import Report
 from avid_validator.common.report import Validator
 
+from rich.console import Console
+from rich.panel import Panel
+from rich.rule import Rule
+
 logger = logging.getLogger(__name__)
 
 
@@ -107,6 +111,36 @@ def find_parent_matching(pattern: str, start: Path | None = None) -> Path | None
             return parent
 
     return None
+
+
+def list_validations():
+    console = Console()
+    import_all_submodules(parts)
+
+    console.print(
+        Panel.fit(
+            "[bold cyan]Available Validations[/bold cyan]",
+            border_style="cyan",
+        )
+    )
+
+    for validation_type, methods in METHOD_CATEGORIES.items():
+        methods = sorted(methods)
+        console.print()
+        console.print(Rule(
+            f"[bold magenta]{validation_type}[/bold magenta]",
+            style="magenta",
+        ))
+
+        for method in methods:
+            description = METHOD_DESCRIPTIONS.get(
+                method, "[dim italic]No description available[/dim italic]"
+            )
+
+            console.print(
+                f"\n  [bold green]● {method}[/bold green]"
+            )
+            console.print(f"    [dim]{description}[/dim]")
 
 
 def run_validations(

@@ -56,7 +56,7 @@ def cmd_validate_indices(path: Path):
     _validate_indices(path)
 
 
-@grp_validate.command("file")
+@grp_validate.command("xml")
 @option("--xml-path", required=True, type=click.Path(file_okay=True, dir_okay=False, path_type=Path))  # pyright: ignore
 @option("--xsd-path", required=True, type=click.Path(file_okay=True, dir_okay=False, path_type=Path))  # pyright: ignore
 def cmd_validate_file(xml_path: Path, xsd_path: Path):

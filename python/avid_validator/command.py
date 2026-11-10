@@ -43,12 +43,17 @@ logger = logging.getLogger(__name__)
     help="Validators to not check",
 )
 @click.option("--rust-optimize", type=bool, is_flag=True, default=False)
+@click.option("--list", "list_methods", type=bool, is_flag=True, default=False, help="List all validation methods")
 def cmd_validate_all(
-    check: list[str], verbose: bool, categories: list[str], except_vals: list[str], rust_optimize: bool
+    check: list[str], verbose: bool, categories: list[str], except_vals: list[str], rust_optimize: bool, list_methods: bool
 ):
     """
     Run archive validation tests
     """
+    if list_methods:
+        runner.list_validations()
+        return
+
     av_config.verbose = verbose
 
     valtype_categories = [ValidationType(cat.lower()) for cat in categories]
