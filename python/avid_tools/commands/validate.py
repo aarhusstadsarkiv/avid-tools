@@ -2,6 +2,7 @@ import os
 import traceback
 from pathlib import Path
 
+from avid_validator.common.tiff import analyze_tiff_bek128
 import click
 import xmlschema
 from click import group
@@ -48,7 +49,7 @@ def grp_validate():
 
 
 @grp_validate.command("indices")
-@option("--path", default=Path.cwd(), type=click.Path(file_okay=False, dir_okay=True, path_type=Path))  # pyright: ignore
+@option("--path", default=Path.cwd(), type=click.Path(file_okay=False, dir_okay=True, path_type=Path), help="Path to the archive root directory containing the 'Indices' directory")  # pyright: ignore
 def cmd_validate_indices(path: Path):
     """
     Validate Indices against XSD schemas
@@ -57,8 +58,8 @@ def cmd_validate_indices(path: Path):
 
 
 @grp_validate.command("xml")
-@option("--xml-path", required=True, type=click.Path(file_okay=True, dir_okay=False, path_type=Path))  # pyright: ignore
-@option("--xsd-path", required=True, type=click.Path(file_okay=True, dir_okay=False, path_type=Path))  # pyright: ignore
+@option("--xml-path", required=True, type=click.Path(file_okay=True, dir_okay=False, path_type=Path), help="Path to XML file to validate")  # pyright: ignore
+@option("--xsd-path", required=True, type=click.Path(file_okay=True, dir_okay=False, path_type=Path), help="Path to XSD file to validate XML file against")  # pyright: ignore
 def cmd_validate_file(xml_path: Path, xsd_path: Path):
     """
     Validate XML file against XSD file
@@ -69,5 +70,19 @@ def cmd_validate_file(xml_path: Path, xsd_path: Path):
     else:
         print("Is valid!")
 
+
+@grp_validate.command("tiff")
+@option("--tiff-path", required=True, type=click.Path(dir_okay=False, file_okay=True, path_type=Path), help="Path to TIFF file")
+def cmd_validate_tiff(tiff_path: Path):
+    """
+    Validate TIFF file against requirements imposed by Bekendtgørelse 128
+    """
+    validation_results = analyze_tiff_bek128(tiff_path)
+
+    if len(validation_results.errors) != 0:
+        for finding in validation_results.findings:
+            print(finding)
+
+    print("Contains errors?", len(validation_results.errors) != 0)
 
 grp_validate.add_command(command.cmd_validate_all, command.cmd_validate_all.name)

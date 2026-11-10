@@ -19,6 +19,7 @@ dependencies = [
     "orjson>=3.11.8",
     "gitpython>=3.1.46",
     "rich>=15.0.0",
+    "pillow>=13.0.0",
 ]
 
 [project.scripts]
